@@ -235,6 +235,36 @@ export const addTeamPlan = async (req, res) => {
   }
 };
 
+// @route   PUT /api/sprints/team-plans/:teamPlanId
+// @desc    Update a team plan
+// @access  Private
+export const updateTeamPlan = async (req, res) => {
+  try {
+    const { teamPlanId } = req.params;
+    const { teamPlan } = req.body;
+
+    if (!teamPlan) {
+      return res.status(400).json({
+        success: false,
+        message: 'Team plan is required'
+      });
+    }
+
+    const updated = await Sprint.updateTeamPlan(teamPlanId, teamPlan);
+
+    res.status(200).json({
+      success: true,
+      message: 'Team plan updated successfully',
+      data: updated
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // @route   DELETE /api/sprints/team-plans/:teamPlanId
 // @desc    Remove a team plan from a sprint
 // @access  Private

@@ -74,5 +74,16 @@ export const sprintService = {
       }
     });
     return response;
+  },
+
+  // Update a team plan
+  updateTeamPlan: async (teamPlanId, teamPlan) => {
+    const response = await axios.put(`${API_URL}/sprints/team-plans/${teamPlanId}`, { teamPlan }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response;
   }
 };

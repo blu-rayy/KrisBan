@@ -7,6 +7,7 @@ import {
   updateSprint,
   deleteSprint,
   addTeamPlan,
+  updateTeamPlan,
   removeTeamPlan
 } from '../controllers/sprintsController.js';
 
@@ -24,6 +25,7 @@ router.delete('/:id', deleteSprint);
 
 // Team Plan routes
 router.post('/:id/team-plans', addTeamPlan);
+router.put('/team-plans/:teamPlanId', updateTeamPlan);
 router.delete('/team-plans/:teamPlanId', removeTeamPlan);
 
 export default router;

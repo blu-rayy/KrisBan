@@ -5,7 +5,12 @@ import { SprintBadge } from './SprintBadge';
 export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole }) => {
   const [expandedSprints, setExpandedSprints] = useState({});
   const [deletingId, setDeletingId] = useState(null);
+  const [deletingTeamPlanId, setDeletingTeamPlanId] = useState(null);
   const [error, setError] = useState('');
+  const [editingSprintId, setEditingSprintId] = useState(null);
+  const [editSprintNumber, setEditSprintNumber] = useState('');
+  const [editingTeamPlanId, setEditingTeamPlanId] = useState(null);
+  const [editTeamPlan, setEditTeamPlan] = useState('');
 
   const toggleExpanded = (sprintId) => {
     setExpandedSprints(prev => ({
@@ -14,12 +19,50 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
     }));
   };
 
-  const handleDeleteTeamPlan = async (teamPlanId, sprintId) => {
+  const handleEditSprint = (sprint) => {
+    setEditingSprintId(sprint.id);
+    setEditSprintNumber(sprint.sprintNumber);
+  };
+
+  const handleSaveSprintEdit = async (sprintId) => {
     try {
+      await sprintService.updateSprint(sprintId, { sprintNumber: editSprintNumber });
+      onRefresh();
+      setEditingSprintId(null);
+      setEditSprintNumber('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update sprint');
+    }
+  };
+
+  const handleEditTeamPlan = (plan) => {
+    setEditingTeamPlanId(plan.id);
+    setEditTeamPlan(plan.team_plan);
+  };
+
+  const handleSaveTeamPlanEdit = async (teamPlanId) => {
+    try {
+      await sprintService.updateTeamPlan(teamPlanId, editTeamPlan);
+      onRefresh();
+      setEditingTeamPlanId(null);
+      setEditTeamPlan('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update team plan');
+    }
+  };
+
+  const handleDeleteTeamPlan = async (teamPlanId, sprintId) => {
+    if (!window.confirm('Are you sure you want to delete this team plan?')) {
+      return;
+    }
+    try {
+      setDeletingTeamPlanId(teamPlanId);
       await sprintService.removeTeamPlan(teamPlanId);
       onRefresh();
+      setDeletingTeamPlanId(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete team plan');
+      setDeletingTeamPlanId(null);
     }
   };
 
@@ -78,38 +121,102 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                 {expandedSprints[sprint.id] ? '▼' : '▶'}
               </span>
               {userRole === 'ADMIN' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteSprint(sprint.id);
-                  }}
-                  disabled={deletingId === sprint.id}
-                  className="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 text-red-600 rounded transition disabled:opacity-50"
-                >
-                  {deletingId === sprint.id ? 'Deleting...' : 'Delete'}
-                </button>
+                <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                  <button
+                    onClick={() => handleEditSprint(sprint)}
+                    className="px-3 py-1 text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSprint(sprint.id)}
+                    disabled={deletingId === sprint.id}
+                    className="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 text-red-600 rounded transition disabled:opacity-50"
+                  >
+                    {deletingId === sprint.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
               )}
             </div>
           </div>
 
+          {/* Sprint Edit Modal */}
+          {editingSprintId === sprint.id && (
+            <div className="border-t border-gray-200 bg-blue-50 p-4 space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editSprintNumber}
+                  onChange={(e) => setEditSprintNumber(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Sprint number"
+                />
+                <button
+                  onClick={() => handleSaveSprintEdit(sprint.id)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingSprintId(null)}
+                  className="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Sprint Details (Expanded) */}
-          {expandedSprints[sprint.id] && (
+          {expandedSprints[sprint.id] && editingSprintId !== sprint.id && (
             <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-3">
               {sprint.teamPlans.length > 0 ? (
                 <div className="space-y-2">
                   {sprint.teamPlans.map((plan) => (
-                    <div
-                      key={plan.id}
-                      className="flex justify-between items-center bg-white p-3 rounded border border-gray-200"
-                    >
-                      <span className="text-gray-800 flex-1">{plan.team_plan}</span>
-                      {userRole === 'ADMIN' && (
-                        <button
-                          onClick={() => handleDeleteTeamPlan(plan.id, sprint.id)}
-                          className="ml-2 text-red-500 hover:text-red-700 text-sm font-medium transition"
-                        >
-                          Remove
-                        </button>
+                    <div key={plan.id}>
+                      {editingTeamPlanId === plan.id ? (
+                        <div className="flex gap-2 bg-white p-3 rounded border border-gray-200">
+                          <input
+                            type="text"
+                            value={editTeamPlan}
+                            onChange={(e) => setEditTeamPlan(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => handleSaveTeamPlanEdit(plan.id)}
+                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm transition"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingTeamPlanId(null)}
+                            className="px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm transition"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center bg-white p-3 rounded border border-gray-200">
+                          <span className="text-gray-800 flex-1">{plan.team_plan}</span>
+                          {userRole === 'ADMIN' && (
+                            <div className="ml-2 flex gap-2">
+                              <button
+                                onClick={() => handleEditTeamPlan(plan)}
+                                className="text-blue-500 hover:text-blue-700 text-sm font-medium transition"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTeamPlan(plan.id, sprint.id)}
+                                disabled={deletingTeamPlanId === plan.id}
+                                className="text-red-500 hover:text-red-700 text-sm font-medium transition disabled:opacity-50"
+                              >
+                                {deletingTeamPlanId === plan.id ? 'Deleting...' : 'Delete'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   ))}

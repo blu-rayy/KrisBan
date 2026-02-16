@@ -171,6 +171,22 @@ class Sprint {
     }
   }
 
+  static async updateTeamPlan(teamPlanId, teamPlan) {
+    try {
+      const { data, error } = await supabase
+        .from(TEAM_PLANS_TABLE)
+        .update({ team_plan: teamPlan })
+        .eq('id', String(teamPlanId))
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to update team plan: ${error.message}`);
+    }
+  }
+
   _formatSprint() {
     return {
       id: this.id,

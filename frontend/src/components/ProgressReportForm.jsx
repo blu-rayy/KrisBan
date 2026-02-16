@@ -45,6 +45,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [sprints, setSprints] = useState([]);
   const [sprintTeamPlans, setSprintTeamPlans] = useState([]);
+  const [refreshingSprints, setRefreshingSprints] = useState(false);
 
   // Set member to logged-in user only
   useEffect(() => {
@@ -53,12 +54,18 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
     }
   }, [user]);
 
-  // Fetch sprints from database
+  // Fetch sprints from database (once on mount)
   useEffect(() => {
     const fetchSprints = async () => {
       try {
         const response = await sprintService.getSprints();
-        setSprints(response.data.data || []);
+        const sprintList = response.data.data || [];
+        setSprints(sprintList);
+        
+        // Set the first available sprint as default if current one is not in list
+        if (sprintList.length > 0 && !sprintList.some(s => s.sprintNumber === formData.sprintNo)) {
+          setFormData(prev => ({ ...prev, sprintNo: sprintList[0].sprintNumber }));
+        }
       } catch (err) {
         console.log('Failed to fetch sprints');
       }
@@ -112,6 +119,19 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
   const handleTeamPlanSuggestionClick = (suggestion) => {
     setFormData(prev => ({ ...prev, teamPlan: suggestion }));
     setShowSuggestions(false);
+  };
+
+  const handleRefreshSprints = async () => {
+    try {
+      setRefreshingSprints(true);
+      const response = await sprintService.getSprints();
+      const sprintList = response.data.data || [];
+      setSprints(sprintList);
+    } catch (err) {
+      setError('Failed to refresh sprints');
+    } finally {
+      setRefreshingSprints(false);
+    }
   };
 
   const getAllTeamPlanSuggestions = () => {
@@ -268,7 +288,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
           <label htmlFor="sprintNo" className="block text-sm font-medium text-gray-700 mb-2">
             Sprint No. <span className="text-red-500">*</span>
           </label>
-          <div className="flex gap-3 items-end">
+          <div className="flex gap-2 items-center">
             <select
               id="sprintNo"
               name="sprintNo"
@@ -281,7 +301,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
               <optgroup label="Active Sprints">
                 {sprints.map(sprint => (
                   <option key={sprint.id} value={sprint.sprintNumber}>
-                    {sprint.sprintNumber}
+                    {sprint.sprintNumber.startsWith('Sprint ') ? sprint.sprintNumber : `Sprint ${sprint.sprintNumber}`}
                   </option>
                 ))}
               </optgroup>
@@ -293,6 +313,15 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
                 ))}
               </optgroup>
             </select>
+            <button
+              type="button"
+              onClick={handleRefreshSprints}
+              disabled={refreshingSprints}
+              title="Refresh sprint list"
+              className="p-2 bg-transparent hover:bg-blue-100 text-blue-600 hover:text-blue-700 rounded-lg transition disabled:opacity-50"
+            >
+              {refreshingSprints ? '⟳' : '↻'}
+            </button>
             <SprintBadge label={formData.sprintNo} />
           </div>
           {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}

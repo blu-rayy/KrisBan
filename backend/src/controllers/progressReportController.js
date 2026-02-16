@@ -30,15 +30,18 @@ export const createProgressReport = async (req, res) => {
 
     // Look up sprint_id from sprint_number
     let sprintId = null;
-    const { data: sprint } = await supabase
-      .from('sprints')
-      .select('id')
-      .eq('sprint_number', sprintNo)
-      .single()
-      .catch(() => ({ data: null }));
-    
-    if (sprint) {
-      sprintId = sprint.id;
+    try {
+      const { data: sprint, error: sprintError } = await supabase
+        .from('sprints')
+        .select('id')
+        .eq('sprint_number', sprintNo)
+        .single();
+      
+      if (!sprintError && sprint) {
+        sprintId = sprint.id;
+      }
+    } catch (err) {
+      // Sprint ID is optional, continue without it
     }
 
     // Create progress report
@@ -96,33 +99,58 @@ export const getProgressReports = async (req, res) => {
   try {
     const { date, memberId, sprintNo, category } = req.query;
 
-    const filters = {};
-    if (date) filters.date = date;
-    if (memberId) filters.member_id = memberId;
-    if (sprintNo) filters.sprint_no = sprintNo;
-    if (category) filters.category = category;
+    // Use a single query with joins instead of N+2 pattern
+    let query = supabase
+      .from('progress_reports')
+      .select(`
+        id,
+        date,
+        member_id,
+        sprint_no,
+        sprint_id,
+        team_plan,
+        category,
+        task_done,
+        image_url,
+        created_by,
+        created_at,
+        updated_at,
+        sprints:sprint_id(sprint_number)
+      `);
 
-    const reports = await ProgressReport.find(filters);
+    if (date) query = query.eq('date', date);
+    if (memberId) query = query.eq('member_id', memberId);
+    if (sprintNo) query = query.eq('sprint_no', sprintNo);
+    if (category) query = query.eq('category', category);
 
-    // Enrich with member details
+    const { data: reports, error } = await query;
+
+    if (error) throw error;
+
+    // Enrich with member details (this is still needed since members aren't in DB as a linked table for progress reports)
     const enrichedReports = await Promise.all(
-      reports.map(async (report) => {
+      (reports || []).map(async (report) => {
         const member = await User.findById(report.member_id);
-        const formattedReport = report._formatReport();
+        
+        // Use fetched sprint number if available, otherwise use denormalized value
+        let displaySprintNo = report.sprint_no;
+        if (report.sprints && report.sprints.sprint_number) {
+          displaySprintNo = report.sprints.sprint_number;
+        }
         
         return {
-          id: String(formattedReport.id),
-          date: formattedReport.date,
-          memberId: String(formattedReport.memberId),
-          sprintNo: formattedReport.sprintNo,
-          sprintId: formattedReport.sprintId ? String(formattedReport.sprintId) : null,
-          teamPlan: formattedReport.teamPlan,
-          category: formattedReport.category,
-          taskDone: formattedReport.taskDone,
-          imageUrl: formattedReport.imageUrl,
-          createdBy: String(formattedReport.createdBy),
-          createdAt: formattedReport.createdAt,
-          updatedAt: formattedReport.updatedAt,
+          id: String(report.id),
+          date: report.date,
+          memberId: String(report.member_id),
+          sprintNo: displaySprintNo,
+          sprintId: report.sprint_id ? String(report.sprint_id) : null,
+          teamPlan: report.team_plan,
+          category: report.category,
+          taskDone: report.task_done,
+          imageUrl: report.image_url,
+          createdBy: String(report.created_by),
+          createdAt: report.created_at,
+          updatedAt: report.updated_at,
           memberName: member?.username || 'Unknown',
           memberFullName: member?.fullName || 'Unknown',
           memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
