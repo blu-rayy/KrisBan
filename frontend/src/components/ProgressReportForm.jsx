@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { dashboardService } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -22,6 +23,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) => {
+  const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     memberId: '',
@@ -37,13 +39,33 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
+  const [teamPlanSuggestions, setTeamPlanSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Set default member if available
+  // Set member to logged-in user only
   useEffect(() => {
-    if (members.length > 0 && !formData.memberId) {
-      setFormData(prev => ({ ...prev, memberId: members[0].id }));
+    if (user && user.id) {
+      setFormData(prev => ({ ...prev, memberId: user.id }));
     }
-  }, [members]);
+  }, [user]);
+
+  // Fetch team plan history from progress reports
+  useEffect(() => {
+    const fetchTeamPlanHistory = async () => {
+      try {
+        const response = await dashboardService.getProgressReports();
+        const uniquePlans = [...new Set(
+          (response.data.data || [])
+            .filter(r => r.teamPlan && r.teamPlan.trim())
+            .map(r => r.teamPlan.trim())
+        )].sort();
+        setTeamPlanSuggestions(uniquePlans);
+      } catch (err) {
+        console.log('Failed to fetch team plan history');
+      }
+    };
+    fetchTeamPlanHistory();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +74,22 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+    // Show suggestions for team plan
+    if (name === 'teamPlan' && value.trim()) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
   };
+
+  const handleTeamPlanSuggestionClick = (suggestion) => {
+    setFormData(prev => ({ ...prev, teamPlan: suggestion }));
+    setShowSuggestions(false);
+  };
+
+  const filteredSuggestions = teamPlanSuggestions.filter(suggestion =>
+    suggestion.toLowerCase().includes(formData.teamPlan.toLowerCase())
+  );
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -102,6 +139,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
     if (!formData.sprintNo) newErrors.sprintNo = 'Sprint is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.taskDone.trim()) newErrors.taskDone = 'Task Done is required';
+    if (!imageFile && !formData.imageUrl) newErrors.image = 'Image is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -167,7 +205,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
         {/* Date */}
         <div>
           <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-            Date *
+            Date <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -185,31 +223,18 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
         {/* Member */}
         <div>
           <label htmlFor="memberId" className="block text-sm font-medium text-gray-700 mb-2">
-            Member *
+            Member <span className="text-red-500">*</span>
           </label>
-          <select
-            id="memberId"
-            name="memberId"
-            value={formData.memberId}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
-              errors.memberId ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">Select a member</option>
-            {members.map(member => (
-              <option key={member.id} value={member.id}>
-                {member.name} ({member.email})
-              </option>
-            ))}
-          </select>
-          {errors.memberId && <p className="mt-1 text-sm text-red-500">{errors.memberId}</p>}
+          <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium">
+            {user?.username || 'Current User'}
+          </div>
+          <p className="mt-1 text-sm text-gray-500">Entry will be created for your account only</p>
         </div>
 
         {/* Sprint No. */}
         <div>
           <label htmlFor="sprintNo" className="block text-sm font-medium text-gray-700 mb-2">
-            Sprint No. *
+            Sprint No. <span className="text-red-500">*</span>
           </label>
           <select
             id="sprintNo"
@@ -230,7 +255,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
         </div>
 
         {/* Team Plan */}
-        <div>
+        <div className="relative">
           <label htmlFor="teamPlan" className="block text-sm font-medium text-gray-700 mb-2">
             Team Plan
           </label>
@@ -240,15 +265,31 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
             name="teamPlan"
             value={formData.teamPlan}
             onChange={handleInputChange}
+            onFocus={() => formData.teamPlan && setShowSuggestions(true)}
             placeholder="Enter team plan details"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           />
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              <div className="p-2 text-xs text-gray-500 bg-gray-50">Previous entries</div>
+              {filteredSuggestions.map((suggestion, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleTeamPlanSuggestionClick(suggestion)}
+                  className="w-full text-left px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 border-b border-gray-100 last:border-b-0 transition"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Category */}
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-            Category *
+            Category <span className="text-red-500">*</span>
           </label>
           <select
             id="category"
@@ -271,7 +312,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
         {/* Task Done */}
         <div className="md:col-span-2">
           <label htmlFor="taskDone" className="block text-sm font-medium text-gray-700 mb-2">
-            Task Done *
+            Task Done <span className="text-red-500">*</span>
           </label>
           <textarea
             id="taskDone"
@@ -290,8 +331,9 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
         {/* Image Upload */}
         <div className="md:col-span-2">
           <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-            Image (optional, max 5MB)
+            Image <span className="text-red-500">*</span> (Max 5MB)
           </label>
+          {errors.image && <p className="mb-2 text-sm text-red-500">{errors.image}</p>}
           <div className="space-y-4">
             <input
               type="file"
@@ -330,7 +372,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
           onClick={() => {
             setFormData({
               date: new Date().toISOString().split('T')[0],
-              memberId: members.length > 0 ? members[0].id : '',
+              memberId: user?.id || '',
               sprintNo: 'Sprint 1',
               teamPlan: '',
               category: 'Software Development',
@@ -339,6 +381,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
             });
             setImageFile(null);
             setImagePreview(null);
+            setErrors({});
           }}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
         >

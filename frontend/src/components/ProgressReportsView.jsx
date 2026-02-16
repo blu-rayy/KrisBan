@@ -97,6 +97,18 @@ export const ProgressReportsView = () => {
     }
   };
 
+  const handleUpdateProgressReport = async (reportId, formData) => {
+    try {
+      const response = await dashboardService.updateProgressReport(reportId, formData);
+      setProgressReports(progressReports.map(r => r.id === reportId ? response.data.data : r));
+      setReportsError('');
+      alert('Progress report updated successfully!');
+    } catch (err) {
+      setReportsError(err.response?.data?.message || 'Failed to update progress report');
+      throw err;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
@@ -174,6 +186,7 @@ export const ProgressReportsView = () => {
               loading={reportsLoading}
               error={reportsError}
               onDelete={handleDeleteProgressReport}
+              onUpdate={handleUpdateProgressReport}
               currentUserId={user?.id}
               userRole={user?.role}
             />

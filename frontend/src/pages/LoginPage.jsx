@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [studentNumber, setStudentNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ export const LoginPage = () => {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      const result = await login(studentNumber, password);
 
       if (result.requiresPasswordChange) {
         navigate('/change-password');
@@ -44,14 +44,14 @@ export const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Email</label>
+            <label className="block text-gray-700 font-medium mb-2">Student Number</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={studentNumber}
+              onChange={(e) => setStudentNumber(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="your@email.com"
+              placeholder="Enter your student number"
             />
           </div>
 
@@ -75,14 +75,6 @@ export const LoginPage = () => {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
-        <p className="text-center text-gray-600 mt-6">
-          Demo Credentials:
-          <br />
-          Email: demo@example.com
-          <br />
-          Password: password123
-        </p>
       </div>
     </div>
   );

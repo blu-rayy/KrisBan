@@ -4,12 +4,12 @@ import { supabase } from './config/database.js';
 import User from './models/User.js';
 import ProgressReport from './models/ProgressReport.js';
 
-// Map of member names to their email identifiers
+// Map of member names to their student numbers
 const memberMap = {
-  'Kristian': 'kristian@example.com',
-  'Michael': 'michael@example.com',
-  'Angel': 'angel@example.com',
-  'Marianne': 'marianne@example.com'
+  'Kristian': '202311645',
+  'Angel': '202311538',
+  'Michael': '202312132',
+  'Marianne': '202311273'
 };
 
 const seedProgressReports = async () => {
@@ -20,21 +20,22 @@ const seedProgressReports = async () => {
     console.log('📝 Creating/verifying team members...');
     const userIds = {};
 
-    for (const [name, email] of Object.entries(memberMap)) {
-      let user = await User.findOne({ email });
+    for (const [name, studentNumber] of Object.entries(memberMap)) {
+      let user = await User.findOne({ studentNumber });
       
       if (!user) {
-        console.log(`  Creating user: ${name} (${email})`);
+        console.log(`  Creating user: ${name} (${studentNumber})`);
         user = await User.create({
-          email,
+          studentNumber,
           password: 'TempPassword123!',
-          name,
+          fullName: name,
+          username: name.toLowerCase(),
           role: 'USER',
           isFirstLogin: false,
           isActive: true
         });
       } else {
-        console.log(`  Found user: ${name} (${email})`);
+        console.log(`  Found user: ${name} (${studentNumber})`);
       }
       
       userIds[name] = user.id;
@@ -67,8 +68,8 @@ const seedProgressReports = async () => {
                 continue;
               }
 
-              // Get admin user (first user created) as creator
-              const adminUser = await User.findOne({ email: Object.values(memberMap)[0] });
+              // Get admin user as creator (Kristian)
+              const adminUser = await User.findOne({ studentNumber: '202311645' });
 
               const progressReport = await ProgressReport.create({
                 date: date.toISOString().split('T')[0],

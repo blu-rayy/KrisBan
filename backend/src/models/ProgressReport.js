@@ -4,15 +4,15 @@ const TABLE_NAME = 'progress_reports';
 
 class ProgressReport {
   constructor(data = {}) {
-    this.id = data.id;
+    this.id = data.id ? String(data.id) : null;
     this.date = data.date;
-    this.member_id = data.member_id;
+    this.member_id = data.member_id ? String(data.member_id) : null;
     this.sprint_no = data.sprint_no;
     this.team_plan = data.team_plan;
     this.category = data.category;
     this.task_done = data.task_done;
     this.image_url = data.image_url;
-    this.created_by = data.created_by;
+    this.created_by = data.created_by ? String(data.created_by) : null;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
   }
@@ -48,16 +48,16 @@ class ProgressReport {
       let query = supabase.from(TABLE_NAME).select('*');
 
       if (filters.date) {
-        query = query.eq('date', filters.date);
+        query = query.eq('date', String(filters.date));
       }
       if (filters.member_id) {
-        query = query.eq('member_id', filters.member_id);
+        query = query.eq('member_id', String(filters.member_id));
       }
       if (filters.sprint_no) {
-        query = query.eq('sprint_no', filters.sprint_no);
+        query = query.eq('sprint_no', String(filters.sprint_no));
       }
       if (filters.category) {
-        query = query.eq('category', filters.category);
+        query = query.eq('category', String(filters.category));
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -74,7 +74,7 @@ class ProgressReport {
       const { data, error } = await supabase
         .from(TABLE_NAME)
         .select('*')
-        .eq('id', id)
+        .eq('id', String(id))
         .single();
 
       if (error) throw error;
@@ -89,7 +89,7 @@ class ProgressReport {
       const { data, error } = await supabase
         .from(TABLE_NAME)
         .update(updateData)
-        .eq('id', id)
+        .eq('id', String(id))
         .select('*')
         .single();
 
@@ -105,7 +105,7 @@ class ProgressReport {
       const { error } = await supabase
         .from(TABLE_NAME)
         .delete()
-        .eq('id', id);
+        .eq('id', String(id));
 
       if (error) throw error;
       return true;

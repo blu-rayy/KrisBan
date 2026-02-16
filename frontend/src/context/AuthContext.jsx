@@ -31,9 +31,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (studentNumber, password) => {
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(studentNumber, password);
 
       if (response.data.requiresPasswordChange) {
         // First login - require password change

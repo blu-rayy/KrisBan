@@ -15,30 +15,34 @@ const generateToken = (id, role) => {
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { studentNumber, password, fullName, username, instituteEmail, personalEmail, birthday } = req.body;
 
     // Validate input
-    if (!email || !password) {
+    if (!studentNumber || !password || !fullName) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide student number, password, and full name'
       });
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ studentNumber });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists'
+        message: 'Student number already registered'
       });
     }
 
     // Create user
     const user = await User.create({
-      email,
+      studentNumber,
       password,
-      name: name || email.split('@')[0],
+      fullName,
+      username: username || studentNumber,
+      instituteEmail,
+      personalEmail,
+      birthday: birthday || null,
       role: 'USER',
       isFirstLogin: true
     });
@@ -60,18 +64,18 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { studentNumber, password } = req.body;
 
     // Validate input
-    if (!email || !password) {
+    if (!studentNumber || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide student number and password'
       });
     }
 
     // Check for user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ studentNumber });
 
     if (!user) {
       return res.status(401).json({

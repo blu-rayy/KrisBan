@@ -38,10 +38,31 @@ export const createProgressReport = async (req, res) => {
       created_by: userId
     });
 
+    // Enrich with member details
+    const member = await User.findById(memberId);
+    const formattedReport = progressReport._formatReport();
+    
+    const enrichedReport = {
+      id: String(formattedReport.id),
+      date: formattedReport.date,
+      memberId: String(formattedReport.memberId),
+      sprintNo: formattedReport.sprintNo,
+      teamPlan: formattedReport.teamPlan,
+      category: formattedReport.category,
+      taskDone: formattedReport.taskDone,
+      imageUrl: formattedReport.imageUrl,
+      createdBy: String(formattedReport.createdBy),
+      createdAt: formattedReport.createdAt,
+      updatedAt: formattedReport.updatedAt,
+      memberName: member?.username || 'Unknown',
+      memberFullName: member?.fullName || 'Unknown',
+      memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
+    };
+
     res.status(201).json({
       success: true,
       message: 'Progress report created successfully',
-      data: progressReport._formatReport()
+      data: enrichedReport
     });
   } catch (error) {
     res.status(500).json({
@@ -70,10 +91,23 @@ export const getProgressReports = async (req, res) => {
     const enrichedReports = await Promise.all(
       reports.map(async (report) => {
         const member = await User.findById(report.member_id);
+        const formattedReport = report._formatReport();
+        
         return {
-          ...report._formatReport(),
-          memberName: member ? member.name : 'Unknown',
-          memberEmail: member ? member.email : 'Unknown'
+          id: String(formattedReport.id),
+          date: formattedReport.date,
+          memberId: String(formattedReport.memberId),
+          sprintNo: formattedReport.sprintNo,
+          teamPlan: formattedReport.teamPlan,
+          category: formattedReport.category,
+          taskDone: formattedReport.taskDone,
+          imageUrl: formattedReport.imageUrl,
+          createdBy: String(formattedReport.createdBy),
+          createdAt: formattedReport.createdAt,
+          updatedAt: formattedReport.updatedAt,
+          memberName: member?.username || 'Unknown',
+          memberFullName: member?.fullName || 'Unknown',
+          memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
         };
       })
     );
@@ -107,10 +141,23 @@ export const getProgressReportById = async (req, res) => {
 
     // Enrich with member details
     const member = await User.findById(report.member_id);
+    const formattedReport = report._formatReport();
+    
     const enrichedReport = {
-      ...report._formatReport(),
-      memberName: member ? member.name : 'Unknown',
-      memberEmail: member ? member.email : 'Unknown'
+      id: String(formattedReport.id),
+      date: formattedReport.date,
+      memberId: String(formattedReport.memberId),
+      sprintNo: formattedReport.sprintNo,
+      teamPlan: formattedReport.teamPlan,
+      category: formattedReport.category,
+      taskDone: formattedReport.taskDone,
+      imageUrl: formattedReport.imageUrl,
+      createdBy: String(formattedReport.createdBy),
+      createdAt: formattedReport.createdAt,
+      updatedAt: formattedReport.updatedAt,
+      memberName: member?.username || 'Unknown',
+      memberFullName: member?.fullName || 'Unknown',
+      memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
     };
 
     res.status(200).json({
@@ -175,10 +222,23 @@ export const updateProgressReport = async (req, res) => {
 
     // Enrich with member details
     const member = await User.findById(updatedReport.member_id);
+    const formattedReport = updatedReport._formatReport();
+    
     const enrichedReport = {
-      ...updatedReport._formatReport(),
-      memberName: member ? member.name : 'Unknown',
-      memberEmail: member ? member.email : 'Unknown'
+      id: String(formattedReport.id),
+      date: formattedReport.date,
+      memberId: String(formattedReport.memberId),
+      sprintNo: formattedReport.sprintNo,
+      teamPlan: formattedReport.teamPlan,
+      category: formattedReport.category,
+      taskDone: formattedReport.taskDone,
+      imageUrl: formattedReport.imageUrl,
+      createdBy: String(formattedReport.createdBy),
+      createdAt: formattedReport.createdAt,
+      updatedAt: formattedReport.updatedAt,
+      memberName: member?.username || 'Unknown',
+      memberFullName: member?.fullName || 'Unknown',
+      memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
     };
 
     res.status(200).json({

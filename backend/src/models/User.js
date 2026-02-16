@@ -8,18 +8,26 @@ class User {
       const salt = await bcryptjs.genSalt(10);
       const hashedPassword = await bcryptjs.hash(userData.password, salt);
 
+      // Build insert object with only provided fields
+      const insertData = {
+        password: hashedPassword,
+        full_name: userData.fullName || userData.username || 'User',
+        role: userData.role || 'USER',
+        is_first_login: userData.isFirstLogin !== undefined ? userData.isFirstLogin : true,
+        is_active: userData.isActive !== undefined ? userData.isActive : true
+      };
+
+      // Add optional fields if provided
+      if (userData.studentNumber) insertData.student_number = userData.studentNumber;
+      if (userData.username) insertData.username = userData.username;
+      if (userData.instituteEmail) insertData.institute_email = userData.instituteEmail;
+      if (userData.personalEmail) insertData.personal_email = userData.personalEmail;
+      if (userData.birthday) insertData.birthday = userData.birthday;
+      if (userData.signature) insertData.signature = userData.signature;
+
       const { data, error } = await supabase
         .from('users')
-        .insert([
-          {
-            email: userData.email,
-            password: hashedPassword,
-            name: userData.name || userData.email.split('@')[0],
-            role: userData.role || 'USER',
-            is_first_login: userData.isFirstLogin !== undefined ? userData.isFirstLogin : true,
-            is_active: userData.isActive !== undefined ? userData.isActive : true
-          }
-        ])
+        .insert([insertData])
         .select()
         .single();
 
@@ -30,13 +38,15 @@ class User {
     }
   }
 
-  // Find user by email
+  // Find user by email or student number
   static async findOne(filter, includePassword = false) {
     try {
       let query = supabase.from('users').select('*');
 
       if (filter.email) {
         query = query.eq('email', filter.email);
+      } else if (filter.studentNumber) {
+        query = query.eq('student_number', filter.studentNumber);
       } else if (filter.id) {
         query = query.eq('id', filter.id);
       }
@@ -60,7 +70,7 @@ class User {
       const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', id)
+        .eq('id', String(id))
         .single();
 
       if (error) {
@@ -136,10 +146,15 @@ class User {
     if (!data) return null;
     return {
       id: data.id,
-      email: data.email,
       password: data.password,
-      name: data.name,
+      fullName: data.full_name,
       role: data.role,
+      studentNumber: data.student_number,
+      username: data.username,
+      birthday: data.birthday,
+      instituteEmail: data.institute_email,
+      personalEmail: data.personal_email,
+      signature: data.signature,
       isFirstLogin: data.is_first_login,
       isActive: data.is_active,
       createdAt: data.created_at,
@@ -147,9 +162,12 @@ class User {
       getPublicProfile: function() {
         return {
           id: this.id,
-          email: this.email,
-          name: this.name,
+          fullName: this.fullName,
           role: this.role,
+          studentNumber: this.studentNumber,
+          username: this.username,
+          instituteEmail: this.instituteEmail,
+          personalEmail: this.personalEmail,
           isFirstLogin: this.isFirstLogin
         };
       }

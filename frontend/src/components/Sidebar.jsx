@@ -21,7 +21,7 @@ export const Sidebar = ({ activeSection, setActiveSection, userRole }) => {
       label: 'Progress Reports',
       icon: '📈',
       status: 'active',
-      visibility: 'admin' // Only for admins
+      visibility: 'all' // Available for all users
     },
     {
       id: 'tickets',

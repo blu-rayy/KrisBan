@@ -17,11 +17,11 @@ api.interceptors.request.use((config) => {
 
 // Auth services
 export const authService = {
-  register: (email, password, name) =>
-    api.post('/auth/register', { email, password, name }),
+  register: (studentNumber, password, name, username, email, instituteEmail, personalEmail, birthday) =>
+    api.post('/auth/register', { studentNumber, password, name, username, email, instituteEmail, personalEmail, birthday }),
 
-  login: (email, password) =>
-    api.post('/auth/login', { email, password }),
+  login: (studentNumber, password) =>
+    api.post('/auth/login', { studentNumber, password }),
 
   changePassword: (newPassword, confirmPassword) =>
     api.post('/auth/change-password', { newPassword, confirmPassword }),

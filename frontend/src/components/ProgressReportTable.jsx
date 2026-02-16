@@ -1,14 +1,83 @@
 import { useState } from 'react';
+import { dashboardService } from '../services/api';
+
+const SPRINT_OPTIONS = [
+  'Sprint 1',
+  'Sprint 1.5',
+  'Sprint 2',
+  'Sprint 3',
+  'Sprint 3.5',
+  'Sprint 4',
+  'Sprint 4.5',
+  'Sprint 5',
+  'Sprint 6',
+  'Others'
+];
+
+const CATEGORY_OPTIONS = [
+  'Software Development',
+  'Research',
+  'Operations',
+  'Project Management'
+];
 
 export const ProgressReportTable = ({
   reports = [],
   loading = false,
   error = '',
   onDelete,
+  onUpdate,
   currentUserId,
   userRole
 }) => {
   const [expandedId, setExpandedId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    date: '',
+    sprintNo: '',
+    teamPlan: '',
+    category: '',
+    taskDone: '',
+    imageUrl: null
+  });
+  const [editErrors, setEditErrors] = useState({});
+  const [editImageFile, setEditImageFile] = useState(null);
+  const [editImagePreview, setEditImagePreview] = useState(null);
+  const [submittingEdit, setSubmittingEdit] = useState(false);
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Software Development': 'bg-green-100 text-green-800',
+      'Research': 'bg-orange-100 text-orange-800',
+      'Operations': 'bg-blue-100 text-blue-800',
+      'Project Management': 'bg-purple-100 text-purple-800'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getSprintColor = (sprint) => {
+    if (sprint === 'Others') return 'bg-gray-200 text-gray-900';
+    if (sprint.includes('1.5') || sprint.includes('3.5') || sprint.includes('4.5')) {
+      return 'bg-yellow-200 text-yellow-900';
+    }
+    return 'bg-blue-200 text-blue-900';
+  };
+
+  const getMemberColor = (index) => {
+    const colors = [
+      'bg-red-100 text-red-900',
+      'bg-blue-100 text-blue-900',
+      'bg-green-100 text-green-900',
+      'bg-purple-100 text-purple-900',
+      'bg-pink-100 text-pink-900',
+      'bg-indigo-100 text-indigo-900'
+    ];
+    return colors[index % colors.length];
+  };
+
+  const canEditReport = (report) => {
+    return userRole === 'ADMIN' || report.createdBy === currentUserId;
+  };
 
   const canDeleteReport = (report) => {
     return userRole === 'ADMIN' || report.createdBy === currentUserId;
@@ -17,6 +86,105 @@ export const ProgressReportTable = ({
   const handleDelete = (reportId) => {
     if (window.confirm('Are you sure you want to delete this report entry?')) {
       onDelete(reportId);
+    }
+  };
+
+  const handleEditClick = (report) => {
+    setEditingId(report.id);
+    setEditForm({
+      date: report.date,
+      sprintNo: report.sprintNo,
+      teamPlan: report.teamPlan || '',
+      category: report.category,
+      taskDone: report.taskDone,
+      imageUrl: report.imageUrl
+    });
+    setEditImagePreview(report.imageUrl || null);
+    setEditImageFile(null);
+    setEditErrors({});
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditForm({
+      date: '',
+      sprintNo: '',
+      teamPlan: '',
+      category: '',
+      taskDone: '',
+      imageUrl: null
+    });
+    setEditImageFile(null);
+    setEditImagePreview(null);
+    setEditErrors({});
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setEditErrors(prev => ({ ...prev, image: 'Image size must be less than 5MB' }));
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setEditErrors(prev => ({ ...prev, image: 'Please upload a valid image file' }));
+      return;
+    }
+
+    setEditImageFile(file);
+    setEditErrors(prev => ({ ...prev, image: '' }));
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setEditImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const validateEditForm = () => {
+    const newErrors = {};
+    if (!editForm.date) newErrors.date = 'Date is required';
+    if (!editForm.sprintNo) newErrors.sprintNo = 'Sprint is required';
+    if (!editForm.category) newErrors.category = 'Category is required';
+    if (!editForm.taskDone.trim()) newErrors.taskDone = 'Task Done is required';
+    setEditErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateEditForm()) return;
+
+    try {
+      setSubmittingEdit(true);
+      let imageUrl = editForm.imageUrl;
+
+      if (editImageFile) {
+        const reader = new FileReader();
+        imageUrl = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(editImageFile);
+        });
+      }
+
+      const submitData = {
+        date: editForm.date,
+        sprintNo: editForm.sprintNo,
+        teamPlan: editForm.teamPlan,
+        category: editForm.category,
+        taskDone: editForm.taskDone,
+        imageUrl: imageUrl
+      };
+
+      await onUpdate(editingId, submitData);
+      handleEditCancel();
+    } catch (err) {
+      setEditErrors(prev => ({ ...prev, submit: err.message || 'Failed to update' }));
+    } finally {
+      setSubmittingEdit(false);
     }
   };
 
@@ -47,20 +215,26 @@ export const ProgressReportTable = ({
     );
   }
 
+  // Get unique members for color assignment
+  const uniqueMembers = [...new Set(reports.map(r => r.memberId))];
+  const memberColorMap = {};
+  uniqueMembers.forEach((memberId, index) => {
+    memberColorMap[memberId] = getMemberColor(index);
+  });
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-700 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Member</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Sprint</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Category</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Team Plan</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Task Done</th>
-              <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Image</th>
-              <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Actions</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Date</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Member</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Sprint #</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Team Plan</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Category</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white">What I Did Today</th>
+              <th className="px-6 py-4 text-center text-sm font-semibold text-white">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -72,24 +246,23 @@ export const ProgressReportTable = ({
                 <td className="px-6 py-4 text-sm text-gray-900">
                   {new Date(report.date).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  <div>
-                    <p className="font-medium">{report.memberName}</p>
-                    <p className="text-xs text-gray-500">{report.memberEmail}</p>
-                  </div>
-                </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    {report.sprintNo}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${memberColorMap[report.memberId]}`}>
+                    {report.memberName}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                    {report.category}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(report.sprintNo)}`}>
+                    {report.sprintNo}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {report.teamPlan || '-'}
+                </td>
+                <td className="px-6 py-4 text-sm">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(report.category)}`}>
+                    {report.category}
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">
                   <button
@@ -100,26 +273,24 @@ export const ProgressReportTable = ({
                   </button>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  {report.imageUrl ? (
-                    <button
-                      onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
-                      className="text-green-600 hover:text-green-800 font-medium"
-                    >
-                      ✓
-                    </button>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-center">
-                  {canDeleteReport(report) && (
-                    <button
-                      onClick={() => handleDelete(report.id)}
-                      className="text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <div className="flex gap-2 justify-center">
+                    {canEditReport(report) && (
+                      <button
+                        onClick={() => handleEditClick(report)}
+                        className="text-blue-600 hover:text-blue-800 font-medium px-3 py-1 rounded hover:bg-blue-50"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {canDeleteReport(report) && (
+                      <button
+                        onClick={() => handleDelete(report.id)}
+                        className="text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded hover:bg-red-50"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -135,28 +306,63 @@ export const ProgressReportTable = ({
               {reports.find(r => r.id === expandedId).memberName} - {new Date(reports.find(r => r.id === expandedId).date).toLocaleDateString()}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Task Done */}
-              <div className="md:col-span-2">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Task Done:</h4>
-                <p className="text-gray-900 whitespace-pre-wrap bg-white p-4 rounded border border-gray-200">
-                  {reports.find(r => r.id === expandedId).taskDone}
-                </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Member Badge */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Member:</h4>
+                <div className="flex flex-col gap-1">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium w-fit ${memberColorMap[reports.find(r => r.id === expandedId).memberId]}`}>
+                    {reports.find(r => r.id === expandedId).memberName}
+                  </span>
+                  <p className="text-xs text-gray-600">{reports.find(r => r.id === expandedId).memberEmail}</p>
+                </div>
               </div>
 
-              {/* Image */}
-              {reports.find(r => r.id === expandedId).imageUrl && (
-                <div className="md:col-span-2">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Image:</h4>
-                  <img
-                    src={reports.find(r => r.id === expandedId).imageUrl}
-                    alt="Progress report attachment"
-                    className="max-h-96 rounded border border-gray-200 bg-white p-2"
-                  />
-                </div>
-              )}
+              {/* Sprint Badge */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Sprint:</h4>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(reports.find(r => r.id === expandedId).sprintNo)}`}>
+                  {reports.find(r => r.id === expandedId).sprintNo}
+                </span>
+              </div>
 
-              {/* Additional Info */}
+              {/* Category Badge */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Category:</h4>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(reports.find(r => r.id === expandedId).category)}`}>
+                  {reports.find(r => r.id === expandedId).category}
+                </span>
+              </div>
+
+              {/* Team Plan */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Team Plan:</h4>
+                <p className="text-sm text-gray-900">{reports.find(r => r.id === expandedId).teamPlan || '-'}</p>
+              </div>
+            </div>
+
+            {/* Task Done */}
+            <div className="mb-6">
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Task Done:</h4>
+              <p className="text-gray-900 whitespace-pre-wrap bg-white p-4 rounded border border-gray-200">
+                {reports.find(r => r.id === expandedId).taskDone}
+              </p>
+            </div>
+
+            {/* Image */}
+            {reports.find(r => r.id === expandedId).imageUrl && (
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Image:</h4>
+                <img
+                  src={reports.find(r => r.id === expandedId).imageUrl}
+                  alt="Progress report attachment"
+                  className="max-h-96 rounded border border-gray-200 bg-white p-2"
+                />
+              </div>
+            )}
+
+            {/* Additional Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Created:</h4>
                 <p className="text-sm text-gray-600">
@@ -181,6 +387,177 @@ export const ProgressReportTable = ({
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      {editingId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Progress Report</h3>
+              <button
+                onClick={handleEditCancel}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              {editErrors.submit && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                  {editErrors.submit}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={editForm.date}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, date: e.target.value }));
+                      if (editErrors.date) setEditErrors(prev => ({ ...prev, date: '' }));
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                      editErrors.date ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {editErrors.date && <p className="mt-1 text-xs text-red-500">{editErrors.date}</p>}
+                </div>
+
+                {/* Sprint */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sprint *
+                  </label>
+                  <select
+                    value={editForm.sprintNo}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, sprintNo: e.target.value }));
+                      if (editErrors.sprintNo) setEditErrors(prev => ({ ...prev, sprintNo: '' }));
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                      editErrors.sprintNo ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    {SPRINT_OPTIONS.map(sprint => (
+                      <option key={sprint} value={sprint}>{sprint}</option>
+                    ))}
+                  </select>
+                  {editErrors.sprintNo && <p className="mt-1 text-xs text-red-500">{editErrors.sprintNo}</p>}
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category *
+                  </label>
+                  <select
+                    value={editForm.category}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, category: e.target.value }));
+                      if (editErrors.category) setEditErrors(prev => ({ ...prev, category: '' }));
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                      editErrors.category ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    {CATEGORY_OPTIONS.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  {editErrors.category && <p className="mt-1 text-xs text-red-500">{editErrors.category}</p>}
+                </div>
+
+                {/* Team Plan */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Team Plan
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.teamPlan}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, teamPlan: e.target.value }))}
+                    placeholder="Enter team plan"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+
+                {/* Task Done */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Task Done *
+                  </label>
+                  <textarea
+                    value={editForm.taskDone}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, taskDone: e.target.value }));
+                      if (editErrors.taskDone) setEditErrors(prev => ({ ...prev, taskDone: '' }));
+                    }}
+                    rows="3"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-sm ${
+                      editErrors.taskDone ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {editErrors.taskDone && <p className="mt-1 text-xs text-red-500">{editErrors.taskDone}</p>}
+                </div>
+
+                {/* Image */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Image (optional, max 5MB)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageChange}
+                    className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
+                  {editImagePreview && (
+                    <div className="mt-2 relative">
+                      <img src={editImagePreview} alt="Preview" className="h-24 w-auto rounded border border-gray-300" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditImageFile(null);
+                          setEditImagePreview(null);
+                          setEditForm(prev => ({ ...prev, imageUrl: null }));
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white px-2 py-0.5 rounded text-xs hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleEditCancel}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm disabled:opacity-50"
+                >
+                  {submittingEdit ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

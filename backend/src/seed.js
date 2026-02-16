@@ -15,37 +15,65 @@ const seedDatabase = async () => {
 
     console.log('Creating test users...');
 
-    // Create admin user
-    const admin = await User.create({
-      email: 'admin@example.com',
-      password: 'password123', // Will be hashed automatically
-      name: 'Admin User',
+    // Create Kristian (Admin)
+    const kristian = await User.create({
+      studentNumber: '202311645',
+      password: 'password123',
+      fullName: 'Kristian David Rogando Bautista',
+      username: 'Kristian',
+      instituteEmail: 'krbautista@fit.edu.ph',
+      personalEmail: 'kristiandavidbautista@gmail.com',
+      birthday: '2005-03-18',
       role: 'ADMIN',
-      isFirstLogin: false // Set to false so admin can login directly
+      isFirstLogin: false
     });
 
-    console.log('✅ Admin created:', admin.email);
+    console.log('✅ Kristian (Admin) created:', kristian.studentNumber);
 
-    // Create regular users
-    const user1 = await User.create({
-      email: 'user@example.com',
+    // Create Angel
+    const angel = await User.create({
+      studentNumber: '202311538',
       password: 'password123',
-      name: 'John Doe',
+      fullName: 'Angel Abliter Letada',
+      username: 'Angel',
+      instituteEmail: 'aaetada@fit.edu.ph',
+      personalEmail: 'angel.letada1205@gmail.com',
+      birthday: '2005-12-12',
       role: 'USER',
       isFirstLogin: false
     });
 
-    console.log('✅ User 1 created:', user1.email);
+    console.log('✅ Angel created:', angel.studentNumber);
 
-    const user2 = await User.create({
-      email: 'alice@example.com',
+    // Create Michael
+    const michael = await User.create({
+      studentNumber: '202312132',
       password: 'password123',
-      name: 'Alice Smith',
+      fullName: 'Michael Kevin Dimla Pascual',
+      username: 'Michael',
+      instituteEmail: 'mdpascual1@fit.edu.ph',
+      personalEmail: 'michaelkevinpascual47@gmail.com',
+      birthday: '2005-05-19',
       role: 'USER',
       isFirstLogin: false
     });
 
-    console.log('✅ User 2 created:', user2.email);
+    console.log('✅ Michael created:', michael.studentNumber);
+
+    // Create Marianne
+    const marianne = await User.create({
+      studentNumber: '202311273',
+      password: 'password123',
+      fullName: 'Marianne Angelika B. Santos',
+      username: 'Marianne',
+      instituteEmail: 'mbsantos@fit.edu.ph',
+      personalEmail: 'mariannesantos174@gmail.com',
+      birthday: '2004-07-01',
+      role: 'USER',
+      isFirstLogin: false
+    });
+
+    console.log('✅ Marianne created:', marianne.studentNumber);
 
     // Create sample boards
     console.log('Creating sample boards...');
@@ -53,8 +81,8 @@ const seedDatabase = async () => {
     const board1 = await Board.create({
       title: 'Website Redesign',
       description: 'Redesigning the company website with modern UI',
-      owner: admin.id,
-      members: [user1.id, user2.id],
+      owner: kristian.id,
+      members: [angel.id, michael.id],
       columns: [
         {
           id: 'col-1',
@@ -65,14 +93,14 @@ const seedDatabase = async () => {
               title: 'Design mockups',
               description: 'Create Figma mockups for new design',
               priority: 'HIGH',
-              assignee: user1.id
+              assignee: angel.id
             },
             {
               id: 'card-2',
               title: 'Define color scheme',
               description: 'Choose primary and secondary colors',
               priority: 'MEDIUM',
-              assignee: user2.id
+              assignee: michael.id
             }
           ]
         },
@@ -85,7 +113,7 @@ const seedDatabase = async () => {
               title: 'Frontend implementation',
               description: 'Build React components',
               priority: 'HIGH',
-              assignee: user1.id
+              assignee: angel.id
             }
           ]
         },
@@ -109,8 +137,8 @@ const seedDatabase = async () => {
     const board2 = await Board.create({
       title: 'Mobile App Development',
       description: 'Building cross-platform mobile application',
-      owner: user1.id,
-      members: [admin.id, user2.id],
+      owner: angel.id,
+      members: [kristian.id, michael.id],
       columns: [
         {
           id: 'col-4',
@@ -148,8 +176,8 @@ const seedDatabase = async () => {
     const board3 = await Board.create({
       title: 'API Documentation',
       description: 'Creating comprehensive API documentation',
-      owner: user2.id,
-      members: [admin.id, user1.id],
+      owner: michael.id,
+      members: [kristian.id, angel.id],
       columns: [
         {
           id: 'col-7',
@@ -160,7 +188,7 @@ const seedDatabase = async () => {
               title: 'Document auth endpoints',
               description: 'Write detailed docs for auth API',
               priority: 'MEDIUM',
-              assignee: user1.id
+              assignee: angel.id
             }
           ]
         },
@@ -173,7 +201,7 @@ const seedDatabase = async () => {
               title: 'Document dashboard endpoints',
               description: 'Write dashboard API documentation',
               priority: 'MEDIUM',
-              assignee: user2.id
+              assignee: michael.id
             }
           ]
         },
@@ -190,14 +218,17 @@ const seedDatabase = async () => {
     console.log('\n✅ Database seeded successfully!');
     console.log('\nTest Credentials:');
     console.log('─────────────────');
-    console.log('Admin:');
-    console.log('  Email: admin@example.com');
+    console.log('Admin (Kristian):');
+    console.log('  Student #: 202311645');
     console.log('  Password: password123');
-    console.log('\nUser 1:');
-    console.log('  Email: user@example.com');
+    console.log('\nUser (Angel):');
+    console.log('  Student #: 202311538');
     console.log('  Password: password123');
-    console.log('\nUser 2:');
-    console.log('  Email: alice@example.com');
+    console.log('\nUser (Michael):');
+    console.log('  Student #: 202312132');
+    console.log('  Password: password123');
+    console.log('\nUser (Marianne):');
+    console.log('  Student #: 202311273');
     console.log('  Password: password123');
 
     process.exit(0);

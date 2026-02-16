@@ -32,15 +32,15 @@ export const getDashboard = async (req, res) => {
       // Fetch owner and member details
       const enrichedBoards = await Promise.all(
         allBoards.map(async (board) => {
-          const owner = await User.findById(board.owner);
+          const owner = await User.findById(String(board.owner));
           const memberUsers = await Promise.all(
-            (board.members || []).map(memberId => User.findById(memberId))
+            (board.members || []).map(memberId => User.findById(String(memberId)))
           );
 
           return {
             ...board,
-            owner: owner ? { email: owner.email, name: owner.name } : null,
-            members: memberUsers.map(m => m ? { email: m.email, name: m.name } : null).filter(Boolean)
+            owner: owner ? { id: String(owner.id), username: owner.username, fullName: owner.fullName } : null,
+            members: memberUsers.map(m => m ? { id: String(m.id), username: m.username, fullName: m.fullName } : null).filter(Boolean)
           };
         })
       );
@@ -67,21 +67,21 @@ export const getDashboard = async (req, res) => {
 
       // Filter for boards where user is owner or member
       const userBoards = allBoards.filter(
-        board => board.owner === userId || (board.members || []).includes(userId)
+        board => String(board.owner) === String(userId) || (board.members || []).map(m => String(m)).includes(String(userId))
       );
 
       // Fetch owner and member details
       const enrichedBoards = await Promise.all(
         userBoards.map(async (board) => {
-          const owner = await User.findById(board.owner);
+          const owner = await User.findById(String(board.owner));
           const memberUsers = await Promise.all(
-            (board.members || []).map(memberId => User.findById(memberId))
+            (board.members || []).map(memberId => User.findById(String(memberId)))
           );
 
           return {
             ...board,
-            owner: owner ? { _id: owner.id, email: owner.email, name: owner.name } : null,
-            members: memberUsers.map(m => m ? { _id: m.id, email: m.email, name: m.name } : null).filter(Boolean)
+            owner: owner ? { id: String(owner.id), username: owner.username, fullName: owner.fullName } : null,
+            members: memberUsers.map(m => m ? { id: String(m.id), username: m.username, fullName: m.fullName } : null).filter(Boolean)
           };
         })
       );
@@ -96,8 +96,8 @@ export const getDashboard = async (req, res) => {
         totalCards: totalCards,
         role: 'USER',
         userInfo: {
-          asOwner: enrichedBoards.filter(b => b.owner && b.owner._id === userId).length,
-          asMember: enrichedBoards.filter(b => (b.members || []).some(m => m._id === userId)).length
+          asOwner: enrichedBoards.filter(b => b.owner && String(b.owner.id) === String(userId)).length,
+          asMember: enrichedBoards.filter(b => (b.members || []).some(m => String(m.id) === String(userId))).length
         }
       };
     }

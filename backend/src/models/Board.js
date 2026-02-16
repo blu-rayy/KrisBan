@@ -81,7 +81,7 @@ class Board {
       const { data, error } = await supabase
         .from('boards')
         .select('*')
-        .eq('id', id)
+        .eq('id', String(id))
         .single();
 
       if (error) {
@@ -139,12 +139,12 @@ class Board {
   // Format board data
   static _formatBoard(data) {
     return {
-      _id: data.id,
-      id: data.id,
+      _id: String(data.id),
+      id: String(data.id),
       title: data.title,
       description: data.description,
-      owner: { _id: data.owner, id: data.owner },
-      members: data.members || [],
+      owner: String(data.owner),
+      members: (data.members || []).map(m => String(m)),
       columns: data.columns || [],
       status: data.status,
       createdAt: data.created_at,
