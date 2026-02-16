@@ -1,0 +1,214 @@
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
+
+// Generate JWT Token
+const generateToken = (id, role) => {
+  return jwt.sign(
+    { id, role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE }
+  );
+};
+
+// @route   POST /api/auth/register
+// @desc    Register a user
+// @access  Public
+export const register = async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and password'
+      });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists'
+      });
+    }
+
+    // Create user
+    user = await User.create({
+      email,
+      password,
+      name: name || email.split('@')[0],
+      role: 'USER',
+      isFirstLogin: true
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully. Please login to continue.'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @route   POST /api/auth/login
+// @desc    Login user and return token
+// @access  Public
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and password'
+      });
+    }
+
+    // Check for user (include password since it's not selected by default)
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated'
+      });
+    }
+
+    // Check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // CRITICAL BUSINESS LOGIC: Check if this is first login
+    if (user.isFirstLogin) {
+      // Generate temporary token for password change flow
+      const tempToken = jwt.sign(
+        { id: user._id, role: user.role, requiresPasswordChange: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' } // Short lived token for password reset
+      );
+
+      return res.status(403).json({
+        success: false,
+        message: 'First login detected. You must change your password before proceeding.',
+        requiresPasswordChange: true,
+        tempToken: tempToken,
+        user: user.getPublicProfile()
+      });
+    }
+
+    // Generate token
+    const token = generateToken(user._id, user.role);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: user.getPublicProfile()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @route   POST /api/auth/change-password
+// @desc    Change password on first login
+// @access  Private (requires tempToken from login)
+export const changePassword = async (req, res) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+
+    // Validate input
+    if (!newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide new password and confirmation'
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Get user from token
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update password and set isFirstLogin to false
+    user.password = newPassword;
+    user.isFirstLogin = false;
+    await user.save();
+
+    // Generate token
+    const token = generateToken(user._id, user.role);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully. You can now access the dashboard.',
+      token,
+      user: user.getPublicProfile()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @route   GET /api/auth/me
+// @desc    Get current logged in user
+// @access  Private
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      user: user.getPublicProfile()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
