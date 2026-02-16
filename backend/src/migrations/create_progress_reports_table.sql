@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS progress_reports (
   date DATE NOT NULL,
   member_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   sprint_no VARCHAR(20) NOT NULL,
+  sprint_id UUID REFERENCES sprints(id) ON DELETE SET NULL,
   team_plan TEXT DEFAULT '',
   category VARCHAR(100) NOT NULL,
   task_done TEXT NOT NULL,
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS progress_reports (
 CREATE INDEX idx_progress_reports_date ON progress_reports(date);
 CREATE INDEX idx_progress_reports_member_id ON progress_reports(member_id);
 CREATE INDEX idx_progress_reports_sprint_no ON progress_reports(sprint_no);
+CREATE INDEX idx_progress_reports_sprint_id ON progress_reports(sprint_id);
 CREATE INDEX idx_progress_reports_category ON progress_reports(category);
 CREATE INDEX idx_progress_reports_created_by ON progress_reports(created_by);
 CREATE INDEX idx_progress_reports_created_at ON progress_reports(created_at);

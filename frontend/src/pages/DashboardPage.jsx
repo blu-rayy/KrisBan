@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
 import { ProgressReportsView } from '../components/ProgressReportsView';
+import { SprintsView } from '../components/SprintsView';
 import { PlaceholderSection } from '../components/PlaceholderSection';
 import { dashboardService } from '../services/api';
 
@@ -89,6 +90,7 @@ export const DashboardPage = () => {
 
           {/* Render Active Section */}
           {activeSection === 'progress-reports' && <ProgressReportsView />}
+          {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'kanban' && <PlaceholderSection title="KanBan" icon="📊" />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <PlaceholderSection title="Tickets" icon="🎫" />}

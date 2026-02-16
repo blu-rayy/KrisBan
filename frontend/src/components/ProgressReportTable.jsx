@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { dashboardService } from '../services/api';
+import { sprintService } from '../services/sprintService';
+import { SprintBadge } from './SprintBadge';
+import { getBadgeStyle } from '../utils/badgeStyles';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -44,6 +47,7 @@ export const ProgressReportTable = ({
   const [editImageFile, setEditImageFile] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
+  const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -55,13 +59,7 @@ export const ProgressReportTable = ({
     return colors[category] || 'bg-gray-100 text-gray-800';
   };
 
-  const getSprintColor = (sprint) => {
-    if (sprint === 'Others') return 'bg-gray-200 text-gray-900';
-    if (sprint.includes('1.5') || sprint.includes('3.5') || sprint.includes('4.5')) {
-      return 'bg-yellow-200 text-yellow-900';
-    }
-    return 'bg-blue-200 text-blue-900';
-  };
+
 
   const getMemberColor = (memberId) => {
     const colors = [
@@ -74,6 +72,8 @@ export const ProgressReportTable = ({
     const hash = memberId ? memberId.charCodeAt(0) + memberId.charCodeAt(memberId.length - 1) : 0;
     return colors[hash % colors.length];
   };
+
+
 
   const canEditReport = (report) => {
     return userRole === 'ADMIN' || (report.createdBy && currentUserId && String(report.createdBy) === String(currentUserId));
@@ -269,20 +269,18 @@ export const ProgressReportTable = ({
                   {new Date(report.date).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${memberColorMap[report.memberId]}`}>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getBadgeStyle('member', report.memberName)}`}>
                     {report.memberName}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(report.sprintNo)}`}>
-                    {report.sprintNo}
-                  </span>
+                  <SprintBadge label={report.sprintNo} />
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {report.teamPlan || '-'}
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(report.category)}`}>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getBadgeStyle('category', report.category)}`}>
                     {report.category}
                   </span>
                 </td>
@@ -541,19 +539,18 @@ export const ProgressReportTable = ({
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
-                    <div className="mt-3 space-y-2">
-                      <img src={editImagePreview} alt="Preview" className="h-32 w-auto rounded border border-gray-300" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditImageFile(null);
-                          setEditImagePreview(null);
-                          setEditForm(prev => ({ ...prev, imageUrl: null }));
-                        }}
-                        className="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded text-sm font-medium transition"
-                      >
-                        Remove Image
-                      </button>
+                    <div className="mt-3">
+                      <div className="relative inline-block">
+                        <img src={editImagePreview} alt="Preview" className="h-32 w-auto rounded border border-gray-300" />
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteImage(true)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow-lg transition"
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -576,6 +573,35 @@ export const ProgressReportTable = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog for Image Deletion */}
+      {confirmDeleteImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Remove Image?</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDeleteImage(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setEditImageFile(null);
+                  setEditImagePreview(null);
+                  setEditForm(prev => ({ ...prev, imageUrl: null }));
+                  setConfirmDeleteImage(false);
+                }}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

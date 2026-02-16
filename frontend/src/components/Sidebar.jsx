@@ -10,6 +10,13 @@ export const Sidebar = ({ activeSection, setActiveSection, userRole }) => {
       visibility: 'all'
     },
     {
+      id: 'sprints',
+      label: 'Sprints',
+      icon: '⚡',
+      status: 'active',
+      visibility: 'all'
+    },
+    {
       id: 'documents',
       label: 'Documents',
       icon: '📄',

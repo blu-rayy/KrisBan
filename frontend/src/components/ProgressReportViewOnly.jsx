@@ -1,5 +1,7 @@
 import { useState, useMemo, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { SprintBadge } from './SprintBadge';
+import { getBadgeStyle } from '../utils/badgeStyles';
 
 export const ProgressReportViewOnly = ({ reports = [], loading = false, error = '', onDelete, onUpdate, currentUserId, userRole }) => {
   const { user } = useContext(AuthContext);
@@ -19,6 +21,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   const [editImageFile, setEditImageFile] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
+  const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
 
   const SPRINT_OPTIONS = [
     'Sprint 1', 'Sprint 1.5', 'Sprint 2', 'Sprint 3', 'Sprint 3.5', 'Sprint 4', 'Sprint 4.5', 'Sprint 5', 'Sprint 6', 'Others'
@@ -155,27 +158,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       'Project Management': 'bg-purple-100 text-purple-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getSprintColor = (sprint) => {
-    if (sprint === 'Others') return 'bg-gray-200 text-gray-900';
-    if (sprint.includes('1.5') || sprint.includes('3.5') || sprint.includes('4.5')) {
-      return 'bg-yellow-200 text-yellow-900';
-    }
-    return 'bg-blue-200 text-blue-900';
-  };
-
-  const getMemberColor = (memberId) => {
-    const colors = [
-      'bg-red-100 text-red-900',
-      'bg-blue-100 text-blue-900',
-      'bg-green-100 text-green-900',
-      'bg-purple-100 text-purple-900',
-    ];
-    // Create consistent color mapping based on memberId hash
-    const hash = memberId ? memberId.charCodeAt(0) + memberId.charCodeAt(memberId.length - 1) : 0;
-    return colors[hash % colors.length];
-  };
+  };;
 
   // Get unique sprints and categories for filters
   const uniqueSprints = [...new Set(reports.map(r => r.sprintNo))].sort();
@@ -254,7 +237,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
               }`}
             >
-              Last 1 Week
+              Last Week
             </button>
             <button
               onClick={() => setDateFilter('2weeks')}
@@ -373,30 +356,20 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                     </td>
                     <td className="px-6 py-4 text-sm border border-gray-200">
                       <span
-                        className={`px-3 py-1 rounded font-medium text-sm inline-block ${getMemberColor(
-                          report.memberId
-                        )}`}
+                        className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('member', report.memberName)}`}
                       >
                         {report.memberName}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm border border-gray-200">
-                      <span
-                        className={`px-3 py-1 rounded font-medium text-sm inline-block ${getSprintColor(
-                          report.sprintNo
-                        )}`}
-                      >
-                        {report.sprintNo}
-                      </span>
+                      <SprintBadge label={report.sprintNo} />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 border border-gray-200">
                       {report.teamPlan || '-'}
                     </td>
                     <td className="px-6 py-4 text-sm border border-gray-200">
                       <span
-                        className={`px-3 py-1 rounded font-medium text-sm inline-block ${getCategoryColor(
-                          report.category
-                        )}`}
+                        className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('category', report.category)}`}
                       >
                         {report.category}
                       </span>
@@ -534,23 +507,22 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
-                    <div className="mt-3 space-y-2">
-                      <img
-                        src={editImagePreview}
-                        alt="Preview"
-                        className="h-32 w-auto rounded-lg border border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditImageFile(null);
-                          setEditImagePreview(null);
-                          setEditForm(prev => ({ ...prev, imageUrl: null }));
-                        }}
-                        className="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded text-sm font-medium transition"
-                      >
-                        Remove Image
-                      </button>
+                    <div className="mt-3">
+                      <div className="relative inline-block">
+                        <img
+                          src={editImagePreview}
+                          alt="Preview"
+                          className="h-32 w-auto rounded border border-gray-300"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteImage(true)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow-lg transition"
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -574,6 +546,35 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog for Image Deletion */}
+      {confirmDeleteImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Remove Image?</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDeleteImage(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setEditImageFile(null);
+                  setEditImagePreview(null);
+                  setEditForm(prev => ({ ...prev, imageUrl: null }));
+                  setConfirmDeleteImage(false);
+                }}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

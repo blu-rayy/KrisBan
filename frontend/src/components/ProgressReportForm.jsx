@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import { dashboardService } from '../services/api';
+import { sprintService } from '../services/sprintService';
 import { AuthContext } from '../context/AuthContext';
+import { SprintBadge } from './SprintBadge';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -41,6 +43,8 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
   const [errors, setErrors] = useState({});
   const [teamPlanSuggestions, setTeamPlanSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sprints, setSprints] = useState([]);
+  const [sprintTeamPlans, setSprintTeamPlans] = useState([]);
 
   // Set member to logged-in user only
   useEffect(() => {
@@ -48,6 +52,19 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
       setFormData(prev => ({ ...prev, memberId: user.id }));
     }
   }, [user]);
+
+  // Fetch sprints from database
+  useEffect(() => {
+    const fetchSprints = async () => {
+      try {
+        const response = await sprintService.getSprints();
+        setSprints(response.data.data || []);
+      } catch (err) {
+        console.log('Failed to fetch sprints');
+      }
+    };
+    fetchSprints();
+  }, []);
 
   // Fetch team plan history from progress reports
   useEffect(() => {
@@ -66,6 +83,16 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
     };
     fetchTeamPlanHistory();
   }, []);
+
+  // Update team plans when sprint changes
+  useEffect(() => {
+    const selectedSprint = sprints.find(s => s.sprintNumber === formData.sprintNo);
+    if (selectedSprint && selectedSprint.teamPlans) {
+      setSprintTeamPlans(selectedSprint.teamPlans.map(tp => tp.team_plan));
+    } else {
+      setSprintTeamPlans([]);
+    }
+  }, [formData.sprintNo, sprints]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,9 +114,14 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
     setShowSuggestions(false);
   };
 
-  const filteredSuggestions = teamPlanSuggestions.filter(suggestion =>
-    suggestion.toLowerCase().includes(formData.teamPlan.toLowerCase())
-  );
+  const getAllTeamPlanSuggestions = () => {
+    const combinedSuggestions = [...new Set([...sprintTeamPlans, ...teamPlanSuggestions])];
+    return combinedSuggestions.filter(suggestion =>
+      suggestion.toLowerCase().includes(formData.teamPlan.toLowerCase())
+    );
+  };
+
+  const filteredSuggestions = getAllTeamPlanSuggestions();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -236,21 +268,33 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
           <label htmlFor="sprintNo" className="block text-sm font-medium text-gray-700 mb-2">
             Sprint No. <span className="text-red-500">*</span>
           </label>
-          <select
-            id="sprintNo"
-            name="sprintNo"
-            value={formData.sprintNo}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
-              errors.sprintNo ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            {SPRINT_OPTIONS.map(sprint => (
-              <option key={sprint} value={sprint}>
-                {sprint}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-3 items-end">
+            <select
+              id="sprintNo"
+              name="sprintNo"
+              value={formData.sprintNo}
+              onChange={handleInputChange}
+              className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.sprintNo ? 'border-red-500' : 'border-gray-300'
+              }`}
+            >
+              <optgroup label="Active Sprints">
+                {sprints.map(sprint => (
+                  <option key={sprint.id} value={sprint.sprintNumber}>
+                    {sprint.sprintNumber}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Default Options">
+                {SPRINT_OPTIONS.filter(opt => !sprints.some(s => s.sprintNumber === opt)).map(sprint => (
+                  <option key={sprint} value={sprint}>
+                    {sprint}
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+            <SprintBadge label={formData.sprintNo} />
+          </div>
           {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
         </div>
 
@@ -266,12 +310,12 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
             value={formData.teamPlan}
             onChange={handleInputChange}
             onFocus={() => formData.teamPlan && setShowSuggestions(true)}
-            placeholder="Enter team plan details"
+            placeholder="Enter team plan details or select from suggestions"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-              <div className="p-2 text-xs text-gray-500 bg-gray-50">Previous entries</div>
+              <div className="p-2 text-xs text-gray-500 bg-gray-50 font-semibold">Suggestions for this sprint</div>
               {filteredSuggestions.map((suggestion, idx) => (
                 <button
                   key={idx}

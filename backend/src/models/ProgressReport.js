@@ -8,6 +8,7 @@ class ProgressReport {
     this.date = data.date;
     this.member_id = data.member_id ? String(data.member_id) : null;
     this.sprint_no = data.sprint_no;
+    this.sprint_id = data.sprint_id ? String(data.sprint_id) : null;
     this.team_plan = data.team_plan;
     this.category = data.category;
     this.task_done = data.task_done;
@@ -26,6 +27,7 @@ class ProgressReport {
             date: data.date,
             member_id: data.member_id,
             sprint_no: data.sprint_no,
+            sprint_id: data.sprint_id || null,
             team_plan: data.team_plan,
             category: data.category,
             task_done: data.task_done,
@@ -134,6 +136,7 @@ class ProgressReport {
       date: this.date,
       memberId: this.member_id,
       sprintNo: this.sprint_no,
+      sprintId: this.sprint_id,
       teamPlan: this.team_plan,
       category: this.category,
       taskDone: this.task_done,

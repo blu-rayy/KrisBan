@@ -1,5 +1,7 @@
 import ProgressReport from '../models/ProgressReport.js';
 import User from '../models/User.js';
+import Sprint from '../models/Sprint.js';
+import { supabase } from '../config/database.js';
 
 // @route   POST /api/progress-reports
 // @desc    Create a new progress report entry
@@ -26,11 +28,25 @@ export const createProgressReport = async (req, res) => {
       });
     }
 
+    // Look up sprint_id from sprint_number
+    let sprintId = null;
+    const { data: sprint } = await supabase
+      .from('sprints')
+      .select('id')
+      .eq('sprint_number', sprintNo)
+      .single()
+      .catch(() => ({ data: null }));
+    
+    if (sprint) {
+      sprintId = sprint.id;
+    }
+
     // Create progress report
     const progressReport = await ProgressReport.create({
       date,
       member_id: memberId,
       sprint_no: sprintNo,
+      sprint_id: sprintId,
       team_plan: teamPlan || '',
       category,
       task_done: taskDone,
@@ -47,6 +63,7 @@ export const createProgressReport = async (req, res) => {
       date: formattedReport.date,
       memberId: String(formattedReport.memberId),
       sprintNo: formattedReport.sprintNo,
+      sprintId: formattedReport.sprintId ? String(formattedReport.sprintId) : null,
       teamPlan: formattedReport.teamPlan,
       category: formattedReport.category,
       taskDone: formattedReport.taskDone,
@@ -98,6 +115,7 @@ export const getProgressReports = async (req, res) => {
           date: formattedReport.date,
           memberId: String(formattedReport.memberId),
           sprintNo: formattedReport.sprintNo,
+          sprintId: formattedReport.sprintId ? String(formattedReport.sprintId) : null,
           teamPlan: formattedReport.teamPlan,
           category: formattedReport.category,
           taskDone: formattedReport.taskDone,
@@ -148,6 +166,7 @@ export const getProgressReportById = async (req, res) => {
       date: formattedReport.date,
       memberId: String(formattedReport.memberId),
       sprintNo: formattedReport.sprintNo,
+      sprintId: formattedReport.sprintId ? String(formattedReport.sprintId) : null,
       teamPlan: formattedReport.teamPlan,
       category: formattedReport.category,
       taskDone: formattedReport.taskDone,
@@ -212,7 +231,22 @@ export const updateProgressReport = async (req, res) => {
     const updateData = {};
     if (date) updateData.date = date;
     if (memberId) updateData.member_id = memberId;
-    if (sprintNo) updateData.sprint_no = sprintNo;
+    if (sprintNo) {
+      updateData.sprint_no = sprintNo;
+      // Look up sprint_id from sprint_number
+      const { data: sprint } = await supabase
+        .from('sprints')
+        .select('id')
+        .eq('sprint_number', sprintNo)
+        .single()
+        .catch(() => ({ data: null }));
+      
+      if (sprint) {
+        updateData.sprint_id = sprint.id;
+      } else {
+        updateData.sprint_id = null;
+      }
+    }
     if (teamPlan !== undefined) updateData.team_plan = teamPlan;
     if (category) updateData.category = category;
     if (taskDone) updateData.task_done = taskDone;
@@ -229,6 +263,7 @@ export const updateProgressReport = async (req, res) => {
       date: formattedReport.date,
       memberId: String(formattedReport.memberId),
       sprintNo: formattedReport.sprintNo,
+      sprintId: formattedReport.sprintId ? String(formattedReport.sprintId) : null,
       teamPlan: formattedReport.teamPlan,
       category: formattedReport.category,
       taskDone: formattedReport.taskDone,

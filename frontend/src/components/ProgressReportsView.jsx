@@ -151,7 +151,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'view' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Progress Report Entries</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Sprint Entries</h2>
             <p className="text-gray-600">View all team progress entries</p>
           </div>
 
@@ -171,7 +171,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'sprint-tracker' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Sprint Progress Tracker</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Add Sprint Entry</h2>
             <p className="text-gray-600">Record your daily progress and task completion</p>
           </div>
 
