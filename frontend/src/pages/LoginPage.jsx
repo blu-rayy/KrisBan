@@ -33,8 +33,8 @@ export const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">PM-Suite</h1>
-        <p className="text-gray-600 mb-8">Project Management Application</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">KrisBan</h1>
+        <p className="text-gray-600 mb-8">All-in-One Thesis Management Application</p>
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">

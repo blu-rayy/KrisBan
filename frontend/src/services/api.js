@@ -36,7 +36,28 @@ export const dashboardService = {
     api.get('/dashboard'),
 
   getProgressReport: () =>
-    api.get('/dashboard/admin/progress-report')
+    api.get('/dashboard/admin/progress-report'),
+
+  // Progress Reports CRUD
+  getProgressReports: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return api.get(`/progress-reports${params ? '?' + params : ''}`);
+  },
+
+  getProgressReportById: (id) =>
+    api.get(`/progress-reports/${id}`),
+
+  createProgressReport: (data) =>
+    api.post('/progress-reports', data),
+
+  updateProgressReport: (id, data) =>
+    api.put(`/progress-reports/${id}`, data),
+
+  deleteProgressReport: (id) =>
+    api.delete(`/progress-reports/${id}`),
+
+  getProgressReportSummary: () =>
+    api.get('/progress-reports/stats/summary')
 };
 
 export default api;

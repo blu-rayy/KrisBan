@@ -48,7 +48,7 @@ class User {
         throw error;
       }
 
-      return data;
+      return this._formatUser(data);
     } catch (error) {
       throw error;
     }
