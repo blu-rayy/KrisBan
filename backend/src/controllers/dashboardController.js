@@ -27,16 +27,30 @@ export const getDashboard = async (req, res) => {
 
     if (userRole === 'ADMIN') {
       // Admin gets all projects and progress report tools
-      const allBoards = await Board.find({ status: 'ACTIVE' })
-        .populate('owner', 'email name')
-        .populate('members', 'email name');
+      const allBoards = await Board.find({ status: 'ACTIVE' });
 
-      const totalBoards = allBoards.length;
-      const totalCards = allBoards.reduce((sum, board) => {
-        return sum + board.columns.reduce((colSum, col) => colSum + col.cards.length, 0);
+      // Fetch owner and member details
+      const enrichedBoards = await Promise.all(
+        allBoards.map(async (board) => {
+          const owner = await User.findById(board.owner);
+          const memberUsers = await Promise.all(
+            (board.members || []).map(memberId => User.findById(memberId))
+          );
+
+          return {
+            ...board,
+            owner: owner ? { email: owner.email, name: owner.name } : null,
+            members: memberUsers.map(m => m ? { email: m.email, name: m.name } : null).filter(Boolean)
+          };
+        })
+      );
+
+      const totalBoards = enrichedBoards.length;
+      const totalCards = enrichedBoards.reduce((sum, board) => {
+        return sum + (board.columns || []).reduce((colSum, col) => colSum + (col.cards || []).length, 0);
       }, 0);
 
-      dashboardData.boards = allBoards;
+      dashboardData.boards = enrichedBoards;
       dashboardData.summary = {
         totalProjects: totalBoards,
         totalCards: totalCards,
@@ -49,25 +63,41 @@ export const getDashboard = async (req, res) => {
       };
     } else {
       // Standard User gets only assigned Kanban boards
-      const userBoards = await Board.find({
-        $or: [{ owner: userId }, { members: userId }],
-        status: 'ACTIVE'
-      })
-        .populate('owner', 'email name')
-        .populate('members', 'email name');
+      const allBoards = await Board.find({ status: 'ACTIVE' });
 
-      const totalCards = userBoards.reduce((sum, board) => {
-        return sum + board.columns.reduce((colSum, col) => colSum + col.cards.length, 0);
+      // Filter for boards where user is owner or member
+      const userBoards = allBoards.filter(
+        board => board.owner === userId || (board.members || []).includes(userId)
+      );
+
+      // Fetch owner and member details
+      const enrichedBoards = await Promise.all(
+        userBoards.map(async (board) => {
+          const owner = await User.findById(board.owner);
+          const memberUsers = await Promise.all(
+            (board.members || []).map(memberId => User.findById(memberId))
+          );
+
+          return {
+            ...board,
+            owner: owner ? { _id: owner.id, email: owner.email, name: owner.name } : null,
+            members: memberUsers.map(m => m ? { _id: m.id, email: m.email, name: m.name } : null).filter(Boolean)
+          };
+        })
+      );
+
+      const totalCards = enrichedBoards.reduce((sum, board) => {
+        return sum + (board.columns || []).reduce((colSum, col) => colSum + (col.cards || []).length, 0);
       }, 0);
 
-      dashboardData.boards = userBoards;
+      dashboardData.boards = enrichedBoards;
       dashboardData.summary = {
-        totalBoards: userBoards.length,
+        totalBoards: enrichedBoards.length,
         totalCards: totalCards,
         role: 'USER',
         userInfo: {
-          asOwner: userBoards.filter(b => b.owner._id.toString() === userId).length,
-          asMember: userBoards.filter(b => b.members.some(m => m._id.toString() === userId)).length
+          asOwner: enrichedBoards.filter(b => b.owner && b.owner._id === userId).length,
+          asMember: enrichedBoards.filter(b => (b.members || []).some(m => m._id === userId)).length
         }
       };
     }
@@ -89,20 +119,26 @@ export const getDashboard = async (req, res) => {
 // @access  Private/Admin
 export const getProgressReport = async (req, res) => {
   try {
-    const allBoards = await Board.find({ status: 'ACTIVE' })
-      .populate('owner', 'email name')
-      .populate('members', 'email name');
+    const allBoards = await Board.find({ status: 'ACTIVE' });
+
+    // Fetch owner details for each board
+    const boardsList = await Promise.all(
+      allBoards.map(async (board) => {
+        const owner = await User.findById(board.owner);
+        return {
+          id: board.id,
+          title: board.title,
+          owner: owner ? owner.email : 'Unknown',
+          memberCount: (board.members || []).length,
+          cardCount: (board.columns || []).reduce((sum, col) => sum + (col.cards || []).length, 0),
+          columnCount: (board.columns || []).length
+        };
+      })
+    );
 
     const reportData = {
       totalBoards: allBoards.length,
-      boardsList: allBoards.map(board => ({
-        id: board._id,
-        title: board.title,
-        owner: board.owner.email,
-        memberCount: board.members.length,
-        cardCount: board.columns.reduce((sum, col) => sum + col.cards.length, 0),
-        columnCount: board.columns.length
-      })),
+      boardsList: boardsList,
       cardsByPriority: {
         HIGH: 0,
         MEDIUM: 0,
@@ -113,9 +149,11 @@ export const getProgressReport = async (req, res) => {
 
     // Calculate cards by priority
     allBoards.forEach(board => {
-      board.columns.forEach(column => {
-        column.cards.forEach(card => {
-          reportData.cardsByPriority[card.priority]++;
+      (board.columns || []).forEach(column => {
+        (column.cards || []).forEach(card => {
+          if (reportData.cardsByPriority[card.priority]) {
+            reportData.cardsByPriority[card.priority]++;
+          }
         });
       });
     });

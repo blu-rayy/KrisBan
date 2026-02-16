@@ -53,8 +53,8 @@ const seedDatabase = async () => {
     const board1 = await Board.create({
       title: 'Website Redesign',
       description: 'Redesigning the company website with modern UI',
-      owner: admin._id,
-      members: [user1._id, user2._id],
+      owner: admin.id,
+      members: [user1.id, user2.id],
       columns: [
         {
           id: 'col-1',
@@ -65,14 +65,14 @@ const seedDatabase = async () => {
               title: 'Design mockups',
               description: 'Create Figma mockups for new design',
               priority: 'HIGH',
-              assignee: user1._id
+              assignee: user1.id
             },
             {
               id: 'card-2',
               title: 'Define color scheme',
               description: 'Choose primary and secondary colors',
               priority: 'MEDIUM',
-              assignee: user2._id
+              assignee: user2.id
             }
           ]
         },
@@ -85,7 +85,7 @@ const seedDatabase = async () => {
               title: 'Frontend implementation',
               description: 'Build React components',
               priority: 'HIGH',
-              assignee: user1._id
+              assignee: user1.id
             }
           ]
         },
@@ -109,8 +109,8 @@ const seedDatabase = async () => {
     const board2 = await Board.create({
       title: 'Mobile App Development',
       description: 'Building cross-platform mobile application',
-      owner: user1._id,
-      members: [admin._id, user2._id],
+      owner: user1.id,
+      members: [admin.id, user2.id],
       columns: [
         {
           id: 'col-4',
@@ -148,8 +148,8 @@ const seedDatabase = async () => {
     const board3 = await Board.create({
       title: 'API Documentation',
       description: 'Creating comprehensive API documentation',
-      owner: user2._id,
-      members: [admin._id, user1._id],
+      owner: user2.id,
+      members: [admin.id, user1.id],
       columns: [
         {
           id: 'col-7',
@@ -160,7 +160,7 @@ const seedDatabase = async () => {
               title: 'Document auth endpoints',
               description: 'Write detailed docs for auth API',
               priority: 'MEDIUM',
-              assignee: user1._id
+              assignee: user1.id
             }
           ]
         },
@@ -173,7 +173,7 @@ const seedDatabase = async () => {
               title: 'Document dashboard endpoints',
               description: 'Write dashboard API documentation',
               priority: 'MEDIUM',
-              assignee: user2._id
+              assignee: user2.id
             }
           ]
         },

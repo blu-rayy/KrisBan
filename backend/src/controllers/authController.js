@@ -26,8 +26,8 @@ export const register = async (req, res) => {
     }
 
     // Check if user already exists
-    let user = await User.findOne({ email });
-    if (user) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         message: 'User already exists'
@@ -35,7 +35,7 @@ export const register = async (req, res) => {
     }
 
     // Create user
-    user = await User.create({
+    const user = await User.create({
       email,
       password,
       name: name || email.split('@')[0],
@@ -70,8 +70,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Check for user (include password since it's not selected by default)
-    const user = await User.findOne({ email }).select('+password');
+    // Check for user
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({
@@ -89,7 +89,7 @@ export const login = async (req, res) => {
     }
 
     // Check password
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await User.comparePassword(user.password, password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -101,7 +101,7 @@ export const login = async (req, res) => {
     if (user.isFirstLogin) {
       // Generate temporary token for password change flow
       const tempToken = jwt.sign(
-        { id: user._id, role: user.role, requiresPasswordChange: true },
+        { id: user.id, role: user.role, requiresPasswordChange: true },
         process.env.JWT_SECRET,
         { expiresIn: '15m' } // Short lived token for password reset
       );
@@ -116,7 +116,7 @@ export const login = async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user.id, user.role);
 
     res.status(200).json({
       success: true,
@@ -173,18 +173,19 @@ export const changePassword = async (req, res) => {
     }
 
     // Update password and set isFirstLogin to false
-    user.password = newPassword;
-    user.isFirstLogin = false;
-    await user.save();
+    const updatedUser = await User.updateOne(
+      { id: userId },
+      { password: newPassword, isFirstLogin: false }
+    );
 
     // Generate token
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(updatedUser.id, updatedUser.role);
 
     res.status(200).json({
       success: true,
       message: 'Password changed successfully. You can now access the dashboard.',
       token,
-      user: user.getPublicProfile()
+      user: updatedUser.getPublicProfile()
     });
   } catch (error) {
     res.status(500).json({
@@ -212,3 +213,4 @@ export const getMe = async (req, res) => {
     });
   }
 };
+
