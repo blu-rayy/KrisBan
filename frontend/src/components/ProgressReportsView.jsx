@@ -52,18 +52,39 @@ export const ProgressReportsView = () => {
 
   const fetchAllUsers = async () => {
     try {
-      // For now, we'll use a simple fetch - in production, you might want a dedicated endpoint
-      // This assumes there's an endpoint to get all users
-      const response = await fetch('/api/dashboard', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+      // For admins, fetch all team members from progress reports
+      if (user?.role === 'ADMIN') {
+        const response = await dashboardService.getProgressReports();
+        if (response.data.data) {
+          // Extract unique users from progress reports
+          const uniqueUsers = new Map();
+          response.data.data.forEach(report => {
+            if (report.memberId && !uniqueUsers.has(report.memberId)) {
+              uniqueUsers.set(report.memberId, {
+                id: report.memberId,
+                username: report.memberName,
+                name: report.memberName,
+                email: report.memberEmail
+              });
+            }
+          });
+          // Convert to array and add current user if not present
+          const usersList = Array.from(uniqueUsers.values());
+          if (user && !usersList.find(u => u.id === user.id)) {
+            usersList.unshift({
+              id: user.id,
+              username: user.username,
+              name: user.name,
+              email: user.email
+            });
+          }
+          setAllUsers(usersList);
+        } else {
+          setAllUsers(user ? [user] : []);
         }
-      });
-      const data = await response.json();
-      if (data.success && data.data) {
-        // Extract users from dashboard data - this is a workaround
-        // In production, create a dedicated /api/users endpoint
-        setAllUsers([user]); // Default to current user
+      } else {
+        // Non-admins only see themselves
+        setAllUsers(user ? [user] : []);
       }
     } catch (err) {
       console.log('Failed to fetch users, using default');
@@ -180,6 +201,7 @@ export const ProgressReportsView = () => {
             members={allUsers.length > 0 ? allUsers : [user].filter(Boolean)}
             onSubmit={handleSubmitProgressReport}
             loading={submitting}
+            userRole={user?.role}
           />
 
           {/* Table */}

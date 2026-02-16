@@ -103,12 +103,12 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
         </div>
       )}
 
-      {sprints.map((sprint) => (
+      {sprints.map((sprint, index) => (
         <div key={sprint.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
           {/* Sprint Header */}
           <div className="p-4 flex items-center justify-between hover:bg-gray-50 transition cursor-pointer" onClick={() => toggleExpanded(sprint.id)}>
             <div className="flex items-center gap-4">
-              <SprintBadge label={sprint.sprintNumber} />
+              <SprintBadge label={sprint.sprintNumber} colorName={sprint.color} index={index} />
               <div>
                 <p className="text-sm text-gray-600">
                   {sprint.teamPlans.length} team plan{sprint.teamPlans.length !== 1 ? 's' : ''}

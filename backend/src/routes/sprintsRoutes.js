@@ -8,7 +8,8 @@ import {
   deleteSprint,
   addTeamPlan,
   updateTeamPlan,
-  removeTeamPlan
+  removeTeamPlan,
+  cleanupDuplicates
 } from '../controllers/sprintsController.js';
 
 const router = express.Router();
@@ -27,5 +28,8 @@ router.delete('/:id', deleteSprint);
 router.post('/:id/team-plans', addTeamPlan);
 router.put('/team-plans/:teamPlanId', updateTeamPlan);
 router.delete('/team-plans/:teamPlanId', removeTeamPlan);
+
+// Cleanup routes
+router.post('/cleanup/duplicates', cleanupDuplicates);
 
 export default router;

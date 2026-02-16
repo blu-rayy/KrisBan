@@ -31,18 +31,20 @@ const COLOR_CLASSES = {
   gray: 'bg-gray-100 text-gray-800 border-gray-200'
 };
 
-// Deterministic color picker using string hashing
+// Deterministic color picker using improved string hashing
 const getColor = (text) => {
   if (!text) return 'gray';
   
-  // Simple hash function: sum of character codes
+  // Better hash function: uses prime number multiplication and XOR
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
-    hash += text.charCodeAt(i);
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char; // hash * 31 + char
+    hash = hash & hash; // Convert to 32bit integer
   }
   
   // Use modulo to pick a color from the palette
-  const colorIndex = hash % FUN_COLORS.length;
+  const colorIndex = Math.abs(hash) % FUN_COLORS.length;
   return FUN_COLORS[colorIndex];
 };
 
@@ -50,15 +52,33 @@ const getColor = (text) => {
  * SprintBadge Component
  * 
  * A reusable badge component for sprints and tags that:
- * - Assigns consistent fun colors based on text hashing
+ * - Uses database-stored colors if available (no collisions)
+ * - Falls back to index-based color cycling (ensures no repetition)
+ * - Uses text hashing only as final fallback
  * - Follows the 100/800 Tailwind rule for readability (bg-100, text-800, border-200)
  * - Maintains a subtle pill aesthetic
  * 
  * @param {string} label - The sprint/tag name to display
  * @param {string} className - Optional additional CSS classes
+ * @param {string} colorName - Optional color from database (takes priority)
+ * @param {number} index - Optional index for cycling through palette (prevents collisions)
  */
-export const SprintBadge = ({ label, className = '' }) => {
-  const color = getColor(label);
+export const SprintBadge = ({ label, className = '', colorName, index }) => {
+  let color;
+  
+  // Priority 1: Use database color if provided
+  if (colorName && COLOR_CLASSES[colorName]) {
+    color = colorName;
+  }
+  // Priority 2: Use index to cycle through palette (ensures no repetition)
+  else if (index !== undefined) {
+    color = FUN_COLORS[index % FUN_COLORS.length];
+  }
+  // Priority 3: Fall back to hash-based color
+  else {
+    color = getColor(label);
+  }
+  
   const colorClasses = COLOR_CLASSES[color] || COLOR_CLASSES.gray;
   const badgeClass = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${colorClasses} ${className}`;
   

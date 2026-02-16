@@ -1,5 +1,6 @@
 import { useState, useMemo, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { sprintService } from '../services/sprintService';
 import { SprintBadge } from './SprintBadge';
 import { getBadgeStyle } from '../utils/badgeStyles';
 
@@ -22,6 +23,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+  const [sprints, setSprints] = useState([]);
 
   const SPRINT_OPTIONS = [
     'Sprint 1', 'Sprint 1.5', 'Sprint 2', 'Sprint 3', 'Sprint 3.5', 'Sprint 4', 'Sprint 4.5', 'Sprint 5', 'Sprint 6', 'Others'
@@ -30,6 +32,26 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   const CATEGORY_OPTIONS = [
     'Software Development', 'Research', 'Operations', 'Project Management'
   ];
+
+  // Fetch sprints from database for consistent coloring
+  useEffect(() => {
+    const fetchSprints = async () => {
+      try {
+        const response = await sprintService.getSprints();
+        setSprints(response.data.data || []);
+      } catch (err) {
+        console.log('Failed to fetch sprints');
+      }
+    };
+    fetchSprints();
+  }, []);
+
+  // Get sprint index by name for consistent coloring
+  const getSprintIndex = (sprintName) => {
+    if (!sprintName || !Array.isArray(sprints)) return undefined;
+    const index = sprints.findIndex(s => s.sprintNumber === sprintName);
+    return index >= 0 ? index : undefined;
+  };
 
   // Debug logging
   useEffect(() => {
@@ -193,7 +215,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       if (categoryFilter !== 'all' && report.category !== categoryFilter) return false;
 
       return true;
-    });
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [reports, dateFilter, sprintFilter, categoryFilter]);
 
   if (loading) {
@@ -362,7 +384,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm border border-gray-200">
-                      <SprintBadge label={report.sprintNo} />
+                      <SprintBadge label={report.sprintNo} index={getSprintIndex(report.sprintNo)} />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 border border-gray-200">
                       {report.teamPlan || '-'}

@@ -265,6 +265,35 @@ export const updateTeamPlan = async (req, res) => {
   }
 };
 
+// @route   POST /api/sprints/cleanup-duplicates
+// @desc    Clean up duplicate team plans (case variations) for all sprints
+// @access  Private
+export const cleanupDuplicates = async (req, res) => {
+  try {
+    const { sprintId } = req.body;
+
+    if (!sprintId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Sprint ID is required'
+      });
+    }
+
+    const result = await Sprint.cleanupDuplicateTeamPlans(sprintId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Duplicate team plans cleaned up',
+      data: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // @route   DELETE /api/sprints/team-plans/:teamPlanId
 // @desc    Remove a team plan from a sprint
 // @access  Private

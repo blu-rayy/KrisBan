@@ -3,6 +3,39 @@ import User from '../models/User.js';
 import Sprint from '../models/Sprint.js';
 import { supabase } from '../config/database.js';
 
+// Helper function: Automatically create team plan if it doesn't exist
+const ensureTeamPlanExists = async (sprintId, teamPlan, userId) => {
+  if (!sprintId || !teamPlan || !teamPlan.trim()) {
+    return;
+  }
+
+  try {
+    // Check if this team plan already exists for this sprint
+    const { data: existingPlan, error: existingError } = await supabase
+      .from('sprint_team_plans')
+      .select('id')
+      .eq('sprint_id', sprintId)
+      .eq('team_plan', teamPlan)
+      .single();
+
+    // If plan doesn't exist, create it
+    if (!existingError && !existingPlan) {
+      await supabase
+        .from('sprint_team_plans')
+        .insert([
+          {
+            sprint_id: sprintId,
+            team_plan: teamPlan,
+            created_by: userId
+          }
+        ]);
+    }
+  } catch (err) {
+    // Silently fail - don't break the main operation if team plan creation fails
+    console.log('Note: Could not ensure team plan exists:', err.message);
+  }
+};
+
 // @route   POST /api/progress-reports
 // @desc    Create a new progress report entry
 // @access  Private
@@ -56,6 +89,11 @@ export const createProgressReport = async (req, res) => {
       image_url: imageUrl,
       created_by: userId
     });
+
+    // Automatically create team plan if it doesn't exist
+    if (sprintId && teamPlan && teamPlan.trim()) {
+      await ensureTeamPlanExists(sprintId, teamPlan, userId);
+    }
 
     // Enrich with member details
     const member = await User.findById(memberId);
@@ -259,18 +297,20 @@ export const updateProgressReport = async (req, res) => {
     const updateData = {};
     if (date) updateData.date = date;
     if (memberId) updateData.member_id = memberId;
+    
+    let newSprintId = null;
     if (sprintNo) {
       updateData.sprint_no = sprintNo;
       // Look up sprint_id from sprint_number
-      const { data: sprint } = await supabase
+      const { data: sprint, error: sprintError } = await supabase
         .from('sprints')
         .select('id')
         .eq('sprint_number', sprintNo)
-        .single()
-        .catch(() => ({ data: null }));
+        .single();
       
-      if (sprint) {
+      if (!sprintError && sprint) {
         updateData.sprint_id = sprint.id;
+        newSprintId = sprint.id;
       } else {
         updateData.sprint_id = null;
       }
@@ -281,6 +321,12 @@ export const updateProgressReport = async (req, res) => {
     if (imageUrl !== undefined) updateData.image_url = imageUrl;
 
     const updatedReport = await ProgressReport.updateOne(id, updateData);
+
+    // Automatically create team plan if it doesn't exist (use new sprint_id if available, otherwise use existing)
+    const sprintIdForTeamPlan = newSprintId || updatedReport.sprint_id;
+    if (sprintIdForTeamPlan && teamPlan && teamPlan.trim()) {
+      await ensureTeamPlanExists(sprintIdForTeamPlan, teamPlan, userId);
+    }
 
     // Enrich with member details
     const member = await User.findById(updatedReport.member_id);

@@ -85,5 +85,16 @@ export const sprintService = {
       }
     });
     return response;
+  },
+
+  // Cleanup duplicate team plans for a sprint
+  cleanupDuplicateTeamPlans: async (sprintId) => {
+    const response = await axios.post(`${API_URL}/sprints/cleanup/duplicates`, { sprintId }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response;
   }
 };

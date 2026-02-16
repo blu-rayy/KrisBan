@@ -33,7 +33,6 @@ export const ProgressReportTable = ({
   currentUserId,
   userRole
 }) => {
-  const [expandedId, setExpandedId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({
     date: '',
@@ -48,6 +47,27 @@ export const ProgressReportTable = ({
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+  const [sprints, setSprints] = useState([]);
+
+  // Fetch sprints from database
+  useEffect(() => {
+    const fetchSprints = async () => {
+      try {
+        const response = await sprintService.getSprints();
+        setSprints(response.data.data || []);
+      } catch (err) {
+        console.log('Failed to fetch sprints');
+      }
+    };
+    fetchSprints();
+  }, []);
+
+  // Get sprint index by name for consistent coloring
+  const getSprintIndex = (sprintName) => {
+    if (!sprintName || !Array.isArray(sprints)) return undefined;
+    const index = sprints.findIndex(s => s.sprintNumber === sprintName);
+    return index >= 0 ? index : undefined;
+  };
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -225,7 +245,7 @@ export const ProgressReportTable = ({
     
     // Show entry if: user is admin OR user created the entry
     return isAdmin || isOwnEntry;
-  });
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (filteredReports.length === 0) {
     return (
@@ -274,7 +294,7 @@ export const ProgressReportTable = ({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <SprintBadge label={report.sprintNo} />
+                  <SprintBadge label={report.sprintNo} index={getSprintIndex(report.sprintNo)} />
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {report.teamPlan || '-'}
@@ -284,13 +304,12 @@ export const ProgressReportTable = ({
                     {report.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  <button
-                    onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
-                    className="text-blue-600 hover:text-blue-800 underline max-w-xs truncate"
-                  >
-                    {expandedId === report.id ? 'Hide' : 'View'}
-                  </button>
+                <td className="px-6 py-4 text-sm text-gray-900 max-w-2xs">
+                  <div className="truncate" title={report.taskDone}>
+                    {report.taskDone && report.taskDone.length > 30 
+                      ? `${report.taskDone.substring(0, 30)}...` 
+                      : report.taskDone || '-'}
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-center">
                   <div className="flex gap-2 justify-center">
@@ -317,96 +336,6 @@ export const ProgressReportTable = ({
           </tbody>
         </table>
       </div>
-
-      {/* Expanded Row Details */}
-      {expandedId && filteredReports.find(r => r.id === expandedId) && (
-        <div className="border-t border-gray-200 bg-gray-50 p-6">
-          <div className="max-w-4xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {filteredReports.find(r => r.id === expandedId).memberName} - {new Date(filteredReports.find(r => r.id === expandedId).date).toLocaleDateString()}
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Member Badge */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Member:</h4>
-                <div className="flex flex-col gap-1">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium w-fit ${memberColorMap[filteredReports.find(r => r.id === expandedId).memberId]}`}>
-                    {filteredReports.find(r => r.id === expandedId).memberName}
-                  </span>
-                  <p className="text-xs text-gray-600">{filteredReports.find(r => r.id === expandedId).memberEmail}</p>
-                </div>
-              </div>
-
-              {/* Sprint Badge */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Sprint:</h4>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(filteredReports.find(r => r.id === expandedId).sprintNo)}`}>
-                  {filteredReports.find(r => r.id === expandedId).sprintNo}
-                </span>
-              </div>
-
-              {/* Category Badge */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Category:</h4>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(filteredReports.find(r => r.id === expandedId).category)}`}>
-                  {filteredReports.find(r => r.id === expandedId).category}
-                </span>
-              </div>
-
-              {/* Team Plan */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Team Plan:</h4>
-                <p className="text-sm text-gray-900">{filteredReports.find(r => r.id === expandedId).teamPlan || '-'}</p>
-              </div>
-            </div>
-
-            {/* Task Done */}
-            <div className="mb-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Task Done:</h4>
-              <p className="text-gray-900 whitespace-pre-wrap bg-white p-4 rounded border border-gray-200">
-                {filteredReports.find(r => r.id === expandedId).taskDone}
-              </p>
-            </div>
-
-            {/* Image */}
-            {filteredReports.find(r => r.id === expandedId).imageUrl && (
-              <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Image:</h4>
-                <img
-                  src={filteredReports.find(r => r.id === expandedId).imageUrl}
-                  alt="Progress report attachment"
-                  className="max-h-96 rounded border border-gray-200 bg-white p-2"
-                />
-              </div>
-            )}
-
-            {/* Additional Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Created:</h4>
-                <p className="text-sm text-gray-600">
-                  {new Date(filteredReports.find(r => r.id === expandedId).createdAt).toLocaleString()}
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Last Updated:</h4>
-                <p className="text-sm text-gray-600">
-                  {new Date(filteredReports.find(r => r.id === expandedId).updatedAt).toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setExpandedId(null)}
-              className="mt-4 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg font-medium"
-            >
-              Collapse
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Edit Modal */}
       {editingId && (
@@ -464,9 +393,12 @@ export const ProgressReportTable = ({
                       editErrors.sprintNo ? 'border-red-500' : 'border-gray-300'
                     }`}
                   >
-                    {SPRINT_OPTIONS.map(sprint => (
-                      <option key={sprint} value={sprint}>{sprint}</option>
+                    {sprints.map(sprint => (
+                      <option key={sprint.id} value={sprint.sprintNumber}>
+                        {sprint.sprintNumber.startsWith('Sprint ') ? sprint.sprintNumber : `Sprint ${sprint.sprintNumber}`}
+                      </option>
                     ))}
+                    <option value="Others">Others</option>
                   </select>
                   {editErrors.sprintNo && <p className="mt-1 text-xs text-red-500">{editErrors.sprintNo}</p>}
                 </div>

@@ -24,7 +24,7 @@ const CATEGORY_OPTIONS = [
   'Project Management'
 ];
 
-export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) => {
+export const ProgressReportForm = ({ members = [], onSubmit, loading = false, userRole = 'USER' }) => {
   const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -47,7 +47,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
   const [sprintTeamPlans, setSprintTeamPlans] = useState([]);
   const [refreshingSprints, setRefreshingSprints] = useState(false);
 
-  // Set member to logged-in user only
+  // Set member to logged-in user (default for all users, including admins)
   useEffect(() => {
     if (user && user.id) {
       setFormData(prev => ({ ...prev, memberId: user.id }));
@@ -277,10 +277,34 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
           <label htmlFor="memberId" className="block text-sm font-medium text-gray-700 mb-2">
             Member <span className="text-red-500">*</span>
           </label>
-          <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium">
-            {user?.username || 'Current User'}
-          </div>
-          <p className="mt-1 text-sm text-gray-500">Entry will be created for your account only</p>
+          {userRole === 'ADMIN' && members.length > 1 ? (
+            <select
+              id="memberId"
+              name="memberId"
+              value={formData.memberId}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.memberId ? 'border-red-500' : 'border-gray-300'
+              }`}
+            >
+              <option value="">Select a member...</option>
+              {members.map(member => (
+                <option key={member.id} value={member.id}>
+                  {member.username || member.name || 'Unknown'}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium">
+              {user?.username || 'Current User'}
+            </div>
+          )}
+          <p className="mt-1 text-sm text-gray-500">
+            {userRole === 'ADMIN' && members.length > 1
+              ? 'Select which team member to create an entry for'
+              : 'Entry will be created for your account only'}
+          </p>
+          {errors.memberId && <p className="mt-1 text-sm text-red-500">{errors.memberId}</p>}
         </div>
 
         {/* Sprint No. */}
@@ -294,7 +318,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
               name="sprintNo"
               value={formData.sprintNo}
               onChange={handleInputChange}
-              className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`flex-1 px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
                 errors.sprintNo ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -369,7 +393,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false }) 
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
               errors.category ? 'border-red-500' : 'border-gray-300'
             }`}
           >

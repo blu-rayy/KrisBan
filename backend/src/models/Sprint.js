@@ -173,6 +173,18 @@ class Sprint {
 
   static async updateTeamPlan(teamPlanId, teamPlan) {
     try {
+      // First, fetch the current team plan to get sprint_id and old team_plan name
+      const { data: currentPlan, error: fetchError } = await supabase
+        .from(TEAM_PLANS_TABLE)
+        .select('sprint_id, team_plan')
+        .eq('id', String(teamPlanId))
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const { sprint_id: sprintId, team_plan: oldTeamPlan } = currentPlan;
+
+      // Update the team plan record
       const { data, error } = await supabase
         .from(TEAM_PLANS_TABLE)
         .update({ team_plan: teamPlan })
@@ -181,9 +193,79 @@ class Sprint {
         .single();
 
       if (error) throw error;
+
+      // Cascade update: Update all progress reports that reference the old team plan name for this sprint
+      if (oldTeamPlan !== teamPlan) {
+        await supabase
+          .from('progress_reports')
+          .update({ team_plan: teamPlan })
+          .eq('sprint_id', sprintId)
+          .eq('team_plan', oldTeamPlan);
+      }
+
       return data;
     } catch (error) {
       throw new Error(`Failed to update team plan: ${error.message}`);
+    }
+  }
+
+  // Helper: Remove duplicate team plans (case variations) for a sprint
+  static async cleanupDuplicateTeamPlans(sprintId) {
+    try {
+      // Get all team plans for this sprint
+      const { data: teamPlans, error: fetchError } = await supabase
+        .from(TEAM_PLANS_TABLE)
+        .select('id, team_plan')
+        .eq('sprint_id', sprintId);
+
+      if (fetchError) throw fetchError;
+
+      // Group by normalized name (lowercase)
+      const groups = {};
+      teamPlans.forEach(tp => {
+        const normalized = tp.team_plan.toLowerCase().trim();
+        if (!groups[normalized]) {
+          groups[normalized] = [];
+        }
+        groups[normalized].push(tp);
+      });
+
+      // For each group with duplicates, keep the "best" one and merge others
+      for (const [normalized, entries] of Object.entries(groups)) {
+        if (entries.length > 1) {
+          // Sort by team_plan to get the most capitalized version first
+          entries.sort((a, b) => {
+            // Prefer versions that start with capital letters
+            const aScore = (a.team_plan[0] === a.team_plan[0].toUpperCase() ? 1 : 0);
+            const bScore = (b.team_plan[0] === b.team_plan[0].toUpperCase() ? 1 : 0);
+            return bScore - aScore;
+          });
+
+          const keepEntry = entries[0];
+          const duplicateIds = entries.slice(1).map(e => e.id);
+
+          // Update progress reports pointing to duplicates to use the keeper
+          for (const dupEntry of entries.slice(1)) {
+            await supabase
+              .from('progress_reports')
+              .update({ team_plan: keepEntry.team_plan })
+              .eq('sprint_id', sprintId)
+              .eq('team_plan', dupEntry.team_plan);
+          }
+
+          // Delete duplicate team plan entries
+          for (const dupId of duplicateIds) {
+            await supabase
+              .from(TEAM_PLANS_TABLE)
+              .delete()
+              .eq('id', dupId);
+          }
+        }
+      }
+
+      return { success: true, message: 'Duplicates cleaned up' };
+    } catch (error) {
+      throw new Error(`Failed to cleanup duplicates: ${error.message}`);
     }
   }
 
