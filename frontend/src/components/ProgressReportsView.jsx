@@ -121,7 +121,7 @@ export const ProgressReportsView = () => {
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
         >
-          👁️ View Entries
+          👁️ Entries
         </button>
         <button
           onClick={() => setActiveTab('sprint-tracker')}
@@ -131,7 +131,7 @@ export const ProgressReportsView = () => {
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
         >
-          📋 Sprint Tracker
+          📋 Add Entry
         </button>
         {user?.role === 'ADMIN' && (
           <button
@@ -159,6 +159,10 @@ export const ProgressReportsView = () => {
             reports={progressReports}
             loading={reportsLoading}
             error={reportsError}
+            onDelete={handleDeleteProgressReport}
+            onUpdate={handleUpdateProgressReport}
+            currentUserId={user?.id}
+            userRole={user?.role}
           />
         </div>
       )}

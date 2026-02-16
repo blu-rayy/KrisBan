@@ -68,8 +68,8 @@ const seedProgressReports = async () => {
                 continue;
               }
 
-              // Get admin user as creator (Kristian)
-              const adminUser = await User.findOne({ studentNumber: '202311645' });
+              // Use the member user as creator (entries created by the person they're for)
+              const creatorUser = await User.findById(memberId);
 
               const progressReport = await ProgressReport.create({
                 date: date.toISOString().split('T')[0],
@@ -78,7 +78,7 @@ const seedProgressReports = async () => {
                 team_plan: record['Team Plan'].trim() || '',
                 category: record.Category.trim(),
                 task_done: record['What I Did Today'].trim(),
-                created_by: adminUser.id
+                created_by: creatorUser.id
               });
 
               successCount++;

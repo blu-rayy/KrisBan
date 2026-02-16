@@ -63,24 +63,24 @@ export const ProgressReportTable = ({
     return 'bg-blue-200 text-blue-900';
   };
 
-  const getMemberColor = (index) => {
+  const getMemberColor = (memberId) => {
     const colors = [
       'bg-red-100 text-red-900',
       'bg-blue-100 text-blue-900',
       'bg-green-100 text-green-900',
       'bg-purple-100 text-purple-900',
-      'bg-pink-100 text-pink-900',
-      'bg-indigo-100 text-indigo-900'
     ];
-    return colors[index % colors.length];
+    // Create consistent color mapping based on memberId hash
+    const hash = memberId ? memberId.charCodeAt(0) + memberId.charCodeAt(memberId.length - 1) : 0;
+    return colors[hash % colors.length];
   };
 
   const canEditReport = (report) => {
-    return userRole === 'ADMIN' || report.createdBy === currentUserId;
+    return userRole === 'ADMIN' || (report.createdBy && currentUserId && String(report.createdBy) === String(currentUserId));
   };
 
   const canDeleteReport = (report) => {
-    return userRole === 'ADMIN' || report.createdBy === currentUserId;
+    return userRole === 'ADMIN' || (report.createdBy && currentUserId && String(report.createdBy) === String(currentUserId));
   };
 
   const handleDelete = (reportId) => {
@@ -206,7 +206,7 @@ export const ProgressReportTable = ({
     );
   }
 
-  if (reports.length === 0) {
+  if (!reports || reports.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
         <p className="text-gray-600 mb-2">No progress reports yet.</p>
@@ -215,11 +215,33 @@ export const ProgressReportTable = ({
     );
   }
 
+  // Filter reports based on user role and permissions
+  const filteredReports = reports.filter(report => {
+    // Ensure we have necessary data
+    if (!userRole || !currentUserId) return false;
+    
+    const isAdmin = userRole === 'ADMIN';
+    const isOwnEntry = report.createdBy && String(report.createdBy) === String(currentUserId);
+    
+    // Show entry if: user is admin OR user created the entry
+    return isAdmin || isOwnEntry;
+  });
+
+  if (filteredReports.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-8 text-center">
+        <p className="text-gray-600 mb-2">You haven't created any progress reports yet.</p>
+        <p className="text-gray-500 text-sm">Create your first entry above to get started! Your entries will appear here.</p>
+      </div>
+    );
+  }
+
   // Get unique members for color assignment
-  const uniqueMembers = [...new Set(reports.map(r => r.memberId))];
   const memberColorMap = {};
-  uniqueMembers.forEach((memberId, index) => {
-    memberColorMap[memberId] = getMemberColor(index);
+  filteredReports.forEach(report => {
+    if (report.memberId && !memberColorMap[report.memberId]) {
+      memberColorMap[report.memberId] = getMemberColor(report.memberId);
+    }
   });
 
   return (
@@ -238,7 +260,7 @@ export const ProgressReportTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {reports.map(report => (
+            {filteredReports.map(report => (
               <tr
                 key={report.id}
                 className="hover:bg-gray-50 transition"
@@ -299,11 +321,11 @@ export const ProgressReportTable = ({
       </div>
 
       {/* Expanded Row Details */}
-      {expandedId && reports.find(r => r.id === expandedId) && (
+      {expandedId && filteredReports.find(r => r.id === expandedId) && (
         <div className="border-t border-gray-200 bg-gray-50 p-6">
           <div className="max-w-4xl">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {reports.find(r => r.id === expandedId).memberName} - {new Date(reports.find(r => r.id === expandedId).date).toLocaleDateString()}
+              {filteredReports.find(r => r.id === expandedId).memberName} - {new Date(filteredReports.find(r => r.id === expandedId).date).toLocaleDateString()}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -311,33 +333,33 @@ export const ProgressReportTable = ({
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Member:</h4>
                 <div className="flex flex-col gap-1">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium w-fit ${memberColorMap[reports.find(r => r.id === expandedId).memberId]}`}>
-                    {reports.find(r => r.id === expandedId).memberName}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium w-fit ${memberColorMap[filteredReports.find(r => r.id === expandedId).memberId]}`}>
+                    {filteredReports.find(r => r.id === expandedId).memberName}
                   </span>
-                  <p className="text-xs text-gray-600">{reports.find(r => r.id === expandedId).memberEmail}</p>
+                  <p className="text-xs text-gray-600">{filteredReports.find(r => r.id === expandedId).memberEmail}</p>
                 </div>
               </div>
 
               {/* Sprint Badge */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Sprint:</h4>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(reports.find(r => r.id === expandedId).sprintNo)}`}>
-                  {reports.find(r => r.id === expandedId).sprintNo}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSprintColor(filteredReports.find(r => r.id === expandedId).sprintNo)}`}>
+                  {filteredReports.find(r => r.id === expandedId).sprintNo}
                 </span>
               </div>
 
               {/* Category Badge */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Category:</h4>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(reports.find(r => r.id === expandedId).category)}`}>
-                  {reports.find(r => r.id === expandedId).category}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(filteredReports.find(r => r.id === expandedId).category)}`}>
+                  {filteredReports.find(r => r.id === expandedId).category}
                 </span>
               </div>
 
               {/* Team Plan */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Team Plan:</h4>
-                <p className="text-sm text-gray-900">{reports.find(r => r.id === expandedId).teamPlan || '-'}</p>
+                <p className="text-sm text-gray-900">{filteredReports.find(r => r.id === expandedId).teamPlan || '-'}</p>
               </div>
             </div>
 
@@ -345,16 +367,16 @@ export const ProgressReportTable = ({
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-2">Task Done:</h4>
               <p className="text-gray-900 whitespace-pre-wrap bg-white p-4 rounded border border-gray-200">
-                {reports.find(r => r.id === expandedId).taskDone}
+                {filteredReports.find(r => r.id === expandedId).taskDone}
               </p>
             </div>
 
             {/* Image */}
-            {reports.find(r => r.id === expandedId).imageUrl && (
+            {filteredReports.find(r => r.id === expandedId).imageUrl && (
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Image:</h4>
                 <img
-                  src={reports.find(r => r.id === expandedId).imageUrl}
+                  src={filteredReports.find(r => r.id === expandedId).imageUrl}
                   alt="Progress report attachment"
                   className="max-h-96 rounded border border-gray-200 bg-white p-2"
                 />
@@ -366,14 +388,14 @@ export const ProgressReportTable = ({
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Created:</h4>
                 <p className="text-sm text-gray-600">
-                  {new Date(reports.find(r => r.id === expandedId).createdAt).toLocaleString()}
+                  {new Date(filteredReports.find(r => r.id === expandedId).createdAt).toLocaleString()}
                 </p>
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Last Updated:</h4>
                 <p className="text-sm text-gray-600">
-                  {new Date(reports.find(r => r.id === expandedId).updatedAt).toLocaleString()}
+                  {new Date(filteredReports.find(r => r.id === expandedId).updatedAt).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -519,8 +541,8 @@ export const ProgressReportTable = ({
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
-                    <div className="mt-2 relative">
-                      <img src={editImagePreview} alt="Preview" className="h-24 w-auto rounded border border-gray-300" />
+                    <div className="mt-3 space-y-2">
+                      <img src={editImagePreview} alt="Preview" className="h-32 w-auto rounded border border-gray-300" />
                       <button
                         type="button"
                         onClick={() => {
@@ -528,9 +550,9 @@ export const ProgressReportTable = ({
                           setEditImagePreview(null);
                           setEditForm(prev => ({ ...prev, imageUrl: null }));
                         }}
-                        className="absolute top-1 right-1 bg-red-500 text-white px-2 py-0.5 rounded text-xs hover:bg-red-600"
+                        className="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded text-sm font-medium transition"
                       >
-                        Remove
+                        Remove Image
                       </button>
                     </div>
                   )}
