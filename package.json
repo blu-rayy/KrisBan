@@ -1,0 +1,14 @@
+{
+  "name": "krisban",
+  "version": "1.0.0",
+  "description": "KrisBan - Project Management System for thesis/research",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
