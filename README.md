@@ -7,7 +7,7 @@
 
 ## 📖 Overview
 
-**[Project Name]** is a custom-built project management solution designed to handle specific workflow frustrations found in generic tools. Unlike standard Kanban boards, this application integrates file management (Google Drive) and research review (PDF Annotation) directly into the task workflow, while automating the tedious process of weekly progress reporting.
+**KrisBan** is a custom-built project management solution designed to handle specific workflow frustrations found in generic tools. Unlike standard Kanban boards, this application integrates file management (Google Drive) and research review (PDF Annotation) directly into the task workflow, while automating the tedious process of weekly progress reporting.
 
 ## ✨ Key Features
 
