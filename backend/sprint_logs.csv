@@ -1,0 +1,132 @@
+Date,Member,Sprint #,Team Plan,Category,What I Did Today
+12/15/2025,Kristian,Sprint 1,Sprint 1 + Email SMEs & Blueprint,Operations,Emailed SMEs
+12/15/2025,Michael,Sprint 1,Sprint 1 + Email SMEs & Blueprint,Operations,Emailed SMEs
+12/15/2025,Angel,Sprint 1,Sprint 1 + Email SMEs & Blueprint,Operations,Emailed SMEs
+12/15/2025,Marianne,Sprint 1,Sprint 1 + Email SMEs & Blueprint,Software Development,Sprint 1: Created Repository
+12/16/2025,Marianne,Sprint 1,Blueprint + Follow-Up Emails,Operations,Blueprint Guidelines + Checking of Diagram
+12/16/2025,Kristian,Sprint 1,Blueprint + Follow-Up Emails,Operations,Blueprint: Diagram 2 + Email Possible Mentors
+12/16/2025,Angel,Sprint 1,Blueprint + Follow-Up Emails,Operations,Blueprint: Diagram 1
+12/16/2025,Michael,Sprint 1,Blueprint + Follow-Up Emails,Operations,Blueprint: Diagram 2
+12/17/2025,Angel,Sprint 1,Blueprint + Follow-Up Emails,Operations,Fixed Blueprint Diagram 1 + Emailed Taguig
+12/17/2025,Michael,Sprint 1,Sprint 1: Steps 1 & 2,Software Development,Selected Bounding Boxes + Created Map
+12/17/2025,Kristian,Sprint 1,Sprint 1: Steps 1 & 2,Software Development,Selected Bounding Boxes + Cleaned Map
+12/17/2025,Angel,Sprint 1,Sprint 1: Steps 1 & 2,Software Development,Map Acquisition (bgc_full) + Initial Cleaning 
+12/17/2025,Marianne,Sprint 1,Sprint 1: Steps 1 & 2,Software Development,Frame the map for the core and full versions
+12/18/2025,Kristian,Sprint 1,Submit Mentor Documents,Project Management,Completed all Mentor Documents
+12/19/2025,Kristian,Sprint 1,Sprint 1: Steps 3 & 4,Software Development,Cleaned Map & Running Simulation of BGC Core
+12/19/2025,Angel,Sprint 1,"Sprint 1: Steps 2, 3, & 4",Software Development,Finished cleaning the map of bgc_full
+12/19/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Gathering all the references for the title
+12/19/2025,Michael,Sprint 1,Sprint 1: Steps 3 & 4,Software Development,Cleaned Map & Ran Simulation of Demo Map
+12/19/2025,Angel,Sprint 1,Email SMEs,Operations,Emailed Ms. Guillermo
+12/20/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Gathered all RRLs for the study and categorized them
+12/20/2025,Kristian,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Task Division & Deadlines
+12/22/2025,Angel,Sprint 1,"Sprint 1: Steps 2, 3, & 4",Software Development,Re-cleaned map and tried to add roads to fix teleport problem
+12/22/2025,Marianne,Sprint 1.5,Sprint 1.5: RRLs,Research,Gathered references for chapter 2
+12/23/2025,Kristian,Sprint 1,"Sprint 1: Steps 2, 3, & 4",Software Development,Re-cropped map using OSM Web Wizard and uploaded simulation config
+12/23/2025,Angel,Sprint 1,Sprint 1: Validation & QA,Software Development,Re-cropped map using OSM Web Wizard and uploaded simulation config
+12/23/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2 RRLs,Research,Gathered references for chapter 2
+12/26/2025,Angel,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Summary and Synthesis of Traffic Flow and Vehicle Coordination RRLs
+12/26/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Operations,Arranged references into themes
+12/27/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Operations,Arranged references into themes
+12/29/2025,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Writing Synthesis for foundations RRL
+1/1/2026,Angel,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Completed Summary and Synthesis of Traffic Flow and Vehicle Coordination RRLs
+1/2/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Writing Synthesis for SUMO 
+1/3/2026,Angel,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Completed Summary and Synthesis of VANETs & V2X Communication RRLs
+1/3/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Writing Synthesis for foundations RRL
+1/3/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Writing Synthesis for SUMO 
+1/4/2026,Kristian,Sprint 1,Sprint 1: Validation & QA,Software Development,Joined Junctions and Clean Core Map
+1/4/2026,Kristian,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Completed Summary and Synthesis of Edge Computing
+1/4/2026,Angel,Sprint 1,Sprint 1: Validation & QA,Software Development,Solved the teleportation problem at 38th and 36th street
+1/5/2026,Angel,Sprint 1,Sprint 1: Validation & QA,Software Development,Solved the teleportation traffic in Kalayaan Ave for scale 0.5 and 1.0
+1/5/2026,Kristian,Sprint 1,Sprint 1: Validation & QA,Software Development,Solved teleportation traffic in BGC Core Map for scale 0.5 and 1.0
+1/5/2026,Marianne,Sprint 2,Software Engineering 2,Project Management,Deployment Diagram
+1/6/2026,Angel,Sprint 2,Software Engineering 2,Project Management,Component Diagram
+1/6/2026,Kristian,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Wrote Synthesis of Edge Computing & Regional Context
+1/6/2026,Marianne,Sprint 3,Sprint 3,Operations,Arranged new timeline for Civiq (Software)
+1/7/2026,Angel,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Chapter 2.3 - Introducing Selfish Routing and Started with VANETs
+1/7/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,"Wrote Chapter 2, Subsection 2.4"
+1/8/2026,Michael,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Synthesized RRL's
+1/8/2026,Angel,Sprint 2,Sprint 1: Validation & QA,Software Development,Finished cleaning and fixing all teleportation problems in full bgc map
+1/8/2026,Kristian,Sprint 2,Sprint 1: Validation & QA,Software Development,Finished cleaning and fixing all teleportation problems in BGC Core Map
+1/9/2026,Michael,Sprint 1.5,Sprint 1.5: Chapter 2,Research,"Made progress in Chapter 2, Subsection 2.5"
+1/9/2026,Angel,Sprint 1.5,Sprint 1.5: Chapter 2,Research,VANETS subtopic 2 security and scalability
+1/10/2026,Angel,Sprint 1,Sprint 1: Validation & QA,Software Development,Fixed teleportation problem in bgc_full for scale 2.5
+1/10/2026,Michael,Sprint 1.5,Sprint 1.5: Chapter 2,Research,"Made progress in Chapter 2, Subsection 2.5"
+1/10/2026,Kristian,Sprint 2,Sprint 1.5: Chapter 2,Research,"Made progress in Chapter 2, Subsection 2.1"
+1/10/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Finished drafting chapter 2 subsection 2.4
+1/12/2026,Angel,Sprint 3,Sprtin 3: Baseline Metrics,Software Development,"Extracted bgc_full performance/simulation metrics + Finished Chapter 2, Subsection 2.3"
+1/12/2026,Michael,Sprint 3,Sprint 3: Baseline Metrics,Software Development,Improved on the Intersection (Stress-testing) map
+1/12/2026,Marianne,Sprint 1.5,Sprint 1.5: Chapter 2,Research,Finished drafting chapter 2 subsection 2.6
+1/12/2026,Kristian,Sprint 3,Sprint 3: Baseline Metrics,Software Development,Added get_metrics.py to extract data from .xml files
+1/13/2026,Kristian,Sprint 3,Sprint 3: Baseline Metrics,Software Development,Added environmental baseline metrics
+1/13/2026,Michael,Sprint 1.5,Sprint 1.5 Chapter 2,Research,Finished drafting chapter 2 subsection 2.5
+1/13/2026,Kristian,Sprint 1.5,Sprint 1.5 Chapter 2,Research,"Finished Chapter 2, subsection 2.1 and 2.2"
+1/13/2026,Angel,Sprint 1.5,Sprint 1.5 Chapter 2,Research,Proofread Subsections 2.3 & 2.7
+1/14/2026,Kristian,Sprint 3,Sprint 3: Baseline Metrics,Software Development,Baseline Metrics for BGC Core & Full Maps + Uploaded on GitHub repository
+1/14/2026,Marianne,Sprint 3.5,Sprint 3.5: Chapter 1 & 3,Research,"Drafted Chapter 3 subsections 3.1, 3.2, and 3.3"
+1/14/2026,Michael,Sprint 3,Sprint 3: Baseline metrics,Software Development,Baseline metrics to intersection map
+1/14/2026,Angel,Sprint 3,Sprint 3.5:  Chapter 1,Project Management,"Prepared Chapter 1 & 3 files, Division of Work for Chapter 1, and Drafted Chapter 1 Subsection 1.3: Significance of the Study"
+1/16/2026,Angel,Sprint 3,Sprint 3.5:  Chapter 1,Research,"Finished Drafting Objectives, Conceptual Framework, and Definition of Terms"
+1/16/2026,Kristian,Sprint 3.5,Sprint 3.5:  Chapter 1,Research,Finished subsections of Chapter 1
+1/16/2026,Marianne,Sprint 3.5,Sprint 3.5:  Chapter 3,Research,Drafted remaining subsections for Chapter 3
+1/17/2026,Marianne,Sprint 3.5,Sprint 3.5:  Chapter 2 and 3,Research,Finalization of revisions on Chapter 2 and 3
+1/17/2026,Angel,Sprint 3.5,Sprint 3.5:  Chapter 2 and 3,Research,Finalization of revisions on Chapter 1
+1/17/2026,Kristian,Sprint 3.5,Sprint 3.5:  Chapter Revisions,Project Management,Meeting with Mentor
+1/19/2026,Marianne,Sprint 4,Sprint 4: SUMO TraCI,Project Management,Arranged the implementation steps for monolithic qmix
+1/19/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made outline and distribution for the revised chapter 2
+1/20/2026,Marianne,Sprint 4,Sprint 4: SUMO TraCI,Software Development,Integrated epymarl as the chosen library for the implementation of monolithic qmix
+1/20/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.2.1
+1/20/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.2.2
+1/21/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.2.1
+1/21/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.2.4
+1/21/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.2.3
+1/21/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,"Finished Chapter 2 - Subsection 2.2.2"
+1/21/2026,Angel,Sprint 4,Sprint 4: SUMO TraCI,Software Development,Validated map road networks 
+1/23/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made progress for subsection 2.3.3
+1/23/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finished Chapter 2 - Subsection 2.3.2
+1/23/2026,Kristian,Others,SME Emails,Operations,Sent emails to SMEs and replied to other SMEs + Work on Chapter 2
+1/23/2026,Michael,Sprint 4.5,sprint 4.5: Chapter Revisions,Research,Finished Chapter 2 - Subsection 2.2.4
+1/24/2026,Marianne,Sprint 5,Sprint 5: State/Action Space Definition,Research,"Defined Global State, Joint Action, and Global Rewards Component for Monolithic QMIX"
+1/24/2026,Angel,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Drafted Wireframe/Dashboard Design
+1/26/2026,Marianne,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Implemented Scripts for the training of Monolithic QMIX (Agent.py)
+1/26/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finished and Polished Chapter 2
+1/26/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finished and Polished Chapter 2
+1/27/2026,Kristian,Others,Task Distribution,Operations,Task Distribution for TraCI
+1/27/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made some progress on revision of chapter 3
+1/27/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finished subsections of Chapter 1
+1/27/2026,Marianne,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Implemented Scripts for the training of Monolithic QMIX (env.py)
+1/28/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made Progress in Chapter 3
+1/28/2026,Marianne,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Modularized the scripts for training preparation
+1/28/2026,Kristian,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Intial Draft on 'Results' Page
+1/30/2026,Angel,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Made Landing Page of Wireframe + Dark Mode
+1/30/2026,Marianne,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Debugging the Wrapper to establish correct connection with TraCi and send valid commands to SUMO
+1/30/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finalized and Polished Chapter 1
+1/30/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Finalizing Chapter 3
+2/2/2026,Angel,Sprint 6,Sprint 6: Website Wireframe,Software Development,"Did the dark mode toggle interaction, video player with video interactability (map dragging, play and pause)"
+2/2/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Revised Chapter 1 Per Mentor Suggestions
+2/2/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,"Revised subsection 8, 9, 10"
+2/2/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Revised Chapter 3
+2/3/2026,Kristian,Sprint 6,Sprint 6: Website Wireframe,Software Development,"Created Simulation Results Subsection, Footer, and Landing Page Content"
+2/3/2026,Angel,Sprint 6,Sprint 6: Website Wireframe,Software Development,Created Multi-View mode for CIviq vs Selfish Routing and Monolithic QMIX
+2/3/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Conceptual Framework v4
+2/3/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Chapter 3 System Architecture
+2/3/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Revised Chapter 3 based on consultation
+2/4/2026,Kristian,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Made Class and Use Case Diagram. Proofread Chapter 3 and Chapter 1
+2/4/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Chapter 3 Sequence Diagram Revision
+2/4/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Revised Chapter 3 subsection 8
+2/4/2026,Angel,Sprint 6,Sprint 6: Website Wireframe,Software Development,"Enhanced visual layout, fonts, and colors"
+2/4/2026,Angel,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Created Conceptual Framework v5 and the finalized Conceptual Framework
+2/6/2026,Angel,Sprint 6,Sprint 6: Website Wireframe,Software Development,Created A-Priori Initial Logo
+2/6/2026,Kristian,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,"Implemented Selfish Routing and Controller, Environment, and Observer"
+2/6/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Chapter 3 Sections 1-5 Revision
+2/7/2026,Marianne,Others,Review of System Architecture,Project Management,Led Review of System Architecture for Mock Defense
+2/7/2026,Kristian,Sprint 5,Sprint 5: State/Action Space Definition,Software Development,Implementing the LOS Scenarios on the implemented Python scripts.
+2/7/2026,Angel,Others,Defense Preparation,Project Management,Start on PPT for Defense
+2/7/2026,Michael,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Proofreading of Chapters 1-3
+2/9/2026,Michael,Others,Bibliography,Research,Formatting of Bibliography
+2/9/2026,Marianne,Others,Presentation Deck,Research,PPT for Mock Defense
+2/9/2026,Angel,Others,Presentation Deck,Research,Finished PPT for Defense
+2/10/2026,Michael,Others,Presentation Deck,Research,Methodology added to PPT
+2/10/2026,Angel,Others,Demo Video,Project Management,Recorded voice over for video demo
+2/10/2026,Marianne,Others,Presentation Deck,Research,Finalized the Presentation Deck
+2/16/2026,Marianne,Sprint 4.5,Sprint 4.5: Chapter Revisions,Research,Added the experiental dataset example for QMIX

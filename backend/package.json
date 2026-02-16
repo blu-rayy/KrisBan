@@ -8,6 +8,7 @@
     "start": "node --require dotenv/config src/server.js",
     "dev": "nodemon --require dotenv/config src/server.js",
     "seed": "node --require dotenv/config src/seed.js",
+    "seed:progress": "node --require dotenv/config src/seed-progress-reports.js",
     "build": "echo 'No build needed for Node.js'"
   },
   "keywords": [
@@ -21,6 +22,7 @@
     "@supabase/supabase-js": "^2.38.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "helmet": "^7.0.0",
