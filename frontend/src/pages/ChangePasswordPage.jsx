@@ -37,38 +37,65 @@ export const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Change Password</h1>
-        <p className="text-gray-600 mb-8">Welcome {user?.name}! You must change your password to continue.</p>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Gradient Spheres Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute w-96 h-96 rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(21, 128, 61, 0.3) 0%, transparent 70%)',
+            filter: 'blur(40px)',
+            top: '10%',
+            left: '10%'
+          }}
+        />
+        <div
+          className="absolute w-80 h-80 rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(6, 78, 59, 0.25) 0%, transparent 70%)',
+            filter: 'blur(40px)',
+            top: '60%',
+            right: '10%'
+          }}
+        />
+      </div>
+
+      {/* Change Password Card */}
+      <div className="bg-surface-main rounded-xl shadow-card-elevated p-8 w-full max-w-md border border-gray-200 relative z-10">
+        <h1 className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent mb-2">
+          Change Password
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Welcome {user?.name}! You must change your password to continue.
+        </p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6 font-medium">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">New Password</label>
+            <label className="block text-dark-charcoal font-semibold mb-2">New Password</label>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white"
               placeholder="••••••"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Confirm Password</label>
+            <label className="block text-dark-charcoal font-semibold mb-2">Confirm Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white"
               placeholder="••••••"
             />
           </div>
@@ -76,7 +103,7 @@ export const ChangePasswordPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+            className="w-full bg-gradient-action hover:opacity-90 disabled:opacity-60 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
           >
             {loading ? 'Changing Password...' : 'Change Password'}
           </button>

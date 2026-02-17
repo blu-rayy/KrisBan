@@ -30,7 +30,10 @@ export const authService = {
     api.post('/auth/change-password', { newPassword, confirmPassword }),
 
   getMe: () =>
-    api.get('/auth/me')
+    api.get('/auth/me'),
+
+  updateProfile: (profileData) =>
+    api.put('/auth/profile', profileData)
 };
 
 // Dashboard services

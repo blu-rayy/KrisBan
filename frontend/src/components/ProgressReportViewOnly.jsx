@@ -237,16 +237,16 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+      <div className="bg-white rounded-xl shadow-card-soft p-6 space-y-4 border border-gray-100">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Date Range</h3>
+          <h3 className="text-sm font-semibold text-dark-charcoal mb-3">Date Range</h3>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setDateFilter('all')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-gradient-action text-white'
+                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
               }`}
             >
               All Time
@@ -255,8 +255,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               onClick={() => setDateFilter('1week')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '1week'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-gradient-action text-white'
+                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
               }`}
             >
               Last Week
@@ -265,8 +265,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               onClick={() => setDateFilter('2weeks')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '2weeks'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-gradient-action text-white'
+                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
               }`}
             >
               Last 2 Weeks
@@ -275,8 +275,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               onClick={() => setDateFilter('3weeks')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '3weeks'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-gradient-action text-white'
+                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
               }`}
             >
               Last 3 Weeks
@@ -285,8 +285,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               onClick={() => setDateFilter('1month')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '1month'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-gradient-action text-white'
+                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
               }`}
             >
               Last Month
@@ -297,14 +297,14 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Sprint Filter */}
           <div>
-            <label htmlFor="sprintFilter" className="block text-sm font-semibold text-gray-900 mb-2">
+            <label htmlFor="sprintFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
               Sprint Number
             </label>
             <select
               id="sprintFilter"
               value={sprintFilter}
               onChange={(e) => setSprintFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
             >
               <option value="all">All Sprints</option>
               {uniqueSprints.map(sprint => (
@@ -317,14 +317,14 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
           {/* Category Filter */}
           <div>
-            <label htmlFor="categoryFilter" className="block text-sm font-semibold text-gray-900 mb-2">
+            <label htmlFor="categoryFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
               Category
             </label>
             <select
               id="categoryFilter"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
             >
               <option value="all">All Categories</option>
               {uniqueCategories.map(category => (
@@ -343,7 +343,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
       {/* Table */}
       {filteredReports.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+        <div className="bg-white rounded-xl shadow-card-soft p-8 text-center border border-gray-100">
           {reports.length === 0 ? (
             <>
               <p className="text-gray-600 mb-2">No progress reports yet.</p>
@@ -357,46 +357,46 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-card-soft overflow-hidden border border-gray-100">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-700 text-white">
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">Member</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">Sprint #</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">Team Plan</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">Category</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold border border-gray-600">What I Did Today</th>
+                <tr className="bg-gradient-hero h-14">
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Member</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Sprint #</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Team Plan</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">What I Did Today</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReports.map((report, index) => (
-                  <tr key={report.id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 border border-gray-200 whitespace-nowrap">
+                  <tr key={report.id} className="border-b border-gray-100 hover:bg-surface-ground transition duration-200">
+                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100 whitespace-nowrap">
                       {new Date(report.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-200">
+                    <td className="px-6 py-4 text-sm border border-gray-100">
                       <span
                         className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('member', report.memberName)}`}
                       >
                         {report.memberName}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-200">
+                    <td className="px-6 py-4 text-sm border border-gray-100">
                       <SprintBadge label={report.sprintNo} index={getSprintIndex(report.sprintNo)} />
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 border border-gray-200">
+                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100">
                       {report.teamPlan || '-'}
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-200">
+                    <td className="px-6 py-4 text-sm border border-gray-100">
                       <span
                         className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('category', report.category)}`}
                       >
                         {report.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 border border-gray-200" title={report.taskDone}>
+                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100" title={report.taskDone}>
                       {report.taskDone.substring(0, 50)}{report.taskDone.length > 50 ? '...' : ''}
                     </td>
                   </tr>
@@ -410,12 +410,12 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       {/* Edit Modal */}
       {editingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-96 overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Progress Report</h3>
+          <div className="bg-white rounded-xl shadow-card-elevated max-w-2xl w-full max-h-96 overflow-y-auto border border-gray-100">
+            <div className="sticky top-0 bg-gradient-to-r from-dark-emerald to-forest-green border-b border-emerald-deep px-6 py-4 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-white">Edit Progress Report</h3>
               <button
                 onClick={handleEditCancel}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-white hover:text-gray-100 text-2xl transition"
               >
                 ×
               </button>
@@ -423,7 +423,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               {editErrors.submit && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {editErrors.submit}
                 </div>
               )}
@@ -431,7 +431,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Date *</label>
                   <input
                     type="date"
                     value={editForm.date}
@@ -439,7 +439,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                       setEditForm(prev => ({ ...prev, date: e.target.value }));
                       if (editErrors.date) setEditErrors(prev => ({ ...prev, date: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
                       editErrors.date ? 'border-red-500' : 'border-gray-300'
                     }`}
                   />
@@ -448,14 +448,14 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Sprint */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sprint *</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Sprint *</label>
                   <select
                     value={editForm.sprintNo}
                     onChange={(e) => {
                       setEditForm(prev => ({ ...prev, sprintNo: e.target.value }));
                       if (editErrors.sprintNo) setEditErrors(prev => ({ ...prev, sprintNo: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
                       editErrors.sprintNo ? 'border-red-500' : 'border-gray-300'
                     }`}
                   >
@@ -469,14 +469,14 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Category *</label>
                   <select
                     value={editForm.category}
                     onChange={(e) => {
                       setEditForm(prev => ({ ...prev, category: e.target.value }));
                       if (editErrors.category) setEditErrors(prev => ({ ...prev, category: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
                       editErrors.category ? 'border-red-500' : 'border-gray-300'
                     }`}
                   >
@@ -490,19 +490,19 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Team Plan */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Team Plan</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Team Plan</label>
                   <input
                     type="text"
                     value={editForm.teamPlan}
                     onChange={(e) => setEditForm(prev => ({ ...prev, teamPlan: e.target.value }))}
                     placeholder="Enter team plan"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
                   />
                 </div>
 
                 {/* Task Done */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Done *</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Task Done *</label>
                   <textarea
                     value={editForm.taskDone}
                     onChange={(e) => {
@@ -510,7 +510,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                       if (editErrors.taskDone) setEditErrors(prev => ({ ...prev, taskDone: '' }));
                     }}
                     rows="3"
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-sm ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none text-sm transition ${
                       editErrors.taskDone ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Describe what you did today"
@@ -520,12 +520,12 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Image Upload */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Progress Screenshot</label>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Progress Screenshot</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleEditImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
@@ -534,7 +534,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                         <img
                           src={editImagePreview}
                           alt="Preview"
-                          className="h-32 w-auto rounded border border-gray-300"
+                          className="h-32 w-auto rounded-lg border border-gray-300"
                         />
                         <button
                           type="button"
@@ -551,18 +551,18 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               </div>
 
               {/* Form Actions */}
-              <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+              <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={handleEditCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal font-medium hover:bg-gray-50 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingEdit}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition disabled:bg-blue-400"
+                  className="px-4 py-2 bg-gradient-action hover:opacity-90 text-white font-medium rounded-lg transition disabled:opacity-50"
                 >
                   {submittingEdit ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -575,13 +575,13 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       {/* Confirmation Dialog for Image Deletion */}
       {confirmDeleteImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Remove Image?</h3>
+          <div className="bg-white rounded-xl shadow-card-elevated p-6 max-w-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-dark-charcoal mb-2">Remove Image?</h3>
             <p className="text-gray-600 mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDeleteImage(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal font-medium hover:bg-gray-50 transition"
               >
                 Cancel
               </button>

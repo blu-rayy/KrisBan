@@ -1,0 +1,16 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="#15803d" opacity="0.95"/>
+  
+  <!-- Tree/Book shape combining KB -->
+  <g transform="translate(64, 64)">
+    <!-- Left side - K shape (stylized as tree branch) -->
+    <path d="M -20 -20 L -20 20 M -20 0 L 0 -15 M -20 0 L 0 15" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Right side - B shape (stylized as book/papers) -->
+    <path d="M 5 -20 L 18 -20 Q 20 -20 20 -18 L 20 -5 Q 20 -3 18 -3 L 5 -3 M 5 -3 L 18 -3 Q 20 -3 20 -1 L 20 18 Q 20 20 18 20 L 5 20" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Accent leaf -->
+    <ellipse cx="10" cy="25" rx="4" ry="6" fill="white" opacity="0.8" transform="rotate(45 10 25)"/>
+  </g>
+</svg>

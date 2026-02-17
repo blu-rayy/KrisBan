@@ -14,4 +14,187 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
 }
+
+/* ============================================================
+   FOREST GRADIENT THEME - Custom Utility Styles
+   ============================================================ */
+
+/* Base theme colors */
+:root {
+  --surface-main: #ffffff;
+  --surface-ground: #f8f9fa;
+  --forest-green: #15803d;
+  --emerald-deep: #064e3b;
+  --dark-emerald: #022c22;
+  --leaf-green: #10b981;
+  --dark-charcoal: #1f2937;
+  
+  /* Gradients */
+  --gradient-hero: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
+  --gradient-dark: linear-gradient(135deg, #022c22 0%, #000000 100%);
+  --gradient-action: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  
+  /* Shadows */
+  --shadow-card-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  --shadow-card-elevated: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  --shadow-none: none;
+}
+
+/* Bento Card Component Styles */
+@layer components {
+  .bento-card {
+    @apply rounded-[24px] transition-all duration-300;
+  }
+
+  .bento-card-white {
+    @apply bg-white text-dark-charcoal shadow-card-soft;
+  }
+
+  .bento-card-hero {
+    @apply bg-gradient-hero text-white shadow-none;
+  }
+
+  .bento-card-dark {
+    @apply bg-gradient-dark text-white shadow-none;
+  }
+
+  .bento-card:hover {
+    @apply scale-105 shadow-card-elevated;
+  }
+
+  /* Icon Wrapper Styles */
+  .icon-wrapper {
+    @apply w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm;
+  }
+
+  .icon-wrapper-white {
+    @apply bg-gray-100 border-2 border-gray-200 text-dark-charcoal;
+  }
+
+  .icon-wrapper-gradient {
+    @apply bg-white text-forest-green;
+  }
+
+  .icon-wrapper-dark {
+    @apply bg-white text-dark-emerald;
+  }
+
+  /* Stat Value Typography */
+  .stat-value {
+    @apply text-4xl font-bold;
+  }
+
+  /* Stat Title Typography */
+  .stat-title {
+    @apply text-sm font-medium;
+  }
+
+  /* Stat Subtitle Typography */
+  .stat-subtitle {
+    @apply text-xs;
+  }
+
+  /* Gradient backgrounds as utilities */
+  .bg-gradient-hero-custom {
+    background: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
+  }
+
+  .bg-gradient-dark-custom {
+    background: linear-gradient(135deg, #022c22 0%, #000000 100%);
+  }
+
+  .bg-gradient-action-custom {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  }
+
+  /* Text color utilities for theme */
+  .text-dark-charcoal {
+    color: #1f2937;
+  }
+
+  .text-forest-green {
+    color: #15803d;
+  }
+
+  .text-leaf-green {
+    color: #10b981;
+  }
+
+  /* Premium Card Elevation */
+  .card-premium {
+    @apply bento-card bento-card-white p-6 flex flex-col;
+  }
+
+  .card-premium-hero {
+    @apply bento-card bento-card-hero p-6 flex flex-col;
+  }
+
+  .card-premium-dark {
+    @apply bento-card bento-card-dark p-6 flex flex-col;
+  }
+
+  /* Button Styles - Premium Action */
+  .btn-action-primary {
+    @apply w-full bg-gradient-action text-white rounded-[24px] px-6 py-4 font-semibold hover:shadow-lg transition-all duration-300;
+  }
+
+  .btn-action-secondary {
+    @apply bg-white text-dark-charcoal rounded-[24px] px-6 py-2 font-medium hover:shadow-card-soft transition-all duration-300;
+  }
+
+  /* Responsive Bento Grid */
+  .bento-grid {
+    @apply grid gap-6;
+  }
+
+  .bento-grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+  }
+
+  .bento-grid-3 {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+  }
+
+  .bento-grid-4 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+}
+
+/* Smooth transitions for theme elements */
+@layer utilities {
+  .transition-theme {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-scale-sm {
+    @apply hover:scale-105 transition-transform duration-300;
+  }
+
+  .gradient-text-hero {
+    background: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Animation for subtle entrance effect */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: slideInUp 0.5s ease-out;
+  }
+}
+

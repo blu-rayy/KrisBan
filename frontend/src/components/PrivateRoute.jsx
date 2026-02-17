@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading, requiresPasswordChange } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useContext(AuthContext);
 
   if (loading) {
     return (
@@ -15,10 +15,6 @@ export const PrivateRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (requiresPasswordChange) {
-    return <Navigate to="/change-password" replace />;
   }
 
   return children;

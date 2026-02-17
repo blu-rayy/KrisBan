@@ -24,6 +24,7 @@ class User {
       if (userData.personalEmail) insertData.personal_email = userData.personalEmail;
       if (userData.birthday) insertData.birthday = userData.birthday;
       if (userData.signature) insertData.signature = userData.signature;
+      if (userData.profilePicture) insertData.profile_picture = userData.profilePicture;
 
       const { data, error } = await supabase
         .from('users')
@@ -155,6 +156,7 @@ class User {
       instituteEmail: data.institute_email,
       personalEmail: data.personal_email,
       signature: data.signature,
+      profilePicture: data.profile_picture,
       isFirstLogin: data.is_first_login,
       isActive: data.is_active,
       createdAt: data.created_at,
@@ -168,7 +170,8 @@ class User {
           username: this.username,
           instituteEmail: this.instituteEmail,
           personalEmail: this.personalEmail,
-          isFirstLogin: this.isFirstLogin
+          isFirstLogin: this.isFirstLogin,
+          profile_picture: this.profilePicture
         };
       }
     };

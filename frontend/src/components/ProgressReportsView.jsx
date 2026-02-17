@@ -131,25 +131,25 @@ export const ProgressReportsView = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
+    <div className="space-y-6 p-8">
+      {/* Tab Navigation - Forest Gradient Theme */}
       <div className="flex gap-4 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('view')}
-          className={`px-6 py-3 font-medium border-b-2 transition ${
+          className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
             activeTab === 'view'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+              ? 'border-forest-green text-forest-green'
+              : 'border-transparent text-gray-600 hover:text-dark-charcoal'
           }`}
         >
           👁️ Entries
         </button>
         <button
           onClick={() => setActiveTab('sprint-tracker')}
-          className={`px-6 py-3 font-medium border-b-2 transition ${
+          className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
             activeTab === 'sprint-tracker'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+              ? 'border-forest-green text-forest-green'
+              : 'border-transparent text-gray-600 hover:text-dark-charcoal'
           }`}
         >
           📋 Add Entry
@@ -157,10 +157,10 @@ export const ProgressReportsView = () => {
         {user?.role === 'ADMIN' && (
           <button
             onClick={() => setActiveTab('projects-overview')}
-            className={`px-6 py-3 font-medium border-b-2 transition ${
+            className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
               activeTab === 'projects-overview'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+                ? 'border-forest-green text-forest-green'
+                : 'border-transparent text-gray-600 hover:text-dark-charcoal'
             }`}
           >
             📊 Projects Overview
@@ -172,7 +172,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'view' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Sprint Entries</h2>
+            <h2 className="text-3xl font-bold text-dark-charcoal">Sprint Entries</h2>
             <p className="text-gray-600">View all team progress entries</p>
           </div>
 
@@ -192,7 +192,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'sprint-tracker' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Add Sprint Entry</h2>
+            <h2 className="text-3xl font-bold text-dark-charcoal">Add Sprint Entry</h2>
             <p className="text-gray-600">Record your daily progress and task completion</p>
           </div>
 

@@ -43,16 +43,16 @@ export const SprintsView = ({ userRole }) => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="p-8 space-y-6">
+      {/* Header - Forest Gradient Theme */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Sprints</h1>
+          <h1 className="text-4xl font-bold text-dark-charcoal">Sprints</h1>
           <p className="text-gray-600 text-sm mt-1">Manage sprints and their associated team plans</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+          className="px-6 py-2 bg-gradient-action hover:shadow-lg text-white rounded-lg font-medium transition-all duration-300 hover:scale-105"
         >
           {showForm ? 'Cancel' : '+ New Sprint'}
         </button>
@@ -60,7 +60,7 @@ export const SprintsView = ({ userRole }) => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-[24px] shadow-card-soft">
           {error}
         </div>
       )}

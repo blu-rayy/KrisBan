@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import { supabase } from '../config/database.js';
 import jwt from 'jsonwebtoken';
 
 // Generate JWT Token
@@ -209,6 +210,59 @@ export const getMe = async (req, res) => {
     res.status(200).json({
       success: true,
       user: user.getPublicProfile()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @route   PUT /api/auth/profile
+// @desc    Update user profile (profile picture, etc)
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const { profile_picture } = req.body;
+    const userId = req.user.id;
+
+    // Validate input
+    if (!profile_picture) {
+      return res.status(400).json({
+        success: false,
+        message: 'No profile picture provided'
+      });
+    }
+
+    // Find user and update
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update profile picture directly in database
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ profile_picture })
+      .eq('id', userId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    // Fetch updated user
+    const updatedUser = await User.findById(userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: updatedUser.getPublicProfile()
+      }
     });
   } catch (error) {
     res.status(500).json({

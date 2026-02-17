@@ -244,8 +244,8 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Add Progress Report Entry</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-card-soft p-6 mb-8 border border-gray-100">
+      <h2 className="text-2xl font-bold text-dark-charcoal mb-6">Add Progress Report Entry</h2>
 
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -256,7 +256,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Date */}
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="date" className="block text-sm font-medium text-dark-charcoal mb-2">
             Date <span className="text-red-500">*</span>
           </label>
           <input
@@ -265,7 +265,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
             name="date"
             value={formData.date}
             onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
               errors.date ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -274,7 +274,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Member */}
         <div>
-          <label htmlFor="memberId" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="memberId" className="block text-sm font-medium text-dark-charcoal mb-2">
             Member <span className="text-red-500">*</span>
           </label>
           {userRole === 'ADMIN' && members.length > 1 ? (
@@ -283,7 +283,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
               name="memberId"
               value={formData.memberId}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
                 errors.memberId ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -295,7 +295,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
               ))}
             </select>
           ) : (
-            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium">
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-surface-ground text-dark-charcoal font-medium">
               {user?.username || 'Current User'}
             </div>
           )}
@@ -309,7 +309,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Sprint No. */}
         <div>
-          <label htmlFor="sprintNo" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal mb-2">
             Sprint No. <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2 items-center">
@@ -318,7 +318,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
               name="sprintNo"
               value={formData.sprintNo}
               onChange={handleInputChange}
-              className={`flex-1 px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`flex-1 px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
                 errors.sprintNo ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -342,7 +342,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
               onClick={handleRefreshSprints}
               disabled={refreshingSprints}
               title="Refresh sprint list"
-              className="p-2 bg-transparent hover:bg-blue-100 text-blue-600 hover:text-blue-700 rounded-lg transition disabled:opacity-50"
+              className="p-2 bg-transparent hover:bg-green-100 text-forest-green hover:text-emerald-deep rounded-lg transition disabled:opacity-50"
             >
               {refreshingSprints ? '⟳' : '↻'}
             </button>
@@ -353,7 +353,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Team Plan */}
         <div className="relative">
-          <label htmlFor="teamPlan" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="teamPlan" className="block text-sm font-medium text-dark-charcoal mb-2">
             Team Plan
           </label>
           <input
@@ -364,17 +364,17 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
             onChange={handleInputChange}
             onFocus={() => formData.teamPlan && setShowSuggestions(true)}
             placeholder="Enter team plan details or select from suggestions"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-              <div className="p-2 text-xs text-gray-500 bg-gray-50 font-semibold">Suggestions for this sprint</div>
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-card-soft max-h-48 overflow-y-auto">
+              <div className="p-2 text-xs text-gray-600 bg-surface-ground font-semibold">Suggestions for this sprint</div>
               {filteredSuggestions.map((suggestion, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleTeamPlanSuggestionClick(suggestion)}
-                  className="w-full text-left px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 border-b border-gray-100 last:border-b-0 transition"
+                  className="w-full text-left px-4 py-2 hover:bg-green-50 text-sm text-dark-charcoal border-b border-gray-100 last:border-b-0 transition"
                 >
                   {suggestion}
                 </button>
@@ -385,7 +385,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="category" className="block text-sm font-medium text-dark-charcoal mb-2">
             Category <span className="text-red-500">*</span>
           </label>
           <select
@@ -393,7 +393,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
               errors.category ? 'border-red-500' : 'border-gray-300'
             }`}
           >
@@ -408,7 +408,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Task Done */}
         <div className="md:col-span-2">
-          <label htmlFor="taskDone" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="taskDone" className="block text-sm font-medium text-dark-charcoal mb-2">
             Task Done <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -418,7 +418,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
             onChange={handleInputChange}
             placeholder="Describe the task completed"
             rows="4"
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none ${
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none transition ${
               errors.taskDone ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -427,7 +427,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
 
         {/* Image Upload */}
         <div className="md:col-span-2">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="image" className="block text-sm font-medium text-dark-charcoal mb-2">
             Image <span className="text-red-500">*</span> (Max 5MB)
           </label>
           {errors.image && <p className="mb-2 text-sm text-red-500">{errors.image}</p>}
@@ -438,7 +438,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
               accept="image/*"
               onChange={handleImageChange}
               disabled={uploadingImage}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-forest-green hover:file:bg-green-100 disabled:opacity-50 transition"
             />
             {imagePreview && (
               <div className="relative">
@@ -453,7 +453,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
                     setImageFile(null);
                     setImagePreview(null);
                   }}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs hover:bg-red-600 transition font-medium"
                 >
                   Remove
                 </button>
@@ -480,14 +480,14 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
             setImagePreview(null);
             setErrors({});
           }}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+          className="px-6 py-2 border border-gray-300 rounded-lg text-dark-charcoal hover:bg-gray-50 font-medium transition"
         >
           Clear
         </button>
         <button
           type="submit"
           disabled={loading || uploadingImage}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+          className="px-6 py-2 bg-gradient-action hover:opacity-90 text-white rounded-lg font-medium transition disabled:opacity-50"
         >
           {loading || uploadingImage ? 'Submitting...' : 'Submit Entry'}
         </button>

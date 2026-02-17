@@ -1,0 +1,698 @@
+/**
+ * FOREST GRADIENT THEME - Raw CSS Reference
+ * 
+ * This file provides raw CSS equivalents for all design tokens and utilities.
+ * Use this as a reference if you need to manually style elements without Tailwind.
+ */
+
+/* ============================================================
+   ROOT COLOR VARIABLES
+   ============================================================ */
+
+:root {
+  /* Surface Colors */
+  --surface-main: #ffffff;
+  --surface-ground: #f8f9fa;
+
+  /* Primary Text */
+  --dark-charcoal: #1f2937;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+
+  /* Accent Colors */
+  --forest-green: #15803d;
+  --emerald-deep: #064e3b;
+  --dark-emerald: #022c22;
+  --leaf-green: #10b981;
+
+  /* Gradients */
+  --gradient-hero: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
+  --gradient-dark: linear-gradient(135deg, #022c22 0%, #000000 100%);
+  --gradient-action: linear-gradient(135deg, #10b981 0%, #047857 100%);
+
+  /* Shadows */
+  --shadow-card-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  --shadow-card-elevated: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-base: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-base: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-card: 24px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+}
+
+/* ============================================================
+   BASE ELEMENT STYLES
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface-ground);
+  color: var(--dark-charcoal);
+}
+
+/* ============================================================
+   CARD COMPONENTS
+   ============================================================ */
+
+/* Base Card */
+.card {
+  border-radius: var(--radius-card);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+/* White Card Variant */
+.card-white {
+  background-color: var(--surface-main);
+  color: var(--dark-charcoal);
+  box-shadow: var(--shadow-card-soft);
+  padding: var(--spacing-md);
+}
+
+.card-white:hover {
+  box-shadow: var(--shadow-card-elevated);
+}
+
+/* Hero Card Variant (Forest Gradient) */
+.card-hero {
+  background: var(--gradient-hero);
+  color: #ffffff;
+  box-shadow: none;
+  padding: var(--spacing-md);
+}
+
+.card-hero:hover {
+  box-shadow: 0 4px 16px -4px rgba(21, 128, 61, 0.2);
+}
+
+/* Dark Card Variant */
+.card-dark {
+  background: var(--gradient-dark);
+  color: #ffffff;
+  box-shadow: none;
+  padding: var(--spacing-md);
+}
+
+.card-dark:hover {
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   ICON WRAPPERS
+   ============================================================ */
+
+/* Icon Wrapper - Base */
+.icon-wrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Wrapper - White Card Style */
+.icon-wrapper-white {
+  background-color: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  color: var(--dark-charcoal);
+}
+
+/* Icon Wrapper - Gradient Card Style */
+.icon-wrapper-gradient {
+  background-color: #ffffff;
+  color: var(--forest-green);
+  border: none;
+}
+
+/* Icon Wrapper - Dark Card Style */
+.icon-wrapper-dark {
+  background-color: #ffffff;
+  color: var(--dark-emerald);
+  border: none;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+
+/* Stat Value - Large Number */
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Stat Title - Label */
+.stat-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.85;
+}
+
+/* Stat Subtitle - Supporting Text */
+.stat-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Heading Styles */
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark-charcoal);
+}
+
+h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--dark-charcoal);
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dark-charcoal);
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-charcoal);
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--dark-charcoal);
+}
+
+p.text-secondary {
+  color: var(--gray-600);
+}
+
+p.text-muted {
+  color: var(--gray-500);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+/* Primary Action Button */
+.btn-primary {
+  background: var(--gradient-action);
+  color: #ffffff;
+  border: none;
+  padding: var(--spacing-base) var(--spacing-md);
+  border-radius: var(--radius-card);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: none;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--surface-main);
+  color: var(--dark-charcoal);
+  border: 1px solid #e5e7eb;
+  padding: var(--spacing-base) var(--spacing-md);
+  border-radius: var(--radius-card);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+  background-color: #f9fafb;
+  box-shadow: var(--shadow-card-soft);
+}
+
+/* ============================================================
+   GRID LAYOUTS
+   ============================================================ */
+
+/* 4-Column Grid */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* 3-Column Grid */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* 2-Column Grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* Responsive Grid - 4 Columns */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+/* Display */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: var(--spacing-sm);
+}
+
+.gap-4 {
+  gap: var(--spacing-base);
+}
+
+.gap-6 {
+  gap: var(--spacing-md);
+}
+
+/* Padding */
+.p-4 {
+  padding: var(--spacing-base);
+}
+
+.p-6 {
+  padding: var(--spacing-md);
+}
+
+.p-8 {
+  padding: var(--spacing-lg);
+}
+
+.px-4 {
+  padding-left: var(--spacing-base);
+  padding-right: var(--spacing-base);
+}
+
+.px-6 {
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+.py-4 {
+  padding-top: var(--spacing-base);
+  padding-bottom: var(--spacing-base);
+}
+
+.py-6 {
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+}
+
+/* Margin */
+.mb-2 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-base);
+}
+
+.mb-6 {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-8 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mt-4 {
+  margin-top: var(--spacing-base);
+}
+
+.mt-6 {
+  margin-top: var(--spacing-md);
+}
+
+.space-y-4 > * + * {
+  margin-top: var(--spacing-base);
+}
+
+.space-y-6 > * + * {
+  margin-top: var(--spacing-md);
+}
+
+/* Text Colors */
+.text-dark-charcoal {
+  color: var(--dark-charcoal);
+}
+
+.text-forest-green {
+  color: var(--forest-green);
+}
+
+.text-leaf-green {
+  color: var(--leaf-green);
+}
+
+.text-gray-600 {
+  color: var(--gray-600);
+}
+
+.text-gray-500 {
+  color: var(--gray-500);
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+/* Font Sizes */
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-base {
+  font-size: 1rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+}
+
+/* Font Weights */
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* Border Radius */
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-base {
+  border-radius: var(--radius-base);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-card {
+  border-radius: var(--radius-card);
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Shadows */
+.shadow-soft {
+  box-shadow: var(--shadow-card-soft);
+}
+
+.shadow-elevated {
+  box-shadow: var(--shadow-card-elevated);
+}
+
+.shadow-none {
+  box-shadow: none;
+}
+
+/* Transforms & Transitions */
+.transition-all {
+  transition: all var(--transition-base);
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: var(--shadow-card-elevated);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: slideInUp var(--transition-slow);
+}
+
+/* ============================================================
+   RESPONSIVE UTILITIES
+   ============================================================ */
+
+/* Large Screens (1024px+) */
+@media (min-width: 1024px) {
+  .lg\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
+  .lg\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+  .sm\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.875rem;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+/* Focus States for Keyboard Navigation */
+button:focus,
+a:focus {
+  outline: 2px solid var(--forest-green);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+/* ============================================================
+   UTILITY REFERENCE
+   ============================================================ */
+
+/*
+  COLOR UTILITIES:
+  .text-{color}
+    - text-dark-charcoal
+    - text-forest-green
+    - text-leaf-green
+    - text-gray-600
+    - text-gray-500
+    - text-white
+
+  LAYOUT UTILITIES:
+  .flex, .flex-col, .flex-row
+  .items-center, .items-start, .items-end
+  .justify-between, .justify-center
+  .gap-2, .gap-4, .gap-6
+
+  SPACING UTILITIES:
+  .p-4, .p-6, .p-8
+  .px-4, .px-6
+  .py-4, .py-6
+  .m-4, .m-6, .m-8
+  .mb-2, .mb-4, .mb-6, .mb-8
+  .mt-4, .mt-6
+  .space-y-4, .space-y-6
+
+  TYPOGRAPHY UTILITIES:
+  .text-xs, .text-sm, .text-base, .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl
+  .font-normal, .font-medium, .font-semibold, .font-bold
+
+  CARD UTILITIES:
+  .card, .card-white, .card-hero, .card-dark
+
+  BUTTON UTILITIES:
+  .btn-primary, .btn-secondary
+
+  GRID UTILITIES:
+  .grid-2, .grid-3, .grid-4
+
+  SHADOW UTILITIES:
+  .shadow-soft, .shadow-elevated, .shadow-none
+
+  BORDER RADIUS:
+  .rounded-sm, .rounded-base, .rounded-lg, .rounded-card, .rounded-full
+
+  ANIMATION UTILITIES:
+  .animate-in
+
+  RESPONSIVE UTILITIES:
+  .lg\:col-span-2, .lg\:col-span-3
+  .md\:grid-cols-2
+*/
