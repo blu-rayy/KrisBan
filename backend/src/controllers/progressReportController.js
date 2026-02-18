@@ -137,24 +137,12 @@ export const getProgressReports = async (req, res) => {
   try {
     const { date, memberId, sprintNo, category } = req.query;
 
-    // Use a single query with joins instead of N+2 pattern
+    console.log('Fetching progress reports with filters:', { date, memberId, sprintNo, category });
+
+    // Use a simple query first, then enrich
     let query = supabase
       .from('progress_reports')
-      .select(`
-        id,
-        date,
-        member_id,
-        sprint_no,
-        sprint_id,
-        team_plan,
-        category,
-        task_done,
-        image_url,
-        created_by,
-        created_at,
-        updated_at,
-        sprints:sprint_id(sprint_number)
-      `);
+      .select('*');
 
     if (date) query = query.eq('date', date);
     if (memberId) query = query.eq('member_id', memberId);
@@ -163,24 +151,31 @@ export const getProgressReports = async (req, res) => {
 
     const { data: reports, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase query error:', error);
+      throw error;
+    }
 
-    // Enrich with member details (this is still needed since members aren't in DB as a linked table for progress reports)
+    console.log('Retrieved reports from DB:', reports?.length || 0);
+
+    // Enrich with member details
     const enrichedReports = await Promise.all(
       (reports || []).map(async (report) => {
-        const member = await User.findById(report.member_id);
-        
-        // Use fetched sprint number if available, otherwise use denormalized value
-        let displaySprintNo = report.sprint_no;
-        if (report.sprints && report.sprints.sprint_number) {
-          displaySprintNo = report.sprints.sprint_number;
+        let member = null;
+        try {
+          member = await User.findById(report.member_id);
+        } catch (memberError) {
+          console.warn(`Could not fetch user ${report.member_id}:`, memberError.message);
         }
         
         return {
           id: String(report.id),
           date: report.date,
           memberId: String(report.member_id),
-          sprintNo: displaySprintNo,
+          memberName: report.memberName || member?.username || 'Unknown',
+          memberFullName: report.memberFullName || member?.fullName || 'Unknown',
+          memberEmail: report.memberEmail || member?.instituteEmail || member?.personalEmail || 'Unknown',
+          sprintNo: report.sprint_no,
           sprintId: report.sprint_id ? String(report.sprint_id) : null,
           teamPlan: report.team_plan,
           category: report.category,
@@ -188,13 +183,12 @@ export const getProgressReports = async (req, res) => {
           imageUrl: report.image_url,
           createdBy: String(report.created_by),
           createdAt: report.created_at,
-          updatedAt: report.updated_at,
-          memberName: member?.username || 'Unknown',
-          memberFullName: member?.fullName || 'Unknown',
-          memberEmail: member?.instituteEmail || member?.personalEmail || 'Unknown'
+          updatedAt: report.updated_at
         };
       })
     );
+
+    console.log('Returning enriched reports:', enrichedReports.length);
 
     res.status(200).json({
       success: true,
@@ -204,7 +198,7 @@ export const getProgressReports = async (req, res) => {
     console.error('Error in getProgressReports:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to fetch progress reports'
     });
   }
 };
