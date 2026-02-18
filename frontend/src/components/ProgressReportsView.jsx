@@ -40,11 +40,16 @@ export const ProgressReportsView = () => {
   const fetchProgressReports = async () => {
     try {
       setReportsLoading(true);
+      console.log('Fetching progress reports...');
       const response = await dashboardService.getProgressReports();
+      console.log('Progress reports response:', response.data);
       setProgressReports(response.data.data || []);
       setReportsError('');
     } catch (err) {
+      console.error('Progress reports fetch error:', err);
+      console.error('Error response:', err.response?.data);
       setReportsError(err.response?.data?.message || 'Failed to load progress reports');
+      setProgressReports([]); // Set empty array to prevent crashes
     } finally {
       setReportsLoading(false);
     }

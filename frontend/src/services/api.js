@@ -5,6 +5,9 @@ const API_BASE_URL = isProduction
   ? 'https://krisban-backend.onrender.com/api'
   : 'http://localhost:5000/api';
 
+console.log('Environment:', isProduction ? 'Production' : 'Development');
+console.log('API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL
 });
@@ -17,6 +20,21 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor for better error logging
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Auth services
 export const authService = {

@@ -113,10 +113,13 @@ export const DashboardView = ({ dashboardData, userRole }) => {
     return weekData;
   };
 
-  const totalProjects = stats.totalProjects || 0;
-  const endedProjects = stats.completedProjects || stats.endedProjects || 0;
-  const runningProjects = stats.activeProjects || stats.runningProjects || 0;
-  const pendingProjects = stats.pendingProjects || 0;
+  // Extract stats from backend structure (summary contains the stats)
+  const summary = dashboardData?.summary || {};
+  const totalProjects = summary.totalProjects || summary.totalBoards || 0;
+  const totalCards = summary.totalCards || 0;
+  const endedProjects = summary.completedProjects || summary.endedProjects || 0;
+  const runningProjects = summary.activeProjects || summary.runningProjects || 0;
+  const pendingProjects = summary.pendingProjects || 0;
 
   return (
     <div className="min-h-screen bg-surface-ground p-8">

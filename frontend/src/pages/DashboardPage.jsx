@@ -31,11 +31,17 @@ export const DashboardPage = () => {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
+      console.log('Fetching dashboard data...');
       const response = await dashboardService.getDashboard();
+      console.log('Dashboard response:', response.data);
       setDashboardData(response.data.data);
       setError('');
     } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      console.error('Error response:', err.response?.data);
       setError(err.response?.data?.message || 'Failed to load dashboard');
+      // Set empty dashboard data to prevent crashes
+      setDashboardData({ summary: {}, boards: [] });
     } finally {
       setLoading(false);
     }
