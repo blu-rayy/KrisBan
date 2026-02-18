@@ -75,8 +75,8 @@ export const DashboardPage = () => {
                 className="flex items-center gap-4 pl-4 border-l border-gray-200 hover:opacity-80 transition cursor-pointer"
               >
                 <div className="w-10 h-10 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
-                  {user?.profile_picture ? (
-                    <img src={user.profile_picture} alt={user?.fullName} className="w-full h-full object-cover" />
+                  {user?.profilePicture ? (
+                    <img src={user.profilePicture} alt={user?.fullName} className="w-full h-full object-cover" />
                   ) : (
                     (user?.fullName || user?.username || user?.email || 'U')[0].toUpperCase()
                   )}

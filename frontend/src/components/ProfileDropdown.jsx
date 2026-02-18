@@ -74,8 +74,8 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden">
-              {user?.profile_picture ? (
-                <img src={user.profile_picture} alt={user?.username} className="w-full h-full object-cover" />
+              {user?.profilePicture ? (
+                <img src={user.profilePicture} alt={user?.username} className="w-full h-full object-cover" />
               ) : (
                 (user?.username || user?.fullName || 'U')[0].toUpperCase()
               )}

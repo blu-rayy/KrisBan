@@ -201,6 +201,7 @@ export const getProgressReports = async (req, res) => {
       data: enrichedReports
     });
   } catch (error) {
+    console.error('Error in getProgressReports:', error);
     res.status(500).json({
       success: false,
       message: error.message

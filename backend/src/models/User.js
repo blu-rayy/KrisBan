@@ -171,7 +171,7 @@ class User {
           instituteEmail: this.instituteEmail,
           personalEmail: this.personalEmail,
           isFirstLogin: this.isFirstLogin,
-          profile_picture: this.profilePicture
+          profilePicture: this.profilePicture
         };
       }
     };
