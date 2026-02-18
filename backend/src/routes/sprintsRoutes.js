@@ -7,9 +7,7 @@ import {
   updateSprint,
   deleteSprint,
   addTeamPlan,
-  updateTeamPlan,
-  removeTeamPlan,
-  cleanupDuplicates
+  removeTeamPlan
 } from '../controllers/sprintsController.js';
 
 const router = express.Router();
@@ -26,10 +24,6 @@ router.delete('/:id', deleteSprint);
 
 // Team Plan routes
 router.post('/:id/team-plans', addTeamPlan);
-router.put('/team-plans/:teamPlanId', updateTeamPlan);
-router.delete('/team-plans/:teamPlanId', removeTeamPlan);
-
-// Cleanup routes
-router.post('/cleanup/duplicates', cleanupDuplicates);
+router.delete('/:id/team-plans/:plan', removeTeamPlan);
 
 export default router;
