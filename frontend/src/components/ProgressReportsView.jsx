@@ -7,6 +7,8 @@ import { ProgressReportViewOnly } from './ProgressReportViewOnly';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useInfiniteProgressReports } from '../hooks/useProgressReports';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ChartBarLineIcon, NoteAddIcon, Task01Icon } from '@hugeicons/core-free-icons';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
@@ -53,7 +55,6 @@ export const ProgressReportsView = () => {
     reports.forEach((report) => {
       if (report.memberId && !uniqueUsers.has(report.memberId)) {
         uniqueUsers.set(report.memberId, {
-          id: report.memberId,
           username: report.memberName,
           name: report.memberName,
           email: report.memberEmail
@@ -75,7 +76,7 @@ export const ProgressReportsView = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'projects-overview' && user?.role === 'ADMIN' && !reportData && !loading) {
+    if (activeTab === 'tickets-overview' && user?.role === 'ADMIN' && !reportData && !loading) {
       fetchProgressReport();
     }
   }, [activeTab, user?.role, reportData, loading]);
@@ -189,7 +190,10 @@ export const ProgressReportsView = () => {
               : 'border-transparent text-gray-600 hover:text-dark-charcoal'
           }`}
         >
-          👁️ Entries
+          <span className="inline-flex items-center gap-2">
+            <HugeiconsIcon icon={Task01Icon} size={18} color="currentColor" />
+            <span>Entries</span>
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('sprint-tracker')}
@@ -199,18 +203,24 @@ export const ProgressReportsView = () => {
               : 'border-transparent text-gray-600 hover:text-dark-charcoal'
           }`}
         >
-          📋 Add Entry
+          <span className="inline-flex items-center gap-2">
+            <HugeiconsIcon icon={NoteAddIcon} size={18} color="currentColor" />
+            <span>Add Entry</span>
+          </span>
         </button>
         {user?.role === 'ADMIN' && (
           <button
-            onClick={() => setActiveTab('projects-overview')}
+            onClick={() => setActiveTab('tickets-overview')}
             className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
-              activeTab === 'projects-overview'
+              activeTab === 'tickets-overview'
                 ? 'border-forest-green text-forest-green'
                 : 'border-transparent text-gray-600 hover:text-dark-charcoal'
             }`}
           >
-            📊 Projects Overview
+            <span className="inline-flex items-center gap-2">
+              <HugeiconsIcon icon={ChartBarLineIcon} size={18} color="currentColor" />
+              <span>Tickets Overview</span>
+            </span>
           </button>
         )}
       </div>
@@ -292,13 +302,13 @@ export const ProgressReportsView = () => {
         </div>
       )}
 
-      {/* Projects Overview Tab (Admin Only) */}
-      {activeTab === 'projects-overview' && reportData && (
+      {/* Tickets Overview Tab (Admin Only) */}
+      {activeTab === 'tickets-overview' && reportData && (
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Projects Overview</h2>
-            <p className="text-gray-600">Comprehensive overview of all active projects</p>
+            <h2 className="text-2xl font-bold text-gray-900">Tickets Overview</h2>
+            <p className="text-gray-600">Comprehensive overview of all active tickets</p>
           </div>
 
           {/* Summary Stats */}
@@ -306,7 +316,7 @@ export const ProgressReportsView = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Total Projects</p>
+                  <p className="text-gray-600 text-sm font-medium">Total Tickets</p>
                   <p className="text-3xl font-bold text-gray-900">{reportData.totalBoards}</p>
                 </div>
                 <div className="text-4xl">📊</div>
@@ -328,7 +338,7 @@ export const ProgressReportsView = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Avg Tasks/Project</p>
+                  <p className="text-gray-600 text-sm font-medium">Avg Tasks/Ticket</p>
                   <p className="text-3xl font-bold text-gray-900">
                     {reportData.totalBoards > 0
                       ? (
@@ -373,16 +383,16 @@ export const ProgressReportsView = () => {
             </div>
           </div>
 
-          {/* Projects Table */}
+          {/* Tickets Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Project Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Ticket Details</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Project</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Ticket</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Owner</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Members</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Tasks</th>
@@ -421,15 +431,15 @@ export const ProgressReportsView = () => {
             Last updated: {new Date(reportData.timestamp).toLocaleString()}
           </div>
         </div>
-      )}
+      )}}
 
-      {loading && activeTab === 'projects-overview' && (
+      {loading && activeTab === 'tickets-overview' && (
         <div className="flex items-center justify-center h-96">
           <div className="text-gray-600">Loading progress report...</div>
         </div>
       )}
 
-      {error && activeTab === 'projects-overview' && (
+      {error && activeTab === 'tickets-overview' && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {error}
         </div>

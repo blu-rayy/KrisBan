@@ -33,9 +33,9 @@ export const useSprints = () => {
       return response?.data?.data || [];
     },
     initialData: readSprintsCache,
-    staleTime: 600000,
+    staleTime: 300000,
     keepPreviousData: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
     onSuccess: (data) => {
       writeSprintsCache(data);
     }

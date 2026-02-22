@@ -1,6 +1,8 @@
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { authService } from '../services/api';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Logout03Icon, Edit02Icon } from '@hugeicons/core-free-icons';
 
 export const ProfileDropdown = ({ isOpen, onClose }) => {
   const { user, setUser } = useContext(AuthContext);
@@ -73,12 +75,22 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
         {/* Header with Profile */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden">
-              {user?.profilePicture ? (
-                <img src={user.profilePicture} alt={user?.username} className="w-full h-full object-cover" />
-              ) : (
-                (user?.username || user?.fullName || 'U')[0].toUpperCase()
-              )}
+            <div className="relative group">
+              <div className="w-16 h-16 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden">
+                {user?.profilePicture ? (
+                  <img src={user.profilePicture} alt={user?.username} className="w-full h-full object-cover" />
+                ) : (
+                  (user?.username || user?.fullName || 'U')[0].toUpperCase()
+                )}
+              </div>
+              {/* Edit Icon Overlay */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute bottom-0 right-0 bg-forest-green text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <HugeiconsIcon icon={Edit02Icon} size={16} color="currentColor" />
+              </button>
             </div>
             <div>
               <p className="font-semibold text-dark-charcoal">{user?.username}</p>
@@ -103,33 +115,27 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Profile Picture Upload */}
-        <div className="p-6 border-b border-gray-100">
-          {error && (
-            <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg mb-3 text-sm">
+        {/* Profile Picture Upload - Hidden */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleProfilePictureChange}
+          className="hidden"
+        />
+        {error && (
+          <div className="px-6 pt-4">
+            <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm">
               {error}
             </div>
-          )}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="w-full px-4 py-2 border-2 border-forest-green text-forest-green font-medium rounded-lg hover:bg-green-50 disabled:opacity-60 transition"
-          >
-            {uploading ? 'Uploading...' : 'Change Profile Picture'}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleProfilePictureChange}
-            className="hidden"
-          />
-        </div>
+          </div>
+        )}
 
         {/* Footer Actions */}
         <div className="p-6">
-          <button className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition">
-            Logout
+          <button className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition flex items-center gap-3">
+            <HugeiconsIcon icon={Logout03Icon} size={18} color="currentColor" />
+            <span>Logout</span>
           </button>
         </div>
       </div>

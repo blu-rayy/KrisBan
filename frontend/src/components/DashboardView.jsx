@@ -62,15 +62,10 @@ export const DashboardView = ({ dashboardData, userRole }) => {
         {/* Action Buttons - Top Right */}
         <div className="flex flex-wrap gap-3">
           <button
-            onClick={() => console.log('Import Data')}
-            className="px-4 sm:px-6 py-2 bg-white border-2 border-dark-charcoal text-dark-charcoal rounded-full font-semibold hover:bg-gray-50 transition-all duration-300 text-sm sm:text-base"
+            disabled
+            className="relative px-4 sm:px-6 py-2 bg-gradient-hero text-white rounded-full font-semibold text-sm sm:text-base opacity-50 cursor-not-allowed"
           >
-            Import Data
-          </button>
-          <button
-            onClick={() => console.log('Add Project')}
-            className="px-4 sm:px-6 py-2 bg-gradient-hero text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
-          >
+            <div className="absolute inset-0 bg-gray-500 rounded-full opacity-40" />
             + Add Project
           </button>
         </div>
@@ -78,39 +73,39 @@ export const DashboardView = ({ dashboardData, userRole }) => {
 
       {/* Row 1: Quick Stats (4 columns) - Bento Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Hero Card - Total Projects (Gradient) */}
+        {/* Hero Card - Total Tickets (Gradient) */}
         <StatCard
           variant="hero"
-          title="Total Projects"
-          value={totalProjects}
-          subtitle="All active and completed projects"
+          title="Total Tickets"
+          value="（´∇｀''）"
+          subtitle="All active and completed tickets"
           icon="📊"
-          trend={totalProjects > 0 ? "↑ +4" : ""}
+          trend=""
         />
 
-        {/* Ended Projects - White Card */}
+        {/* Ended Tickets - White Card */}
         <StatCard
           variant="white"
-          title="Ended Projects"
-          value={endedProjects}
+          title="Ended Tickets"
+          value="(ᵕ—ᴗ—)"
           subtitle="Successfully completed"
           icon="✓"
         />
 
-        {/* Running Projects - White Card */}
+        {/* Running Tickets - White Card */}
         <StatCard
           variant="white"
-          title="Running Projects"
-          value={runningProjects}
+          title="Running Tickets"
+          value="( •̯́ ₃ •̯̀)"
           subtitle="Currently in progress"
           icon="⚡"
         />
 
-        {/* Pending Projects - White Card */}
+        {/* Pending Ticket - White Card */}
         <StatCard
           variant="white"
-          title="Pending Project"
-          value={pendingProjects}
+          title="Pending Ticket"
+          value="( ◡̀_◡́)ᕤ"
           subtitle="Awaiting action"
           icon="⏳"
         />

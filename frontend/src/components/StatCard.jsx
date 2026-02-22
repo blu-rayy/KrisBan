@@ -72,7 +72,7 @@ export const StatCard = ({
       </p>
 
       {/* Value */}
-      <h3 className={`text-4xl font-bold mb-2 ${variant === 'white' ? 'text-dark-charcoal' : 'text-white'}`}>
+      <h3 className={`text-3xl font-bold mb-2 text-left leading-relaxed ${variant === 'white' ? 'text-dark-charcoal' : 'text-white'}`}>
         {value}
       </h3>
 

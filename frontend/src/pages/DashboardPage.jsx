@@ -11,6 +11,8 @@ import { ProfileDropdown } from '../components/ProfileDropdown';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Menu01Icon } from '@hugeicons/core-free-icons';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
@@ -62,12 +64,6 @@ export const DashboardPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   if (isLoading && !dashboardData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-surface-ground">
@@ -89,7 +85,7 @@ export const DashboardPage = () => {
                 className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
                 aria-label={isMobileSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
               >
-                ☰
+                <HugeiconsIcon icon={Menu01Icon} size={20} color="currentColor" />
               </button>
               <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                 KrisBan
@@ -141,7 +137,6 @@ export const DashboardPage = () => {
           activeSection={activeSection} 
           setActiveSection={setActiveSection}
           userRole={user?.role}
-          onLogout={handleLogout}
           isCollapsed={isSidebarCollapsed}
           isMobile={isMobile}
           isMobileOpen={isMobileSidebarOpen}
@@ -150,7 +145,7 @@ export const DashboardPage = () => {
         />
 
         {/* Content Area - Add margin for fixed sidebar */}
-        <main className={`flex-1 overflow-auto transition-all duration-300 ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+        <main className={`flex-1 overflow-auto transition-[margin-left] duration-300 ease-in-out ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
           {isError && error && (
             <div className="m-8 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error.message || 'Failed to load dashboard'}

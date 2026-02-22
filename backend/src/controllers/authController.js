@@ -235,7 +235,7 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    // Find user and update
+    // Find user and get current profile picture
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -244,6 +244,7 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+    // The old profile picture will be overwritten automatically
     // Update profile picture directly in database
     const { error: updateError } = await supabase
       .from('users')

@@ -62,7 +62,8 @@ const sprintSortComparator = (a, b) => {
 // @access  Private
 export const getSprints = async (req, res) => {
   try {
-    console.log('Fetching sprints...');
+    console.log('🔍 [GET /api/sprints] Request received');
+    console.log('👤 User ID:', req.user?.id);
     
     const { data: sprints, error } = await supabase
       .from('sprints')
@@ -70,11 +71,14 @@ export const getSprints = async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Supabase error fetching sprints:', error);
+      console.error('❌ Supabase error fetching sprints:', error);
       throw error;
     }
 
-    console.log('Retrieved sprints:', sprints?.length || 0);
+    console.log('✅ Retrieved sprints:', sprints?.length || 0, 'sprints');
+    if (sprints && sprints.length > 0) {
+      console.log('📋 Sprint IDs:', sprints.map(s => s.id));
+    }
 
     const sprintIds = (sprints || []).map((sprint) => sprint.id);
     let teamPlansBySprint = new Map();
@@ -147,12 +151,14 @@ export const getSprints = async (req, res) => {
       { sprint_number: b.sprintNumber }
     ));
 
+    console.log('📦 Formatted sprints:', formattedSprints.length, 'sprints');
+
     res.status(200).json({
       success: true,
       data: formattedSprints
     });
   } catch (error) {
-    console.error('Error in getSprints:', error);
+    console.error('❌ Error in getSprints:', error.message);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to fetch sprints'

@@ -1,10 +1,21 @@
-import { useState } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Cancel01Icon,
+  ChartBarLineIcon,
+  DashboardSquare01Icon,
+  DocumentAttachmentIcon,
+  FlashIcon,
+  HelpCircleIcon,
+  KanbanIcon,
+  Menu01Icon,
+  Settings01Icon,
+  Ticket01Icon
+} from '@hugeicons/core-free-icons';
 
 export const Sidebar = ({
   activeSection,
   setActiveSection,
   userRole,
-  onLogout,
   isCollapsed = false,
   isMobile = false,
   isMobileOpen = false,
@@ -15,7 +26,7 @@ export const Sidebar = ({
     {
       id: 'dashboard',
       label: 'Dashboard',
-      icon: '🏠',
+      icon: DashboardSquare01Icon,
       status: 'active',
       visibility: 'all',
       section: 'MENU'
@@ -23,7 +34,7 @@ export const Sidebar = ({
     {
       id: 'progress-reports',
       label: 'Progress Reports',
-      icon: '📈',
+      icon: ChartBarLineIcon,
       status: 'active',
       visibility: 'all',
       section: 'MENU',
@@ -32,7 +43,7 @@ export const Sidebar = ({
     {
       id: 'sprints',
       label: 'Sprints',
-      icon: '⚡',
+      icon: FlashIcon,
       status: 'active',
       visibility: 'all',
       section: 'MENU'
@@ -40,7 +51,7 @@ export const Sidebar = ({
     {
       id: 'kanban',
       label: 'KanBan',
-      icon: '📊',
+      icon: KanbanIcon,
       status: 'TBD',
       visibility: 'all',
       section: 'MENU'
@@ -48,7 +59,7 @@ export const Sidebar = ({
     {
       id: 'documents',
       label: 'Documents',
-      icon: '📄',
+      icon: DocumentAttachmentIcon,
       status: 'TBD',
       visibility: 'all',
       section: 'MENU'
@@ -56,7 +67,7 @@ export const Sidebar = ({
     {
       id: 'tickets',
       label: 'Tickets',
-      icon: '🎫',
+      icon: Ticket01Icon,
       status: 'TBD',
       visibility: 'all',
       section: 'MENU'
@@ -67,24 +78,16 @@ export const Sidebar = ({
     {
       id: 'settings',
       label: 'Settings',
-      icon: '⚙️',
+      icon: Settings01Icon,
       action: () => console.log('Settings clicked'),
       section: 'GENERAL'
     },
     {
       id: 'help',
       label: 'Help',
-      icon: '❓',
+      icon: HelpCircleIcon,
       action: () => console.log('Help clicked'),
       section: 'GENERAL'
-    },
-    {
-      id: 'logout',
-      label: 'Logout',
-      icon: '🚪',
-      action: onLogout,
-      section: 'GENERAL',
-      isDanger: true
     }
   ];
 
@@ -100,29 +103,36 @@ export const Sidebar = ({
 
   return (
     <aside
-      className={`bg-white border-r border-gray-200 h-[calc(100vh-80px)] shadow-sm flex flex-col fixed left-0 top-20 z-40 transition-all duration-300 ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
+      className={`bg-white border-r border-gray-200 h-[calc(100vh-80px)] shadow-sm flex flex-col fixed left-0 top-20 z-40 transition-[width,transform] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
     >
-      <div className={`px-4 pt-4 ${shouldShowText ? 'flex justify-end' : 'flex justify-center'} lg:flex`}>
+      <div className="px-4 pt-4 pb-2 h-14 relative">
         <button
           onClick={isMobile ? onCloseMobile : onToggleCollapse}
-          className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
-          aria-label={isMobile ? 'Close sidebar' : (isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
+          className={`inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition-all duration-300 ease-in-out absolute top-4 ${
+            isMobile
+              ? 'right-4'
+              : isCollapsed
+              ? 'left-1/2 -translate-x-1/2'
+              : 'left-4'
+          }`}
+          aria-label={isMobile ? 'Close sidebar' : 'Toggle sidebar'}
         >
-          {isMobile ? '✕' : (isCollapsed ? '→' : '←')}
+          <HugeiconsIcon
+            icon={isMobile ? Cancel01Icon : Menu01Icon}
+            size={18}
+            color="currentColor"
+          />
         </button>
       </div>
 
       {/* Menu Items */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {/* MENU Section Label */}
-        {shouldShowText && (
-          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            MENU
-          </div>
-        )}
-
         {/* Menu Items */}
         {visibleItems.map(item => (
+          (() => {
+            const isActive = activeSection === item.id;
+            const iconColorClass = isActive ? 'text-white' : 'text-forest-green';
+            return (
           <button
             key={item.id}
             onClick={() => {
@@ -132,59 +142,79 @@ export const Sidebar = ({
               }
             }}
             disabled={item.status === 'TBD'}
-            className={`w-full flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} py-3 rounded-lg text-left transition-all duration-300 ${
-              activeSection === item.id
-                ? 'bg-gradient-hero text-white shadow-md scale-105'
+            className={`w-full h-12 flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} rounded-lg text-left transition-colors duration-200 ${
+              isActive
+                ? 'bg-gradient-hero text-white shadow-md'
                 : item.status === 'TBD'
                 ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
                 : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
-            <span className="text-lg">{item.icon}</span>
-            {shouldShowText && (
-              <div className="flex-1">
-                <span className="block font-medium text-sm">{item.label}</span>
-              </div>
-            )}
-            {item.badge && shouldShowText && (
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">
+            <span className={`inline-flex items-center justify-center ${iconColorClass}`}>
+              <HugeiconsIcon icon={item.icon} size={20} color="currentColor" />
+            </span>
+            <div
+              className={`min-w-0 overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-in-out ${
+                shouldShowText ? 'flex-1 max-w-[180px] opacity-100 ml-0' : 'max-w-0 opacity-0 ml-0'
+              }`}
+            >
+              <span className="block font-medium text-sm truncate whitespace-nowrap">{item.label}</span>
+            </div>
+            {item.badge && (
+              <span
+                className={`text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold whitespace-nowrap overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-in-out ${
+                  shouldShowText ? 'max-w-16 opacity-100 ml-1' : 'max-w-0 opacity-0 ml-0 px-0 py-0'
+                }`}
+              >
                 {item.badge}
               </span>
             )}
-            {item.status === 'TBD' && shouldShowText && (
-              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-medium">
+            {item.status === 'TBD' && (
+              <span
+                className={`text-xs bg-gray-200 text-gray-600 rounded font-medium whitespace-nowrap overflow-hidden transition-[max-width,opacity,margin,padding] duration-300 ease-in-out ${
+                  shouldShowText ? 'max-w-16 opacity-100 ml-1 px-2 py-1' : 'max-w-0 opacity-0 ml-0 px-0 py-0'
+                }`}
+              >
                 TBD
               </span>
             )}
           </button>
+            );
+          })()
         ))}
       </nav>
 
       {/* General Section - Bottom */}
       <div className="border-t border-gray-200 p-4 space-y-2">
-        {/* GENERAL Section Label */}
-        {shouldShowText && (
-          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            GENERAL
-          </div>
-        )}
-
         {/* General Items */}
         {generalItems.map(item => (
+          (() => {
+            const iconColorClass = 'text-forest-green';
+            return (
           <button
             key={item.id}
             onClick={item.action}
-            className={`w-full flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} py-3 rounded-lg text-left transition-all duration-300 ${
+            className={`w-full h-12 flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} rounded-lg text-left transition-colors duration-200 ${
               item.isDanger
                 ? 'hover:bg-red-50 text-red-600 hover:text-red-700'
                 : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
-            <span className="text-lg">{item.icon}</span>
-            {shouldShowText && <span className="block font-medium text-sm">{item.label}</span>}
+            <span className={`inline-flex items-center justify-center ${iconColorClass}`}>
+              <HugeiconsIcon icon={item.icon} size={20} color="currentColor" />
+            </span>
+            <span
+              className={`block font-medium text-sm truncate whitespace-nowrap overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-in-out ${
+                shouldShowText ? 'max-w-[140px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'
+              }`}
+            >
+              {item.label}
+            </span>
           </button>
+            );
+          })()
         ))}
       </div>
     </aside>

@@ -15,37 +15,37 @@ export const BentoDashboard = ({ dashboardData, userRole }) => {
 
   // Sample dashboard stats - replace with actual data from props
   const stats = {
-    totalProjects: {
+    totalTickets: {
       variant: 'hero',
-      title: 'Total Projects',
-      value: '24',
+      title: 'Total Tickets',
+      value: '（´∇｀\'\'）',
       subtitle: 'Increased from last month',
       icon: '📊',
-      trend: '↑ +4',
+      trend: '',
       gridClass: 'col-span-1 row-span-1'
     },
-    endedProjects: {
+    endedTickets: {
       variant: 'white',
-      title: 'Ended Projects',
-      value: '10',
+      title: 'Ended Tickets',
+      value: '(ᵕ—ᴗ—)',
       subtitle: 'Increased from last month',
       icon: '✓',
       trend: null,
       gridClass: 'col-span-1 row-span-1'
     },
-    runningProjects: {
+    runningTickets: {
       variant: 'white',
-      title: 'Running Projects',
-      value: '12',
+      title: 'Running Tickets',
+      value: '( •̯́ ₃ •̯̀)',
       subtitle: 'Increased from last month',
       icon: '⚡',
       trend: null,
       gridClass: 'col-span-1 row-span-1'
     },
-    pendingProjects: {
+    pendingTickets: {
       variant: 'white',
-      title: 'Pending Project',
-      value: '2',
+      title: 'Pending Ticket',
+      value: '( ◡̀_◡́)ᕤ',
       subtitle: 'On Discussion',
       icon: '⏳',
       trend: null,
@@ -64,57 +64,57 @@ export const BentoDashboard = ({ dashboardData, userRole }) => {
       {/* Main Bento Grid - Row 1: Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Hero Card - Gradient (Large) */}
-        <div className={`${stats.totalProjects.gridClass}`}>
+        <div className={`${stats.totalTickets.gridClass}`}>
           <StatCard
-            variant={stats.totalProjects.variant}
-            title={stats.totalProjects.title}
-            value={stats.totalProjects.value}
-            subtitle={stats.totalProjects.subtitle}
-            icon={stats.totalProjects.icon}
-            trend={stats.totalProjects.trend}
-            onMouseEnter={() => setHoveredCard('totalProjects')}
+            variant={stats.totalTickets.variant}
+            title={stats.totalTickets.title}
+            value={stats.totalTickets.value}
+            subtitle={stats.totalTickets.subtitle}
+            icon={stats.totalTickets.icon}
+            trend={stats.totalTickets.trend}
+            onMouseEnter={() => setHoveredCard('totalTickets')}
             onMouseLeave={() => setHoveredCard(null)}
           />
         </div>
 
-        {/* Ended Projects - White */}
-        <div className={`${stats.endedProjects.gridClass}`}>
+        {/* Ended Tickets - White */}
+        <div className={`${stats.endedTickets.gridClass}`}>
           <StatCard
-            variant={stats.endedProjects.variant}
-            title={stats.endedProjects.title}
-            value={stats.endedProjects.value}
-            subtitle={stats.endedProjects.subtitle}
-            icon={stats.endedProjects.icon}
-            trend={stats.endedProjects.trend}
-            onMouseEnter={() => setHoveredCard('endedProjects')}
+            variant={stats.endedTickets.variant}
+            title={stats.endedTickets.title}
+            value={stats.endedTickets.value}
+            subtitle={stats.endedTickets.subtitle}
+            icon={stats.endedTickets.icon}
+            trend={stats.endedTickets.trend}
+            onMouseEnter={() => setHoveredCard('endedTickets')}
             onMouseLeave={() => setHoveredCard(null)}
           />
         </div>
 
-        {/* Running Projects - White */}
-        <div className={`${stats.runningProjects.gridClass}`}>
+        {/* Running Tickets - White */}
+        <div className={`${stats.runningTickets.gridClass}`}>
           <StatCard
-            variant={stats.runningProjects.variant}
-            title={stats.runningProjects.title}
-            value={stats.runningProjects.value}
-            subtitle={stats.runningProjects.subtitle}
-            icon={stats.runningProjects.icon}
-            trend={stats.runningProjects.trend}
-            onMouseEnter={() => setHoveredCard('runningProjects')}
+            variant={stats.runningTickets.variant}
+            title={stats.runningTickets.title}
+            value={stats.runningTickets.value}
+            subtitle={stats.runningTickets.subtitle}
+            icon={stats.runningTickets.icon}
+            trend={stats.runningTickets.trend}
+            onMouseEnter={() => setHoveredCard('runningTickets')}
             onMouseLeave={() => setHoveredCard(null)}
           />
         </div>
 
-        {/* Pending Project - White */}
-        <div className={`${stats.pendingProjects.gridClass}`}>
+        {/* Pending Ticket - White */}
+        <div className={`${stats.pendingTickets.gridClass}`}>
           <StatCard
-            variant={stats.pendingProjects.variant}
-            title={stats.pendingProjects.title}
-            value={stats.pendingProjects.value}
-            subtitle={stats.pendingProjects.subtitle}
-            icon={stats.pendingProjects.icon}
-            trend={stats.pendingProjects.trend}
-            onMouseEnter={() => setHoveredCard('pendingProjects')}
+            variant={stats.pendingTickets.variant}
+            title={stats.pendingTickets.title}
+            value={stats.pendingTickets.value}
+            subtitle={stats.pendingTickets.subtitle}
+            icon={stats.pendingTickets.icon}
+            trend={stats.pendingTickets.trend}
+            onMouseEnter={() => setHoveredCard('pendingTickets')}
             onMouseLeave={() => setHoveredCard(null)}
           />
         </div>
