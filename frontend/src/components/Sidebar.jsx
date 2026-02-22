@@ -37,8 +37,7 @@ export const Sidebar = ({
       icon: ChartBarLineIcon,
       status: 'active',
       visibility: 'all',
-      section: 'MENU',
-      badge: 'NEW'
+      section: 'MENU'
     },
     {
       id: 'sprints',

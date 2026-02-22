@@ -88,19 +88,9 @@ export const DashboardPage = () => {
                 <HugeiconsIcon icon={Menu01Icon} size={20} color="currentColor" />
               </button>
               <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-                  KrisBan
-                </h1>
-                {activeSection !== 'dashboard' && (
-                  <>
-                    <span className="text-gray-400">|</span>
-                    <span className="text-lg font-semibold text-dark-charcoal capitalize">
-                      {activeSection === 'progress-reports' ? 'Progress Reports' : activeSection.replace('-', ' ')}
-                    </span>
-                  </>
-                )}
-              </div>
+              <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+                KrisBan
+              </h1>
             </div>
 
             {/* Right: Icons and User Profile */}

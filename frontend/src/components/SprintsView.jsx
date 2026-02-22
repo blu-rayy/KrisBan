@@ -50,7 +50,7 @@ export const SprintsView = ({ userRole }) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="p-6 sm:p-6 lg:p-8 space-y-6">
       {/* Header - Forest Gradient Theme */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>

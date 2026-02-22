@@ -5,7 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Logout03Icon, Edit02Icon } from '@hugeicons/core-free-icons';
 
 export const ProfileDropdown = ({ isOpen, onClose }) => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, logout } = useContext(AuthContext);
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -133,7 +133,10 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
 
         {/* Footer Actions */}
         <div className="p-6">
-          <button className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition flex items-center gap-3">
+          <button 
+            onClick={logout}
+            className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition flex items-center gap-3"
+          >
             <HugeiconsIcon icon={Logout03Icon} size={18} color="currentColor" />
             <span>Logout</span>
           </button>

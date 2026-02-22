@@ -106,7 +106,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
       {sprints.map((sprint, index) => (
         <div key={sprint.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-card-soft hover:shadow-card-elevated transition duration-200">
           {/* Sprint Header */}
-          <div className="p-4 flex items-center justify-between hover:bg-surface-ground transition cursor-pointer duration-200" onClick={() => toggleExpanded(sprint.id)}>
+          <div className="p-6 sm:p-4 flex items-center justify-between hover:bg-surface-ground transition cursor-pointer duration-200" onClick={() => toggleExpanded(sprint.id)}>
             <div className="flex items-center gap-4">
               <SprintBadge label={sprint.sprintNumber} colorName={sprint.color} index={index} />
               <div>
@@ -142,7 +142,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
 
           {/* Sprint Edit Modal */}
           {editingSprintId === sprint.id && (
-            <div className="border-t border-gray-100 bg-surface-ground p-4 space-y-3">
+            <div className="border-t border-gray-100 bg-surface-ground p-6 sm:p-4 space-y-3">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -169,13 +169,13 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
 
           {/* Sprint Details (Expanded) */}
           {expandedSprints[sprint.id] && editingSprintId !== sprint.id && (
-            <div className="border-t border-gray-100 bg-surface-ground p-4 space-y-3">
+            <div className="border-t border-gray-100 bg-surface-ground p-6 sm:p-4 space-y-3">
               {sprint.teamPlans.length > 0 ? (
                 <div className="space-y-2">
                   {sprint.teamPlans.map((plan) => (
                     <div key={plan.id}>
                       {editingTeamPlanId === plan.id ? (
-                        <div className="flex gap-2 bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex gap-2 bg-white p-4 sm:p-3 rounded-lg border border-gray-200">
                           <input
                             type="text"
                             value={editTeamPlan}
@@ -197,7 +197,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                           </button>
                         </div>
                       ) : (
-                        <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-center bg-white p-4 sm:p-3 rounded-lg border border-gray-200">
                           <span className="text-dark-charcoal flex-1">{plan.team_plan}</span>
                           {userRole === 'ADMIN' && (
                             <div className="ml-2 flex gap-2">
