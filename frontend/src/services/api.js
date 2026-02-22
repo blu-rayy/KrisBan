@@ -124,4 +124,13 @@ export const fetchLastWeekProgressStats = async () => {
   }
 };
 
+export const fetchDashboardData = async () => {
+  try {
+    const response = await dashboardService.getDashboard();
+    return response?.data?.data || { summary: {}, boards: [] };
+  } catch (error) {
+    throw normalizeApiError(error, 'Failed to load dashboard');
+  }
+};
+
 export default api;

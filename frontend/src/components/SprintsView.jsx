@@ -3,40 +3,39 @@ import { AuthContext } from '../context/AuthContext';
 import { sprintService } from '../services/sprintService';
 import { SprintForm } from './SprintForm';
 import { SprintTable } from './SprintTable';
+import { useSprints } from '../hooks/useSprints';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const SprintsView = ({ userRole }) => {
   const { user } = useContext(AuthContext);
-  const [sprints, setSprints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const queryClient = useQueryClient();
+  const {
+    data: sprints = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch
+  } = useSprints();
+  const [errorMessage, setErrorMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchSprints();
-  }, []);
-
-  const fetchSprints = async () => {
-    try {
-      setLoading(true);
-      const response = await sprintService.getSprints();
-      setSprints(response.data.data || []);
-      setError('');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load sprints');
-    } finally {
-      setLoading(false);
+    if (isError) {
+      setErrorMessage(error?.message || 'Failed to load sprints');
+    } else {
+      setErrorMessage('');
     }
-  };
+  }, [isError, error?.message]);
 
   const handleCreateSprint = async (formData) => {
     try {
       setSubmitting(true);
       await sprintService.createSprint(formData);
       setShowForm(false);
-      fetchSprints();
+      await queryClient.invalidateQueries({ queryKey: ['sprints'] });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create sprint');
+      setErrorMessage(err.response?.data?.message || 'Failed to create sprint');
     } finally {
       setSubmitting(false);
     }
@@ -59,9 +58,9 @@ export const SprintsView = ({ userRole }) => {
       </div>
 
       {/* Error Message */}
-      {error && (
+      {errorMessage && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-[24px] shadow-card-soft">
-          {error}
+          {errorMessage}
         </div>
       )}
 
@@ -78,7 +77,7 @@ export const SprintsView = ({ userRole }) => {
       <SprintTable
         sprints={sprints}
         loading={loading}
-        onRefresh={fetchSprints}
+        onRefresh={refetch}
         userRole={userRole}
       />
     </div>

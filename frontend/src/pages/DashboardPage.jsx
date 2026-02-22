@@ -8,51 +8,32 @@ import { SprintsView } from '../components/SprintsView';
 import { PlaceholderSection } from '../components/PlaceholderSection';
 import { ChangePasswordModal } from '../components/ChangePasswordModal';
 import { ProfileDropdown } from '../components/ProfileDropdown';
-import { dashboardService } from '../services/api';
+import { useDashboardData } from '../hooks/useDashboardData';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const {
+    data: dashboardData,
+    isLoading,
+    isError,
+    error
+  } = useDashboardData();
 
   // Debug user object
   useEffect(() => {
     console.log('Current user object:', user);
   }, [user]);
 
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const fetchDashboard = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching dashboard data...');
-      const response = await dashboardService.getDashboard();
-      console.log('Dashboard response:', response.data);
-      setDashboardData(response.data.data);
-      setError('');
-    } catch (err) {
-      console.error('Dashboard fetch error:', err);
-      console.error('Error response:', err.response?.data);
-      setError(err.response?.data?.message || 'Failed to load dashboard');
-      // Set empty dashboard data to prevent crashes
-      setDashboardData({ summary: {}, boards: [] });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  if (loading) {
+  if (isLoading && !dashboardData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-surface-ground">
         <div className="text-xl text-gray-600">Loading dashboard...</div>
@@ -115,9 +96,9 @@ export const DashboardPage = () => {
 
         {/* Content Area - Add margin for fixed sidebar */}
         <main className="flex-1 overflow-auto ml-64">
-          {error && (
+          {isError && error && (
             <div className="m-8 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+              {error.message || 'Failed to load dashboard'}
             </div>
           )}
 
