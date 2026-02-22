@@ -184,6 +184,7 @@ export const ProgressReportsView = () => {
           {/* Form */}
           <ProgressReportForm
             members={allUsers.length > 0 ? allUsers : [user].filter(Boolean)}
+            reports={progressReports}
             onSubmit={handleSubmitProgressReport}
             loading={submitting}
             userRole={user?.role}

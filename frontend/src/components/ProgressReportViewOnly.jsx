@@ -1,8 +1,8 @@
 import { useState, useMemo, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { sprintService } from '../services/sprintService';
 import { SprintBadge } from './SprintBadge';
 import { getBadgeStyle } from '../utils/badgeStyles';
+import { useSprints } from '../hooks/useSprints';
 
 export const ProgressReportViewOnly = ({ reports = [], loading = false, error = '', onDelete, onUpdate, currentUserId, userRole }) => {
   const { user } = useContext(AuthContext);
@@ -23,7 +23,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
-  const [sprints, setSprints] = useState([]);
+  const { data: sprints = [] } = useSprints();
 
   const SPRINT_OPTIONS = [
     'Sprint 1', 'Sprint 1.5', 'Sprint 2', 'Sprint 3', 'Sprint 3.5', 'Sprint 4', 'Sprint 4.5', 'Sprint 5', 'Sprint 6', 'Others'
@@ -33,36 +33,12 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
     'Software Development', 'Research', 'Operations', 'Project Management'
   ];
 
-  // Fetch sprints from database for consistent coloring
-  useEffect(() => {
-    const fetchSprints = async () => {
-      try {
-        const response = await sprintService.getSprints();
-        setSprints(response.data.data || []);
-      } catch (err) {
-        console.log('Failed to fetch sprints');
-      }
-    };
-    fetchSprints();
-  }, []);
-
   // Get sprint index by name for consistent coloring
   const getSprintIndex = (sprintName) => {
     if (!sprintName || !Array.isArray(sprints)) return undefined;
     const index = sprints.findIndex(s => s.sprintNumber === sprintName);
     return index >= 0 ? index : undefined;
   };
-
-  // Debug logging
-  useEffect(() => {
-    console.log('ProgressReportViewOnly - Debug Info:', {
-      reportsCount: reports.length,
-      currentUserId,
-      userRole,
-      firstReport: reports[0],
-      userFromContext: user
-    });
-  }, [reports, currentUserId, userRole, user]);
 
   const canEditReport = (report) => {
     return userRole === 'ADMIN' || (report.createdBy && currentUserId && String(report.createdBy) === String(currentUserId));

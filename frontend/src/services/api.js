@@ -111,4 +111,17 @@ export const fetchProgressReports = async (filters = {}) => {
   }
 };
 
+export const fetchRecentProgressReports = async () => {
+  return fetchProgressReports({ limit: 3, sortBy: 'created_at', sortOrder: 'desc' });
+};
+
+export const fetchLastWeekProgressStats = async () => {
+  try {
+    const response = await dashboardService.getLastWeekProgressStats();
+    return response?.data?.data || { startDate: null, endDate: null, days: [] };
+  } catch (error) {
+    throw normalizeApiError(error, 'Failed to fetch last week progress stats');
+  }
+};
+
 export default api;

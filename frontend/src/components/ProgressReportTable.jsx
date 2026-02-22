@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { dashboardService } from '../services/api';
-import { sprintService } from '../services/sprintService';
 import { SprintBadge } from './SprintBadge';
 import { getBadgeStyle } from '../utils/badgeStyles';
+import { useSprints } from '../hooks/useSprints';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -47,20 +47,7 @@ export const ProgressReportTable = ({
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
-  const [sprints, setSprints] = useState([]);
-
-  // Fetch sprints from database
-  useEffect(() => {
-    const fetchSprints = async () => {
-      try {
-        const response = await sprintService.getSprints();
-        setSprints(response.data.data || []);
-      } catch (err) {
-        console.log('Failed to fetch sprints');
-      }
-    };
-    fetchSprints();
-  }, []);
+  const { data: sprints = [] } = useSprints();
 
   // Get sprint index by name for consistent coloring
   const getSprintIndex = (sprintName) => {

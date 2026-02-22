@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext } from 'react';
-import { dashboardService } from '../services/api';
-import { sprintService } from '../services/sprintService';
+import { useState, useEffect, useContext, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from '../context/AuthContext';
 import { SprintBadge } from './SprintBadge';
+import { useSprints } from '../hooks/useSprints';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -58,8 +58,10 @@ const sprintLabelComparator = (a, b) => {
   return bLabel.localeCompare(aLabel, undefined, { numeric: true, sensitivity: 'base' });
 };
 
-export const ProgressReportForm = ({ members = [], onSubmit, loading = false, userRole = 'USER' }) => {
+export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loading = false, userRole = 'USER' }) => {
   const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const { data: sprints = [] } = useSprints();
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     memberId: '',
@@ -75,11 +77,17 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
   const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
-  const [teamPlanSuggestions, setTeamPlanSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [sprints, setSprints] = useState([]);
   const [sprintTeamPlans, setSprintTeamPlans] = useState([]);
   const [refreshingSprints, setRefreshingSprints] = useState(false);
+
+  const teamPlanSuggestions = useMemo(() => {
+    return [...new Set(
+      (reports || [])
+        .filter((report) => report.teamPlan && report.teamPlan.trim())
+        .map((report) => report.teamPlan.trim())
+    )].sort();
+  }, [reports]);
 
   const sortedSprintLabels = [...new Set([
     ...sprints.map((sprint) => sprint.sprintNumber),
@@ -93,42 +101,11 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
     }
   }, [user]);
 
-  // Fetch sprints from database (once on mount)
   useEffect(() => {
-    const fetchSprints = async () => {
-      try {
-        const response = await sprintService.getSprints();
-        const sprintList = response.data.data || [];
-        setSprints(sprintList);
-        
-        // Set the first available sprint as default if current one is not in list
-        if (sprintList.length > 0 && !sprintList.some(s => s.sprintNumber === formData.sprintNo)) {
-          setFormData(prev => ({ ...prev, sprintNo: sprintList[0].sprintNumber }));
-        }
-      } catch (err) {
-        console.log('Failed to fetch sprints');
-      }
-    };
-    fetchSprints();
-  }, []);
-
-  // Fetch team plan history from progress reports
-  useEffect(() => {
-    const fetchTeamPlanHistory = async () => {
-      try {
-        const response = await dashboardService.getProgressReports();
-        const uniquePlans = [...new Set(
-          (response.data.data || [])
-            .filter(r => r.teamPlan && r.teamPlan.trim())
-            .map(r => r.teamPlan.trim())
-        )].sort();
-        setTeamPlanSuggestions(uniquePlans);
-      } catch (err) {
-        console.log('Failed to fetch team plan history');
-      }
-    };
-    fetchTeamPlanHistory();
-  }, []);
+    if (sprints.length > 0 && !sprints.some((sprint) => sprint.sprintNumber === formData.sprintNo)) {
+      setFormData((prev) => ({ ...prev, sprintNo: sprints[0].sprintNumber }));
+    }
+  }, [sprints, formData.sprintNo]);
 
   // Update team plans when sprint changes
   useEffect(() => {
@@ -168,9 +145,7 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
   const handleRefreshSprints = async () => {
     try {
       setRefreshingSprints(true);
-      const response = await sprintService.getSprints();
-      const sprintList = response.data.data || [];
-      setSprints(sprintList);
+      await queryClient.invalidateQueries({ queryKey: ['sprints'] });
     } catch (err) {
       setError('Failed to refresh sprints');
     } finally {

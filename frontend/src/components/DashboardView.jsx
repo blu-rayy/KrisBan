@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { StatCard } from './StatCard';
 import { getBadgeStyle } from '../utils/badgeStyles';
-import { dashboardService } from '../services/api';
+import { useLastWeekProgressStats, useRecentProgressActivity } from '../hooks/useDashboardActivity';
 
 /**
  * DashboardView Component
@@ -12,41 +12,9 @@ import { dashboardService } from '../services/api';
 export const DashboardView = ({ dashboardData, userRole }) => {
   // Extract dashboard statistics
   const stats = dashboardData || {};
-  
-  const [progressReports, setProgressReports] = useState([]);
-  const [lastWeekStats, setLastWeekStats] = useState({
-    startDate: null,
-    endDate: null,
-    days: []
-  });
 
-  // Fetch lightweight dashboard activity widgets
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [recentReportsResponse, lastWeekResponse] = await Promise.all([
-          dashboardService.getProgressReports({ limit: 3, sortBy: 'created_at', sortOrder: 'desc' }),
-          dashboardService.getLastWeekProgressStats()
-        ]);
-
-        const reports = recentReportsResponse?.data?.data;
-        setProgressReports(Array.isArray(reports) ? reports : []);
-
-        const stats = lastWeekResponse?.data?.data;
-        if (stats && Array.isArray(stats.days)) {
-          setLastWeekStats(stats);
-        } else {
-          setLastWeekStats({ startDate: null, endDate: null, days: [] });
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard activity widgets:', error);
-        setProgressReports([]);
-        setLastWeekStats({ startDate: null, endDate: null, days: [] });
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { data: progressReports = [] } = useRecentProgressActivity();
+  const { data: lastWeekStats = { startDate: null, endDate: null, days: [] } } = useLastWeekProgressStats();
 
   // Get initials from a name
   const getInitials = (name) => {
