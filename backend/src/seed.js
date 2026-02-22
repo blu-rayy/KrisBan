@@ -17,13 +17,13 @@ const seedDatabase = async () => {
 
     // Create Kristian (Admin)
     const kristian = await User.create({
-      studentNumber: '202311645',
+      studentNumber: '202300001',
       password: 'password123',
-      fullName: 'Kristian David Rogando Bautista',
-      username: 'Kristian',
-      instituteEmail: 'krbautista@fit.edu.ph',
-      personalEmail: 'kristiandavidbautista@gmail.com',
-      birthday: '2005-03-18',
+      fullName: 'Admin User',
+      username: 'AdminUser',
+      instituteEmail: 'admin.user@example.edu',
+      personalEmail: 'admin.user@example.com',
+      birthday: '2000-01-01',
       role: 'ADMIN',
       isFirstLogin: false
     });
@@ -32,13 +32,13 @@ const seedDatabase = async () => {
 
     // Create Angel
     const angel = await User.create({
-      studentNumber: '202311538',
+      studentNumber: '202300002',
       password: 'password123',
-      fullName: 'Angel Abliter Letada',
-      username: 'Angel',
-      instituteEmail: 'aaetada@fit.edu.ph',
-      personalEmail: 'angel.letada1205@gmail.com',
-      birthday: '2005-12-12',
+      fullName: 'Team Member One',
+      username: 'MemberOne',
+      instituteEmail: 'member.one@example.edu',
+      personalEmail: 'member.one@example.com',
+      birthday: '2000-01-02',
       role: 'USER',
       isFirstLogin: false
     });
@@ -47,13 +47,13 @@ const seedDatabase = async () => {
 
     // Create Michael
     const michael = await User.create({
-      studentNumber: '202312132',
+      studentNumber: '202300003',
       password: 'password123',
-      fullName: 'Michael Kevin Dimla Pascual',
-      username: 'Michael',
-      instituteEmail: 'mdpascual1@fit.edu.ph',
-      personalEmail: 'michaelkevinpascual47@gmail.com',
-      birthday: '2005-05-19',
+      fullName: 'Team Member Two',
+      username: 'MemberTwo',
+      instituteEmail: 'member.two@example.edu',
+      personalEmail: 'member.two@example.com',
+      birthday: '2000-01-03',
       role: 'USER',
       isFirstLogin: false
     });
@@ -62,13 +62,13 @@ const seedDatabase = async () => {
 
     // Create Marianne
     const marianne = await User.create({
-      studentNumber: '202311273',
+      studentNumber: '202300004',
       password: 'password123',
-      fullName: 'Marianne Angelika B. Santos',
-      username: 'Marianne',
-      instituteEmail: 'mbsantos@fit.edu.ph',
-      personalEmail: 'mariannesantos174@gmail.com',
-      birthday: '2004-07-01',
+      fullName: 'Team Member Three',
+      username: 'MemberThree',
+      instituteEmail: 'member.three@example.edu',
+      personalEmail: 'member.three@example.com',
+      birthday: '2000-01-04',
       role: 'USER',
       isFirstLogin: false
     });
@@ -216,20 +216,7 @@ const seedDatabase = async () => {
     console.log('✅ Board 3 created:', board3.title);
 
     console.log('\n✅ Database seeded successfully!');
-    console.log('\nTest Credentials:');
-    console.log('─────────────────');
-    console.log('Admin (Kristian):');
-    console.log('  Student #: 202311645');
-    console.log('  Password: password123');
-    console.log('\nUser (Angel):');
-    console.log('  Student #: 202311538');
-    console.log('  Password: password123');
-    console.log('\nUser (Michael):');
-    console.log('  Student #: 202312132');
-    console.log('  Password: password123');
-    console.log('\nUser (Marianne):');
-    console.log('  Student #: 202311273');
-    console.log('  Password: password123');
+    console.log('\nTest credentials created using non-production placeholder identities.');
 
     process.exit(0);
   } catch (error) {

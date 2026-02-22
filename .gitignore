@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build artifacts
+frontend/dist/
+backend/dist/
+dist/
+build/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs and temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+*.tmp
+*.temp
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.vscode/*.code-workspace
