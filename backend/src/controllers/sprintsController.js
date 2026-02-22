@@ -23,6 +23,40 @@ const getRandomColor = (usedColors = []) => {
   return availableColors[Math.floor(Math.random() * availableColors.length)];
 };
 
+const parseSprintNumberForSort = (value) => {
+  const label = String(value || '').trim();
+  const lower = label.toLowerCase();
+
+  if (lower === 'others' || lower === 'other') {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const match = lower.match(/(?:sprint\s*)?(\d+(?:\.\d+)?)/i);
+  if (!match) return Number.NEGATIVE_INFINITY;
+
+  const parsed = Number.parseFloat(match[1]);
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+};
+
+const sprintSortComparator = (a, b) => {
+  const aLabel = String(a.sprint_number || '');
+  const bLabel = String(b.sprint_number || '');
+
+  const aLower = aLabel.toLowerCase();
+  const bLower = bLabel.toLowerCase();
+
+  const aIsOthers = aLower === 'others' || aLower === 'other';
+  const bIsOthers = bLower === 'others' || bLower === 'other';
+
+  if (aIsOthers && !bIsOthers) return -1;
+  if (!aIsOthers && bIsOthers) return 1;
+
+  const numDiff = parseSprintNumberForSort(bLabel) - parseSprintNumberForSort(aLabel);
+  if (numDiff !== 0) return numDiff;
+
+  return bLabel.localeCompare(aLabel, undefined, { numeric: true, sensitivity: 'base' });
+};
+
 // @route   GET /api/sprints
 // @desc    Get all sprints
 // @access  Private
@@ -33,7 +67,7 @@ export const getSprints = async (req, res) => {
     const { data: sprints, error } = await supabase
       .from('sprints')
       .select('*')
-      .order('sprint_number', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Supabase error fetching sprints:', error);
@@ -42,15 +76,76 @@ export const getSprints = async (req, res) => {
 
     console.log('Retrieved sprints:', sprints?.length || 0);
 
-    const formattedSprints = (sprints || []).map(sprint => ({
+    const sprintIds = (sprints || []).map((sprint) => sprint.id);
+    let teamPlansBySprint = new Map();
+
+    if (sprintIds.length > 0) {
+      const { data: sprintTeamPlans, error: teamPlansError } = await supabase
+        .from('sprint_team_plans')
+        .select('id, sprint_id, team_plan, created_by, created_at')
+        .in('sprint_id', sprintIds)
+        .order('created_at', { ascending: true });
+
+      if (teamPlansError) {
+        console.warn('Could not fetch sprint_team_plans, falling back to inline team_plans:', teamPlansError.message);
+      } else {
+        teamPlansBySprint = (sprintTeamPlans || []).reduce((acc, item) => {
+          const key = String(item.sprint_id);
+          if (!acc.has(key)) acc.set(key, []);
+          acc.get(key).push({
+            id: String(item.id),
+            sprint_id: String(item.sprint_id),
+            team_plan: item.team_plan,
+            created_by: item.created_by,
+            created_at: item.created_at
+          });
+          return acc;
+        }, new Map());
+      }
+    }
+
+    const formattedSprints = (sprints || []).map(sprint => {
+      const mappedTeamPlans = teamPlansBySprint.get(String(sprint.id));
+
+      const fallbackTeamPlans = Array.isArray(sprint.team_plans)
+        ? sprint.team_plans
+            .map((value, index) => {
+              if (typeof value === 'string') {
+                return {
+                  id: `${String(sprint.id)}-inline-${index}`,
+                  sprint_id: String(sprint.id),
+                  team_plan: value
+                };
+              }
+              if (value && typeof value === 'object' && value.team_plan) {
+                return {
+                  id: String(value.id || `${String(sprint.id)}-inline-${index}`),
+                  sprint_id: String(sprint.id),
+                  team_plan: value.team_plan,
+                  created_by: value.created_by,
+                  created_at: value.created_at
+                };
+              }
+              return null;
+            })
+            .filter(Boolean)
+        : [];
+
+      return {
       id: String(sprint.id),
       sprintNumber: sprint.sprint_number,
       color: sprint.color,
-      teamPlans: sprint.team_plans || [],
+      teamPlans: mappedTeamPlans || fallbackTeamPlans,
       createdBy: sprint.created_by,
       createdAt: sprint.created_at,
       updatedAt: sprint.updated_at
-    }));
+      };
+    });
+
+    formattedSprints.sort((a, b) => sprintSortComparator(
+      { sprint_number: a.sprintNumber },
+      { sprint_number: b.sprintNumber }
+    ));
 
     res.status(200).json({
       success: true,

@@ -21,7 +21,7 @@ const fetchUsersMapByIds = async (ids = []) => {
 
   const { data: users, error } = await supabase
     .from('users')
-    .select('id, username, full_name, institute_email, personal_email')
+    .select('id, username, full_name, institute_email, personal_email, profile_picture')
     .in('id', uniqueIds);
 
   if (error) throw error;
@@ -32,9 +32,40 @@ const fetchUsersMapByIds = async (ids = []) => {
       username: user.username,
       fullName: user.full_name,
       instituteEmail: user.institute_email,
-      personalEmail: user.personal_email
+      personalEmail: user.personal_email,
+      profilePicture: user.profile_picture
     }
   ]));
+};
+
+const formatDateOnly = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getLastCompletedMondayToSaturdayRange = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let daysBackToSaturday = (today.getDay() + 1) % 7;
+  if (daysBackToSaturday === 0) {
+    daysBackToSaturday = 7;
+  }
+
+  const endSaturday = new Date(today);
+  endSaturday.setDate(today.getDate() - daysBackToSaturday);
+
+  const startMonday = new Date(endSaturday);
+  startMonday.setDate(endSaturday.getDate() - 5);
+
+  return {
+    startMonday,
+    endSaturday,
+    startDate: formatDateOnly(startMonday),
+    endDate: formatDateOnly(endSaturday)
+  };
 };
 
 // Helper function: Automatically create team plan if it doesn't exist
@@ -169,7 +200,7 @@ export const createProgressReport = async (req, res) => {
 // @access  Private
 export const getProgressReports = async (req, res) => {
   try {
-    const { date, memberId, sprintNo, category } = req.query;
+    const { date, memberId, sprintNo, category, limit, sortBy, sortOrder } = req.query;
 
     console.log('Fetching progress reports with filters:', { date, memberId, sprintNo, category });
 
@@ -182,6 +213,17 @@ export const getProgressReports = async (req, res) => {
     if (memberId) query = query.eq('member_id', memberId);
     if (sprintNo) query = query.eq('sprint_no', sprintNo);
     if (category) query = query.eq('category', category);
+
+    const allowedSortFields = new Set(['created_at', 'date', 'updated_at']);
+    const orderField = allowedSortFields.has(String(sortBy)) ? String(sortBy) : 'created_at';
+    const ascending = String(sortOrder || 'desc').toLowerCase() === 'asc';
+
+    query = query.order(orderField, { ascending });
+
+    const parsedLimit = Number.parseInt(limit, 10);
+    if (!Number.isNaN(parsedLimit) && parsedLimit > 0) {
+      query = query.limit(parsedLimit);
+    }
 
     const { data: reports, error } = await query;
 
@@ -209,6 +251,7 @@ export const getProgressReports = async (req, res) => {
         memberName: report.memberName || member?.username || 'Unknown',
         memberFullName: report.memberFullName || member?.fullName || 'Unknown',
         memberEmail: report.memberEmail || member?.instituteEmail || member?.personalEmail || 'Unknown',
+        memberProfilePicture: report.memberProfilePicture || member?.profilePicture || null,
         sprintNo: report.sprint_no,
         sprintId: report.sprint_id ? String(report.sprint_id) : null,
         teamPlan: report.team_plan,
@@ -232,6 +275,58 @@ export const getProgressReports = async (req, res) => {
     res.status(500).json({
       success: false,
       message: normalizeSupabaseErrorMessage(error, 'Failed to fetch progress reports')
+    });
+  }
+};
+
+// @route   GET /api/progress-reports/stats/last-week
+// @desc    Get last completed Monday-Saturday progress counts
+// @access  Private
+export const getLastWeekProgressStats = async (req, res) => {
+  try {
+    const { startMonday, endSaturday, startDate, endDate } = getLastCompletedMondayToSaturdayRange();
+
+    const { data: reports, error } = await supabase
+      .from('progress_reports')
+      .select('date')
+      .gte('date', startDate)
+      .lte('date', endDate);
+
+    if (error) throw error;
+
+    const countsByDate = (reports || []).reduce((acc, report) => {
+      const key = String(report.date);
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S'];
+    const days = dayLabels.map((label, index) => {
+      const currentDate = new Date(startMonday);
+      currentDate.setDate(startMonday.getDate() + index);
+      const dateKey = formatDateOnly(currentDate);
+      return {
+        day: label,
+        date: dateKey,
+        count: countsByDate[dateKey] || 0,
+        hasProgress: (countsByDate[dateKey] || 0) > 0
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        startDate,
+        endDate,
+        totalEntries: (reports || []).length,
+        days
+      }
+    });
+  } catch (error) {
+    console.error('Error in getLastWeekProgressStats:', error);
+    res.status(500).json({
+      success: false,
+      message: normalizeSupabaseErrorMessage(error, 'Failed to fetch last week progress stats')
     });
   }
 };

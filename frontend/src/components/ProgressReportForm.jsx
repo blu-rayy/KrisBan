@@ -24,6 +24,40 @@ const CATEGORY_OPTIONS = [
   'Project Management'
 ];
 
+const parseSprintSortNumber = (label) => {
+  const value = String(label || '').trim();
+  const lower = value.toLowerCase();
+
+  if (lower === 'others' || lower === 'other') {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const match = lower.match(/(?:sprint\s*)?(\d+(?:\.\d+)?)/i);
+  if (!match) return Number.NEGATIVE_INFINITY;
+
+  const parsed = Number.parseFloat(match[1]);
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+};
+
+const sprintLabelComparator = (a, b) => {
+  const aLabel = String(a || '');
+  const bLabel = String(b || '');
+
+  const aLower = aLabel.toLowerCase();
+  const bLower = bLabel.toLowerCase();
+
+  const aIsOthers = aLower === 'others' || aLower === 'other';
+  const bIsOthers = bLower === 'others' || bLower === 'other';
+
+  if (aIsOthers && !bIsOthers) return -1;
+  if (!aIsOthers && bIsOthers) return 1;
+
+  const numDiff = parseSprintSortNumber(bLabel) - parseSprintSortNumber(aLabel);
+  if (numDiff !== 0) return numDiff;
+
+  return bLabel.localeCompare(aLabel, undefined, { numeric: true, sensitivity: 'base' });
+};
+
 export const ProgressReportForm = ({ members = [], onSubmit, loading = false, userRole = 'USER' }) => {
   const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState({
@@ -46,6 +80,11 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
   const [sprints, setSprints] = useState([]);
   const [sprintTeamPlans, setSprintTeamPlans] = useState([]);
   const [refreshingSprints, setRefreshingSprints] = useState(false);
+
+  const sortedSprintLabels = [...new Set([
+    ...sprints.map((sprint) => sprint.sprintNumber),
+    ...SPRINT_OPTIONS
+  ])].sort(sprintLabelComparator);
 
   // Set member to logged-in user (default for all users, including admins)
   useEffect(() => {
@@ -95,7 +134,12 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
   useEffect(() => {
     const selectedSprint = sprints.find(s => s.sprintNumber === formData.sprintNo);
     if (selectedSprint && selectedSprint.teamPlans) {
-      setSprintTeamPlans(selectedSprint.teamPlans.map(tp => tp.team_plan));
+      const normalizedPlans = selectedSprint.teamPlans
+        .map((plan) => (typeof plan === 'string' ? plan : plan?.team_plan))
+        .filter((plan) => typeof plan === 'string' && plan.trim())
+        .map((plan) => plan.trim());
+
+      setSprintTeamPlans(normalizedPlans);
     } else {
       setSprintTeamPlans([]);
     }
@@ -322,20 +366,11 @@ export const ProgressReportForm = ({ members = [], onSubmit, loading = false, us
                 errors.sprintNo ? 'border-red-500' : 'border-gray-300'
               }`}
             >
-              <optgroup label="Active Sprints">
-                {sprints.map(sprint => (
-                  <option key={sprint.id} value={sprint.sprintNumber}>
-                    {sprint.sprintNumber.startsWith('Sprint ') ? sprint.sprintNumber : `Sprint ${sprint.sprintNumber}`}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Default Options">
-                {SPRINT_OPTIONS.filter(opt => !sprints.some(s => s.sprintNumber === opt)).map(sprint => (
-                  <option key={sprint} value={sprint}>
-                    {sprint}
-                  </option>
-                ))}
-              </optgroup>
+              {sortedSprintLabels.map((label) => (
+                <option key={label} value={label}>
+                  {label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`}
+                </option>
+              ))}
             </select>
             <button
               type="button"

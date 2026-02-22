@@ -90,15 +90,15 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
         {/* User Info */}
         <div className="p-6 space-y-4 border-b border-gray-100">
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Full Name</p>
+            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Full Name</p>
             <p className="text-sm text-dark-charcoal mt-1">{user?.fullName || 'Not set'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Institute Email</p>
-            <p className="text-sm text-dark-charcoal mt-1 pl-2">{user?.instituteEmail || 'Not set'}</p>
+            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Institute Email</p>
+            <p className="text-sm text-dark-charcoal mt-1">{user?.instituteEmail || 'Not set'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Personal Email</p>
+            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Personal Email</p>
             <p className="text-sm text-dark-charcoal mt-1">{user?.personalEmail || 'Not set'}</p>
           </div>
         </div>

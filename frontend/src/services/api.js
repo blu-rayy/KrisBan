@@ -77,7 +77,10 @@ export const dashboardService = {
     api.delete(`/progress-reports/${id}`),
 
   getProgressReportSummary: () =>
-    api.get('/progress-reports/stats/summary')
+    api.get('/progress-reports/stats/summary'),
+
+  getLastWeekProgressStats: () =>
+    api.get('/progress-reports/stats/last-week')
 };
 
 export default api;

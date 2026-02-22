@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatCard } from './StatCard';
 import { getBadgeStyle } from '../utils/badgeStyles';
-import api from '../services/api';
+import { dashboardService } from '../services/api';
 
 /**
  * DashboardView Component
@@ -14,47 +14,39 @@ export const DashboardView = ({ dashboardData, userRole }) => {
   const stats = dashboardData || {};
   
   const [progressReports, setProgressReports] = useState([]);
+  const [lastWeekStats, setLastWeekStats] = useState({
+    startDate: null,
+    endDate: null,
+    days: []
+  });
 
-  // Fetch progress reports - update every 30 seconds for dynamic updates
+  // Fetch lightweight dashboard activity widgets
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const reportsResponse = await api.get('/progress-reports');
-        // Backend wraps response in { success: true, data: [...] }
-        const reports = reportsResponse?.data?.data;
-        if (reports && Array.isArray(reports)) {
-          console.log('Fetched progress reports:', reports.length, reports);
-          setProgressReports(reports);
+        const [recentReportsResponse, lastWeekResponse] = await Promise.all([
+          dashboardService.getProgressReports({ limit: 3, sortBy: 'created_at', sortOrder: 'desc' }),
+          dashboardService.getLastWeekProgressStats()
+        ]);
+
+        const reports = recentReportsResponse?.data?.data;
+        setProgressReports(Array.isArray(reports) ? reports : []);
+
+        const stats = lastWeekResponse?.data?.data;
+        if (stats && Array.isArray(stats.days)) {
+          setLastWeekStats(stats);
         } else {
-          console.log('No reports found or invalid response format:', reportsResponse?.data);
-          setProgressReports([]);
+          setLastWeekStats({ startDate: null, endDate: null, days: [] });
         }
       } catch (error) {
-        console.error('Error fetching progress reports:', error);
+        console.error('Error fetching dashboard activity widgets:', error);
         setProgressReports([]);
+        setLastWeekStats({ startDate: null, endDate: null, days: [] });
       }
     };
 
     fetchData();
-    
-    // Refetch every 30 seconds for dynamic updates
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
   }, []);
-
-  // Parse date string in format like "2/16/2026" or ISO format
-  const parseReportDate = (dateStr) => {
-    if (!dateStr) return null;
-    let date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      const parts = dateStr.trim().split('/');
-      if (parts.length === 3) {
-        const [month, day, year] = parts.map(p => parseInt(p, 10));
-        date = new Date(year, month - 1, day, 0, 0, 0, 0);
-      }
-    }
-    return isNaN(date.getTime()) ? null : date;
-  };
 
   // Get initials from a name
   const getInitials = (name) => {
@@ -67,51 +59,18 @@ export const DashboardView = ({ dashboardData, userRole }) => {
       .slice(0, 2);
   };
 
-  // Get last week's progress count by day
-  const getLastWeekProgressData = () => {
-    const today = new Date();
-    const daysData = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const startOfThisWeek = new Date(today);
-    startOfThisWeek.setDate(today.getDate() - today.getDay());
-    startOfThisWeek.setHours(0, 0, 0, 0);
-    const startOfLastWeek = new Date(startOfThisWeek);
-    startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
-    
-    console.log('Last week range:', startOfLastWeek.toLocaleDateString());
-    console.log('Total reports to filter:', progressReports.length);
-    
-    const weekData = daysData.map((day, idx) => {
-      const targetDate = new Date(startOfLastWeek);
-      targetDate.setDate(startOfLastWeek.getDate() + idx);
-      targetDate.setHours(0, 0, 0, 0);
-      const nextDay = new Date(targetDate);
-      nextDay.setDate(targetDate.getDate() + 1);
-      
-      const dayReports = progressReports.filter(report => {
-        if (!report.date) return false;
-        const reportDate = parseReportDate(report.date);
-        if (!reportDate) {
-          console.warn('Could not parse date:', report.date);
-          return false;
-        }
-        const inRange = reportDate >= targetDate && reportDate < nextDay;
-        if (inRange) {
-          console.log('Matched:', report.date, 'on', targetDate.toLocaleDateString());
-        }
-        return inRange;
-      });
-      
-      return {
-        day,
-        count: dayReports.length,
-        hasProgress: dayReports.length > 0,
-        date: `${targetDate.getMonth() + 1}/${targetDate.getDate()}`
-      };
-    });
-    
-    console.log('Week data:', weekData);
-    return weekData;
+  const formatShortDate = (dateValue) => {
+    if (!dateValue) return '';
+    const parsed = new Date(dateValue);
+    if (Number.isNaN(parsed.getTime())) return '';
+    return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
+
+  const lastWeekRangeLabel = lastWeekStats.startDate && lastWeekStats.endDate
+    ? `${formatShortDate(lastWeekStats.startDate)}-${formatShortDate(lastWeekStats.endDate)}`
+    : 'No data';
+
+  const weekProgressDays = Array.isArray(lastWeekStats.days) ? lastWeekStats.days : [];
 
   // Extract stats from backend structure (summary contains the stats)
   const summary = dashboardData?.summary || {};
@@ -194,9 +153,9 @@ export const DashboardView = ({ dashboardData, userRole }) => {
         {/* Project Analytics - Dark Gradient Card */}
         <div className="bg-gradient-dark text-white rounded-[24px] p-6 shadow-none hover:scale-105 transition-all duration-300">
           <h3 className="text-lg font-bold mb-2">Last Week's Progress</h3>
-          <p className="text-xs text-white opacity-50 mb-4">Feb 5-11</p>
+          <p className="text-xs text-white opacity-50 mb-4">{lastWeekRangeLabel}</p>
           <div className="flex-1 flex items-end justify-around h-48">
-            {getLastWeekProgressData().map((dayData, idx) => (
+            {weekProgressDays.map((dayData, idx) => (
               <div key={idx} className="flex flex-col items-center gap-2">
                 <div
                   className="w-8 rounded-full transition-all duration-300 flex items-center justify-center font-bold text-xs text-white"
@@ -218,11 +177,24 @@ export const DashboardView = ({ dashboardData, userRole }) => {
           <div className="space-y-4">
             {progressReports.slice(0, 3).map((report, idx) => (
               <div key={idx} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-b-0">
-                <div className="w-10 h-10 bg-gradient-hero text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                  {getInitials(report.memberName)}
+                <div className="w-10 h-10 bg-gradient-hero text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                  {report.memberProfilePicture ? (
+                    <img
+                      src={report.memberProfilePicture}
+                      alt={report.memberName || 'Member'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    getInitials(report.memberName)
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">{report.memberName}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold text-sm">{report.memberName}</p>
+                    <span className="text-[11px] text-gray-400 whitespace-nowrap">
+                      {formatShortDate(report.createdAt || report.date)}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-600 truncate">{report.teamPlan || '-'}</p>
                   <span className={`inline-block mt-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyle('category', report.category)}`}>
                     {report.category}
