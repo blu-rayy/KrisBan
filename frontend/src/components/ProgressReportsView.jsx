@@ -18,11 +18,51 @@ export const ProgressReportsView = () => {
   const [submitting, setSubmitting] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
 
+  const buildUsersFromReports = (reports = []) => {
+    if (user?.role !== 'ADMIN') {
+      return user ? [user] : [];
+    }
+
+    const uniqueUsers = new Map();
+    reports.forEach((report) => {
+      if (report.memberId && !uniqueUsers.has(report.memberId)) {
+        uniqueUsers.set(report.memberId, {
+          id: report.memberId,
+          username: report.memberName,
+          name: report.memberName,
+          email: report.memberEmail
+        });
+      }
+    });
+
+    const usersList = Array.from(uniqueUsers.values());
+    if (user && !usersList.find((entry) => String(entry.id) === String(user.id))) {
+      usersList.unshift({
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        email: user.email
+      });
+    }
+
+    return usersList;
+  };
+
   useEffect(() => {
-    fetchProgressReport();
     fetchProgressReports();
-    fetchAllUsers();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'projects-overview' && user?.role === 'ADMIN' && !reportData && !loading) {
+      fetchProgressReport();
+    }
+  }, [activeTab, user?.role, reportData, loading]);
+
+  useEffect(() => {
+    if (user?.role !== 'ADMIN') {
+      setAllUsers(user ? [user] : []);
+    }
+  }, [user?.id, user?.role]);
 
   const fetchProgressReport = async () => {
     try {
@@ -40,60 +80,20 @@ export const ProgressReportsView = () => {
   const fetchProgressReports = async () => {
     try {
       setReportsLoading(true);
-      console.log('Fetching progress reports...');
-      const response = await dashboardService.getProgressReports();
-      console.log('Progress reports response:', response.data);
-      setProgressReports(response.data.data || []);
+      const response = await dashboardService.getProgressReports({
+        sortBy: 'created_at',
+        sortOrder: 'desc'
+      });
+      const reports = response.data.data || [];
+      setProgressReports(reports);
+      setAllUsers(buildUsersFromReports(reports));
       setReportsError('');
     } catch (err) {
-      console.error('Progress reports fetch error:', err);
-      console.error('Error response:', err.response?.data);
       setReportsError(err.response?.data?.message || 'Failed to load progress reports');
       setProgressReports([]); // Set empty array to prevent crashes
+      setAllUsers(user ? [user] : []);
     } finally {
       setReportsLoading(false);
-    }
-  };
-
-  const fetchAllUsers = async () => {
-    try {
-      // For admins, fetch all team members from progress reports
-      if (user?.role === 'ADMIN') {
-        const response = await dashboardService.getProgressReports();
-        if (response.data.data) {
-          // Extract unique users from progress reports
-          const uniqueUsers = new Map();
-          response.data.data.forEach(report => {
-            if (report.memberId && !uniqueUsers.has(report.memberId)) {
-              uniqueUsers.set(report.memberId, {
-                id: report.memberId,
-                username: report.memberName,
-                name: report.memberName,
-                email: report.memberEmail
-              });
-            }
-          });
-          // Convert to array and add current user if not present
-          const usersList = Array.from(uniqueUsers.values());
-          if (user && !usersList.find(u => u.id === user.id)) {
-            usersList.unshift({
-              id: user.id,
-              username: user.username,
-              name: user.name,
-              email: user.email
-            });
-          }
-          setAllUsers(usersList);
-        } else {
-          setAllUsers(user ? [user] : []);
-        }
-      } else {
-        // Non-admins only see themselves
-        setAllUsers(user ? [user] : []);
-      }
-    } catch (err) {
-      console.log('Failed to fetch users, using default');
-      setAllUsers(user ? [user] : []);
     }
   };
 
@@ -101,7 +101,9 @@ export const ProgressReportsView = () => {
     try {
       setSubmitting(true);
       const response = await dashboardService.createProgressReport(formData);
-      setProgressReports([response.data.data, ...progressReports]);
+      const updatedReports = [response.data.data, ...progressReports];
+      setProgressReports(updatedReports);
+      setAllUsers(buildUsersFromReports(updatedReports));
       setReportsError('');
       // Show success message
       alert('Progress report entry created successfully!');
@@ -115,7 +117,9 @@ export const ProgressReportsView = () => {
   const handleDeleteProgressReport = async (reportId) => {
     try {
       await dashboardService.deleteProgressReport(reportId);
-      setProgressReports(progressReports.filter(r => r.id !== reportId));
+      const updatedReports = progressReports.filter(r => r.id !== reportId);
+      setProgressReports(updatedReports);
+      setAllUsers(buildUsersFromReports(updatedReports));
       setReportsError('');
       alert('Progress report deleted successfully!');
     } catch (err) {
@@ -126,7 +130,9 @@ export const ProgressReportsView = () => {
   const handleUpdateProgressReport = async (reportId, formData) => {
     try {
       const response = await dashboardService.updateProgressReport(reportId, formData);
-      setProgressReports(progressReports.map(r => r.id === reportId ? response.data.data : r));
+      const updatedReports = progressReports.map(r => r.id === reportId ? response.data.data : r);
+      setProgressReports(updatedReports);
+      setAllUsers(buildUsersFromReports(updatedReports));
       setReportsError('');
       alert('Progress report updated successfully!');
     } catch (err) {

@@ -202,8 +202,6 @@ export const getProgressReports = async (req, res) => {
   try {
     const { date, memberId, sprintNo, category, limit, sortBy, sortOrder } = req.query;
 
-    console.log('Fetching progress reports with filters:', { date, memberId, sprintNo, category });
-
     // Use a simple query first, then enrich
     let query = supabase
       .from('progress_reports')
@@ -231,8 +229,6 @@ export const getProgressReports = async (req, res) => {
       console.error('Supabase query error:', error);
       throw error;
     }
-
-    console.log('Retrieved reports from DB:', reports?.length || 0);
 
     let usersById = new Map();
     try {
@@ -263,8 +259,6 @@ export const getProgressReports = async (req, res) => {
         updatedAt: report.updated_at
       };
     });
-
-    console.log('Returning enriched reports:', enrichedReports.length);
 
     res.status(200).json({
       success: true,
