@@ -49,27 +49,27 @@ export const DashboardView = ({ dashboardData, userRole }) => {
   const pendingProjects = summary.pendingProjects || 0;
 
   return (
-    <div className="min-h-screen bg-surface-ground p-8">
+    <div className="min-h-full bg-surface-ground p-4 sm:p-6 lg:p-8">
       {/* Page Header with Action Buttons */}
-      <div className="flex justify-between items-start mb-12">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8 sm:mb-12">
         <div>
-          <h2 className="text-4xl font-bold text-dark-charcoal mb-2">Dashboard</h2>
-          <p className="text-gray-600 text-lg">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal mb-2">Dashboard</h2>
+          <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
             Plan, prioritize, and accomplish your tasks with ease.
           </p>
         </div>
 
         {/* Action Buttons - Top Right */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={() => console.log('Import Data')}
-            className="px-6 py-2 bg-white border-2 border-dark-charcoal text-dark-charcoal rounded-full font-semibold hover:bg-gray-50 transition-all duration-300"
+            className="px-4 sm:px-6 py-2 bg-white border-2 border-dark-charcoal text-dark-charcoal rounded-full font-semibold hover:bg-gray-50 transition-all duration-300 text-sm sm:text-base"
           >
             Import Data
           </button>
           <button
             onClick={() => console.log('Add Project')}
-            className="px-6 py-2 bg-gradient-hero text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300"
+            className="px-4 sm:px-6 py-2 bg-gradient-hero text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
           >
             + Add Project
           </button>

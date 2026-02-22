@@ -80,7 +80,7 @@ export const SprintBadge = ({ label, className = '', colorName, index }) => {
   }
   
   const colorClasses = COLOR_CLASSES[color] || COLOR_CLASSES.gray;
-  const badgeClass = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${colorClasses} ${className}`;
+  const badgeClass = `inline-flex items-center whitespace-nowrap px-3 py-1 rounded-full text-sm font-medium border ${colorClasses} ${className}`;
   
   return (
     <span className={badgeClass}>

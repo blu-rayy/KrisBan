@@ -16,8 +16,13 @@ export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const mobileBreakpoint = 1024;
+  const initialIsMobile = typeof window !== 'undefined' ? window.innerWidth < mobileBreakpoint : false;
   const [activeSection, setActiveSection] = useState('dashboard');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(initialIsMobile);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(initialIsMobile);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const {
     data: dashboardData,
     isLoading,
@@ -42,6 +47,21 @@ export const DashboardPage = () => {
     });
   }, [user?.id, queryClient]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < mobileBreakpoint;
+      setIsMobile(mobile);
+
+      if (mobile) {
+        setIsSidebarCollapsed(true);
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   const handleLogout = () => {
     logout();
@@ -62,8 +82,15 @@ export const DashboardPage = () => {
       <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between gap-6">
-            {/* Left: Logo */}
-            <div className="flex-shrink-0">
+            {/* Left: Menu + Logo */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <button
+                onClick={() => setIsMobileSidebarOpen((current) => !current)}
+                className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
+                aria-label={isMobileSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+              >
+                ☰
+              </button>
               <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                 KrisBan
               </h1>
@@ -74,7 +101,7 @@ export const DashboardPage = () => {
               {/* User Avatar - Click for profile/settings */}
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-4 pl-4 border-l border-gray-200 hover:opacity-80 transition cursor-pointer"
+                className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-4 border-l border-gray-200 hover:opacity-80 transition cursor-pointer"
               >
                 <div className="w-10 h-10 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
                   {user?.profilePicture ? (
@@ -101,16 +128,29 @@ export const DashboardPage = () => {
 
       {/* Main Content with Sidebar */}
       <div className="flex flex-1">
+        {isMobile && isMobileSidebarOpen && (
+          <button
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+            aria-label="Close sidebar overlay"
+          />
+        )}
+
         {/* Sidebar */}
         <Sidebar 
           activeSection={activeSection} 
           setActiveSection={setActiveSection}
           userRole={user?.role}
           onLogout={handleLogout}
+          isCollapsed={isSidebarCollapsed}
+          isMobile={isMobile}
+          isMobileOpen={isMobileSidebarOpen}
+          onToggleCollapse={() => setIsSidebarCollapsed((current) => !current)}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Content Area - Add margin for fixed sidebar */}
-        <main className="flex-1 overflow-auto ml-64">
+        <main className={`flex-1 overflow-auto transition-all duration-300 ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
           {isError && error && (
             <div className="m-8 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error.message || 'Failed to load dashboard'}
