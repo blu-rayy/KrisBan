@@ -3,8 +3,9 @@ import { fetchProgressReports } from '../services/api';
 
 export const useProgressReports = (filters = {}) => {
   return useQuery({
-    queryKey: ['progressReports'],
+    queryKey: ['progressReports', filters],
     queryFn: () => fetchProgressReports(filters),
+    keepPreviousData: true,
     retry: (failureCount, error) => {
       if (error?.isUpstream502) {
         return failureCount < 2;

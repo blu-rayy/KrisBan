@@ -1,100 +1,57 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import api from './api';
 
 export const sprintService = {
   // Get all sprints
   getSprints: async () => {
-    const response = await axios.get(`${API_URL}/sprints`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const response = await api.get('/sprints');
     return response;
   },
 
   // Get a specific sprint
   getSprintById: async (id) => {
-    const response = await axios.get(`${API_URL}/sprints/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const response = await api.get(`/sprints/${id}`);
     return response;
   },
 
   // Create a new sprint
   createSprint: async (sprintData) => {
-    const response = await axios.post(`${API_URL}/sprints`, sprintData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await api.post('/sprints', sprintData);
     return response;
   },
 
   // Update a sprint
   updateSprint: async (id, updateData) => {
-    const response = await axios.put(`${API_URL}/sprints/${id}`, updateData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await api.put(`/sprints/${id}`, updateData);
     return response;
   },
 
   // Delete a sprint
   deleteSprint: async (id) => {
-    const response = await axios.delete(`${API_URL}/sprints/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const response = await api.delete(`/sprints/${id}`);
     return response;
   },
 
   // Add a team plan to a sprint
   addTeamPlan: async (sprintId, teamPlan) => {
-    const response = await axios.post(`${API_URL}/sprints/${sprintId}/team-plans`, { teamPlan }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await api.post(`/sprints/${sprintId}/team-plans`, { teamPlan });
     return response;
   },
 
   // Remove a team plan
   removeTeamPlan: async (teamPlanId) => {
-    const response = await axios.delete(`${API_URL}/sprints/team-plans/${teamPlanId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const response = await api.delete(`/sprints/team-plans/${teamPlanId}`);
     return response;
   },
 
   // Update a team plan
   updateTeamPlan: async (teamPlanId, teamPlan) => {
-    const response = await axios.put(`${API_URL}/sprints/team-plans/${teamPlanId}`, { teamPlan }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await api.put(`/sprints/team-plans/${teamPlanId}`, { teamPlan });
     return response;
   },
 
   // Cleanup duplicate team plans for a sprint
   cleanupDuplicateTeamPlans: async (sprintId) => {
-    const response = await axios.post(`${API_URL}/sprints/cleanup/duplicates`, { sprintId }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await api.post('/sprints/cleanup/duplicates', { sprintId });
     return response;
   }
 };

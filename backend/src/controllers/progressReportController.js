@@ -200,12 +200,31 @@ export const createProgressReport = async (req, res) => {
 // @access  Private
 export const getProgressReports = async (req, res) => {
   try {
-    const { date, memberId, sprintNo, category, limit, sortBy, sortOrder } = req.query;
+    const { date, memberId, sprintNo, category, limit, sortBy, sortOrder, includeImages, page, pageSize } = req.query;
+
+    const shouldIncludeImages = String(includeImages ?? 'true').toLowerCase() !== 'false';
+    const baseColumns = [
+      'id',
+      'date',
+      'member_id',
+      'sprint_no',
+      'sprint_id',
+      'team_plan',
+      'category',
+      'task_done',
+      'created_by',
+      'created_at',
+      'updated_at'
+    ];
+
+    if (shouldIncludeImages) {
+      baseColumns.push('image_url');
+    }
 
     // Use a simple query first, then enrich
     let query = supabase
       .from('progress_reports')
-      .select('*');
+      .select(baseColumns.join(','));
 
     if (date) query = query.eq('date', date);
     if (memberId) query = query.eq('member_id', memberId);
@@ -219,6 +238,20 @@ export const getProgressReports = async (req, res) => {
     query = query.order(orderField, { ascending });
 
     const parsedLimit = Number.parseInt(limit, 10);
+    const parsedPage = Number.parseInt(page, 10);
+    const parsedPageSize = Number.parseInt(pageSize, 10);
+
+    let paginationMeta = null;
+    if (!Number.isNaN(parsedPage) && parsedPage > 0 && !Number.isNaN(parsedPageSize) && parsedPageSize > 0) {
+      const from = (parsedPage - 1) * parsedPageSize;
+      const to = from + parsedPageSize - 1;
+      query = query.range(from, to);
+      paginationMeta = {
+        page: parsedPage,
+        pageSize: parsedPageSize
+      };
+    }
+
     if (!Number.isNaN(parsedLimit) && parsedLimit > 0) {
       query = query.limit(parsedLimit);
     }
@@ -253,7 +286,7 @@ export const getProgressReports = async (req, res) => {
         teamPlan: report.team_plan,
         category: report.category,
         taskDone: report.task_done,
-        imageUrl: report.image_url,
+        imageUrl: shouldIncludeImages ? report.image_url : undefined,
         createdBy: String(report.created_by),
         createdAt: report.created_at,
         updatedAt: report.updated_at
@@ -262,7 +295,8 @@ export const getProgressReports = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: enrichedReports
+      data: enrichedReports,
+      ...(paginationMeta ? { pagination: paginationMeta } : {})
     });
   } catch (error) {
     console.error('Error in getProgressReports:', error);

@@ -13,8 +13,7 @@ export const SprintsView = ({ userRole }) => {
     data: sprints = [],
     isLoading: loading,
     isError,
-    error,
-    refetch
+    error
   } = useSprints();
   const [errorMessage, setErrorMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -28,12 +27,21 @@ export const SprintsView = ({ userRole }) => {
     }
   }, [isError, error?.message]);
 
+  const refreshSprintsAndRelated = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['sprints'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardRecentActivity'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardLastWeekProgressStats'] })
+    ]);
+  };
+
   const handleCreateSprint = async (formData) => {
     try {
       setSubmitting(true);
       await sprintService.createSprint(formData);
       setShowForm(false);
-      await queryClient.invalidateQueries({ queryKey: ['sprints'] });
+      await refreshSprintsAndRelated();
     } catch (err) {
       setErrorMessage(err.response?.data?.message || 'Failed to create sprint');
     } finally {
@@ -77,7 +85,7 @@ export const SprintsView = ({ userRole }) => {
       <SprintTable
         sprints={sprints}
         loading={loading}
-        onRefresh={refetch}
+        onRefresh={refreshSprintsAndRelated}
         userRole={userRole}
       />
     </div>

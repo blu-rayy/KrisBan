@@ -112,7 +112,7 @@ export const fetchProgressReports = async (filters = {}) => {
 };
 
 export const fetchRecentProgressReports = async () => {
-  return fetchProgressReports({ limit: 3, sortBy: 'created_at', sortOrder: 'desc' });
+  return fetchProgressReports({ limit: 3, sortBy: 'created_at', sortOrder: 'desc', includeImages: false });
 };
 
 export const fetchLastWeekProgressStats = async () => {

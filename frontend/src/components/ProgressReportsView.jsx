@@ -16,12 +16,24 @@ export const ProgressReportsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
+  const progressReportsQueryKey = useMemo(() => ['progressReports', progressReportFilters], [progressReportFilters]);
   const {
     data: progressReports = [],
     isLoading: reportsLoading,
     isError: reportsIsError,
     error: reportsQueryError
-  } = useProgressReports({ sortBy: 'created_at', sortOrder: 'desc' });
+  } = useProgressReports(progressReportFilters);
+
+  const invalidateProgressRelatedQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['progressReports'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardRecentActivity'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardLastWeekProgressStats'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] }),
+      queryClient.invalidateQueries({ queryKey: ['sprints'] })
+    ]);
+  };
 
   const buildUsersFromReports = (reports = []) => {
     if (user?.role !== 'ADMIN') {
@@ -83,7 +95,8 @@ export const ProgressReportsView = () => {
     try {
       setSubmitting(true);
       const response = await dashboardService.createProgressReport(formData);
-      queryClient.setQueryData(['progressReports'], (current = []) => [response.data.data, ...current]);
+      queryClient.setQueryData(progressReportsQueryKey, (current = []) => [response.data.data, ...current]);
+      await invalidateProgressRelatedQueries();
       // Show success message
       alert('Progress report entry created successfully!');
     } catch (err) {
@@ -96,7 +109,8 @@ export const ProgressReportsView = () => {
   const handleDeleteProgressReport = async (reportId) => {
     try {
       await dashboardService.deleteProgressReport(reportId);
-      queryClient.setQueryData(['progressReports'], (current = []) => current.filter((report) => report.id !== reportId));
+      queryClient.setQueryData(progressReportsQueryKey, (current = []) => current.filter((report) => report.id !== reportId));
+      await invalidateProgressRelatedQueries();
       alert('Progress report deleted successfully!');
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete progress report');
@@ -106,9 +120,10 @@ export const ProgressReportsView = () => {
   const handleUpdateProgressReport = async (reportId, formData) => {
     try {
       const response = await dashboardService.updateProgressReport(reportId, formData);
-      queryClient.setQueryData(['progressReports'], (current = []) =>
+      queryClient.setQueryData(progressReportsQueryKey, (current = []) =>
         current.map((report) => (report.id === reportId ? response.data.data : report))
       );
+      await invalidateProgressRelatedQueries();
       alert('Progress report updated successfully!');
     } catch (err) {
       throw err;
