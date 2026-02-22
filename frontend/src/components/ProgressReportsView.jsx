@@ -6,7 +6,7 @@ import { ProgressReportTable } from './ProgressReportTable';
 import { ProgressReportViewOnly } from './ProgressReportViewOnly';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useProgressReports } from '../hooks/useProgressReports';
+import { useInfiniteProgressReports } from '../hooks/useProgressReports';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
@@ -16,14 +16,23 @@ export const ProgressReportsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const progressReportPageSize = 30;
   const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
   const progressReportsQueryKey = useMemo(() => ['progressReports', progressReportFilters], [progressReportFilters]);
   const {
-    data: progressReports = [],
+    data: progressReportsData,
     isLoading: reportsLoading,
     isError: reportsIsError,
-    error: reportsQueryError
-  } = useProgressReports(progressReportFilters);
+    error: reportsQueryError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage
+  } = useInfiniteProgressReports(progressReportFilters, progressReportPageSize);
+
+  const progressReports = useMemo(
+    () => progressReportsData?.pages?.flatMap((page) => page?.data || []) || [],
+    [progressReportsData]
+  );
 
   const invalidateProgressRelatedQueries = async () => {
     await Promise.all([
@@ -95,7 +104,23 @@ export const ProgressReportsView = () => {
     try {
       setSubmitting(true);
       const response = await dashboardService.createProgressReport(formData);
-      queryClient.setQueryData(progressReportsQueryKey, (current = []) => [response.data.data, ...current]);
+      queryClient.setQueryData(progressReportsQueryKey, (current) => {
+        if (!current?.pages?.length) {
+          return current;
+        }
+
+        const firstPage = current.pages[0] || { data: [], pagination: { page: 1, pageSize: progressReportPageSize } };
+        return {
+          ...current,
+          pages: [
+            {
+              ...firstPage,
+              data: [response.data.data, ...(firstPage.data || [])]
+            },
+            ...current.pages.slice(1)
+          ]
+        };
+      });
       await invalidateProgressRelatedQueries();
       // Show success message
       alert('Progress report entry created successfully!');
@@ -109,7 +134,19 @@ export const ProgressReportsView = () => {
   const handleDeleteProgressReport = async (reportId) => {
     try {
       await dashboardService.deleteProgressReport(reportId);
-      queryClient.setQueryData(progressReportsQueryKey, (current = []) => current.filter((report) => report.id !== reportId));
+      queryClient.setQueryData(progressReportsQueryKey, (current) => {
+        if (!current?.pages?.length) {
+          return current;
+        }
+
+        return {
+          ...current,
+          pages: current.pages.map((page) => ({
+            ...page,
+            data: (page.data || []).filter((report) => report.id !== reportId)
+          }))
+        };
+      });
       await invalidateProgressRelatedQueries();
       alert('Progress report deleted successfully!');
     } catch (err) {
@@ -120,9 +157,19 @@ export const ProgressReportsView = () => {
   const handleUpdateProgressReport = async (reportId, formData) => {
     try {
       const response = await dashboardService.updateProgressReport(reportId, formData);
-      queryClient.setQueryData(progressReportsQueryKey, (current = []) =>
-        current.map((report) => (report.id === reportId ? response.data.data : report))
-      );
+      queryClient.setQueryData(progressReportsQueryKey, (current) => {
+        if (!current?.pages?.length) {
+          return current;
+        }
+
+        return {
+          ...current,
+          pages: current.pages.map((page) => ({
+            ...page,
+            data: (page.data || []).map((report) => (report.id === reportId ? response.data.data : report))
+          }))
+        };
+      });
       await invalidateProgressRelatedQueries();
       alert('Progress report updated successfully!');
     } catch (err) {
@@ -185,6 +232,18 @@ export const ProgressReportsView = () => {
             currentUserId={user?.id}
             userRole={user?.role}
           />
+
+          {hasNextPage && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isFetchingNextPage ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -217,6 +276,18 @@ export const ProgressReportsView = () => {
               currentUserId={user?.id}
               userRole={user?.role}
             />
+
+            {hasNextPage && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="px-5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isFetchingNextPage ? 'Loading...' : 'Load More'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
