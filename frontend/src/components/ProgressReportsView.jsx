@@ -1,22 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { dashboardService } from '../services/api';
 import { ProgressReportForm } from './ProgressReportForm';
 import { ProgressReportTable } from './ProgressReportTable';
 import { ProgressReportViewOnly } from './ProgressReportViewOnly';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useProgressReports } from '../hooks/useProgressReports';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('view');
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [progressReports, setProgressReports] = useState([]);
-  const [reportsLoading, setReportsLoading] = useState(false);
-  const [reportsError, setReportsError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
+  const {
+    data: progressReports = [],
+    isLoading: reportsLoading,
+    isError: reportsIsError,
+    error: reportsQueryError
+  } = useProgressReports({ sortBy: 'created_at', sortOrder: 'desc' });
 
   const buildUsersFromReports = (reports = []) => {
     if (user?.role !== 'ADMIN') {
@@ -49,20 +54,17 @@ export const ProgressReportsView = () => {
   };
 
   useEffect(() => {
-    fetchProgressReports();
-  }, []);
-
-  useEffect(() => {
     if (activeTab === 'projects-overview' && user?.role === 'ADMIN' && !reportData && !loading) {
       fetchProgressReport();
     }
   }, [activeTab, user?.role, reportData, loading]);
 
-  useEffect(() => {
-    if (user?.role !== 'ADMIN') {
-      setAllUsers(user ? [user] : []);
-    }
-  }, [user?.id, user?.role]);
+
+  const allUsers = useMemo(() => buildUsersFromReports(progressReports), [progressReports, user?.id, user?.role]);
+
+  const reportsError = reportsIsError
+    ? (reportsQueryError?.message || 'Failed to load progress reports')
+    : '';
 
   const fetchProgressReport = async () => {
     try {
@@ -77,38 +79,15 @@ export const ProgressReportsView = () => {
     }
   };
 
-  const fetchProgressReports = async () => {
-    try {
-      setReportsLoading(true);
-      const response = await dashboardService.getProgressReports({
-        sortBy: 'created_at',
-        sortOrder: 'desc'
-      });
-      const reports = response.data.data || [];
-      setProgressReports(reports);
-      setAllUsers(buildUsersFromReports(reports));
-      setReportsError('');
-    } catch (err) {
-      setReportsError(err.response?.data?.message || 'Failed to load progress reports');
-      setProgressReports([]); // Set empty array to prevent crashes
-      setAllUsers(user ? [user] : []);
-    } finally {
-      setReportsLoading(false);
-    }
-  };
-
   const handleSubmitProgressReport = async (formData) => {
     try {
       setSubmitting(true);
       const response = await dashboardService.createProgressReport(formData);
-      const updatedReports = [response.data.data, ...progressReports];
-      setProgressReports(updatedReports);
-      setAllUsers(buildUsersFromReports(updatedReports));
-      setReportsError('');
+      queryClient.setQueryData(['progressReports'], (current = []) => [response.data.data, ...current]);
       // Show success message
       alert('Progress report entry created successfully!');
     } catch (err) {
-      setReportsError(err.response?.data?.message || 'Failed to create progress report');
+      alert(err.response?.data?.message || 'Failed to create progress report');
     } finally {
       setSubmitting(false);
     }
@@ -117,26 +96,21 @@ export const ProgressReportsView = () => {
   const handleDeleteProgressReport = async (reportId) => {
     try {
       await dashboardService.deleteProgressReport(reportId);
-      const updatedReports = progressReports.filter(r => r.id !== reportId);
-      setProgressReports(updatedReports);
-      setAllUsers(buildUsersFromReports(updatedReports));
-      setReportsError('');
+      queryClient.setQueryData(['progressReports'], (current = []) => current.filter((report) => report.id !== reportId));
       alert('Progress report deleted successfully!');
     } catch (err) {
-      setReportsError(err.response?.data?.message || 'Failed to delete progress report');
+      alert(err.response?.data?.message || 'Failed to delete progress report');
     }
   };
 
   const handleUpdateProgressReport = async (reportId, formData) => {
     try {
       const response = await dashboardService.updateProgressReport(reportId, formData);
-      const updatedReports = progressReports.map(r => r.id === reportId ? response.data.data : r);
-      setProgressReports(updatedReports);
-      setAllUsers(buildUsersFromReports(updatedReports));
-      setReportsError('');
+      queryClient.setQueryData(['progressReports'], (current = []) =>
+        current.map((report) => (report.id === reportId ? response.data.data : report))
+      );
       alert('Progress report updated successfully!');
     } catch (err) {
-      setReportsError(err.response?.data?.message || 'Failed to update progress report');
       throw err;
     }
   };

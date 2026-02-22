@@ -11,6 +11,21 @@ const api = axios.create({
   baseURL: API_BASE_URL
 });
 
+const normalizeApiError = (error, fallbackMessage) => {
+  const status = error?.response?.status;
+  const backendMessage = error?.response?.data?.message;
+  const rawMessage = backendMessage || error?.message || '';
+  const isGatewayIssue = status === 502 || /502|bad gateway|cloudflare/i.test(rawMessage);
+
+  const normalized = new Error(
+    isGatewayIssue ? 'Service is temporarily unavailable. Please try again in a moment.' : (backendMessage || fallbackMessage)
+  );
+
+  normalized.status = status;
+  normalized.isUpstream502 = isGatewayIssue;
+  return normalized;
+};
+
 // Add token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -85,6 +100,15 @@ export const dashboardService = {
 
   getLastWeekProgressStats: () =>
     api.get('/progress-reports/stats/last-week')
+};
+
+export const fetchProgressReports = async (filters = {}) => {
+  try {
+    const response = await dashboardService.getProgressReports(filters);
+    return response?.data?.data || [];
+  } catch (error) {
+    throw normalizeApiError(error, 'Failed to fetch progress reports');
+  }
 };
 
 export default api;
