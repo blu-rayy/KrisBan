@@ -87,6 +87,7 @@ export const DashboardPage = () => {
               >
                 <HugeiconsIcon icon={Menu01Icon} size={20} color="currentColor" />
               </button>
+              <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
               <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                 KrisBan
               </h1>

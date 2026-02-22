@@ -431,7 +431,7 @@ export const ProgressReportsView = () => {
             Last updated: {new Date(reportData.timestamp).toLocaleString()}
           </div>
         </div>
-      )}}
+      )}
 
       {loading && activeTab === 'tickets-overview' && (
         <div className="flex items-center justify-center h-96">

@@ -16,6 +16,10 @@
     </linearGradient>
   </defs>
 
+  <!-- Black background with rounded corners (pill-shaped) -->
+  <rect x="0" y="0" width="512" height="512" fill="#000000" rx="100" ry="100" />
+
+  <!-- Logo -->
   <rect x="126" y="96" width="96" height="320" fill="url(#stemGrad)" />
 
   <polygon points="230,252 386,96 230,96" fill="url(#topGrad)" />
