@@ -3,6 +3,40 @@ import User from '../models/User.js';
 import Sprint from '../models/Sprint.js';
 import { supabase } from '../config/database.js';
 
+const normalizeSupabaseErrorMessage = (error, fallbackMessage) => {
+  const rawMessage = error?.message || '';
+  const htmlLikeResponse = rawMessage.includes('<!DOCTYPE html>') || rawMessage.includes('<html');
+  const gatewayError = /502|bad gateway|cloudflare/i.test(rawMessage);
+
+  if (htmlLikeResponse || gatewayError) {
+    return fallbackMessage;
+  }
+
+  return rawMessage || fallbackMessage;
+};
+
+const fetchUsersMapByIds = async (ids = []) => {
+  const uniqueIds = [...new Set(ids.map((id) => String(id)).filter(Boolean))];
+  if (uniqueIds.length === 0) return new Map();
+
+  const { data: users, error } = await supabase
+    .from('users')
+    .select('id, username, full_name, institute_email, personal_email')
+    .in('id', uniqueIds);
+
+  if (error) throw error;
+
+  return new Map((users || []).map((user) => [
+    String(user.id),
+    {
+      username: user.username,
+      fullName: user.full_name,
+      instituteEmail: user.institute_email,
+      personalEmail: user.personal_email
+    }
+  ]));
+};
+
 // Helper function: Automatically create team plan if it doesn't exist
 const ensureTeamPlanExists = async (sprintId, teamPlan, userId) => {
   if (!sprintId || !teamPlan || !teamPlan.trim()) {
@@ -158,35 +192,34 @@ export const getProgressReports = async (req, res) => {
 
     console.log('Retrieved reports from DB:', reports?.length || 0);
 
-    // Enrich with member details
-    const enrichedReports = await Promise.all(
-      (reports || []).map(async (report) => {
-        let member = null;
-        try {
-          member = await User.findById(report.member_id);
-        } catch (memberError) {
-          console.warn(`Could not fetch user ${report.member_id}:`, memberError.message);
-        }
-        
-        return {
-          id: String(report.id),
-          date: report.date,
-          memberId: String(report.member_id),
-          memberName: report.memberName || member?.username || 'Unknown',
-          memberFullName: report.memberFullName || member?.fullName || 'Unknown',
-          memberEmail: report.memberEmail || member?.instituteEmail || member?.personalEmail || 'Unknown',
-          sprintNo: report.sprint_no,
-          sprintId: report.sprint_id ? String(report.sprint_id) : null,
-          teamPlan: report.team_plan,
-          category: report.category,
-          taskDone: report.task_done,
-          imageUrl: report.image_url,
-          createdBy: String(report.created_by),
-          createdAt: report.created_at,
-          updatedAt: report.updated_at
-        };
-      })
-    );
+    let usersById = new Map();
+    try {
+      usersById = await fetchUsersMapByIds((reports || []).map((report) => report.member_id));
+    } catch (memberFetchError) {
+      console.warn('Could not fetch member profiles in batch:', normalizeSupabaseErrorMessage(memberFetchError, 'Member lookup temporarily unavailable'));
+    }
+
+    const enrichedReports = (reports || []).map((report) => {
+      const member = usersById.get(String(report.member_id));
+
+      return {
+        id: String(report.id),
+        date: report.date,
+        memberId: String(report.member_id),
+        memberName: report.memberName || member?.username || 'Unknown',
+        memberFullName: report.memberFullName || member?.fullName || 'Unknown',
+        memberEmail: report.memberEmail || member?.instituteEmail || member?.personalEmail || 'Unknown',
+        sprintNo: report.sprint_no,
+        sprintId: report.sprint_id ? String(report.sprint_id) : null,
+        teamPlan: report.team_plan,
+        category: report.category,
+        taskDone: report.task_done,
+        imageUrl: report.image_url,
+        createdBy: String(report.created_by),
+        createdAt: report.created_at,
+        updatedAt: report.updated_at
+      };
+    });
 
     console.log('Returning enriched reports:', enrichedReports.length);
 
@@ -198,7 +231,7 @@ export const getProgressReports = async (req, res) => {
     console.error('Error in getProgressReports:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch progress reports'
+      message: normalizeSupabaseErrorMessage(error, 'Failed to fetch progress reports')
     });
   }
 };

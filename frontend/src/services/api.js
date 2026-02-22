@@ -1,11 +1,7 @@
 import axios from 'axios';
 
-const isProduction = window.location.hostname !== 'localhost';
-const API_BASE_URL = isProduction 
-  ? 'https://krisban-backend.onrender.com/api'
-  : 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-console.log('Environment:', isProduction ? 'Production' : 'Development');
 console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
