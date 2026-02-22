@@ -82,7 +82,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
     }
   };
 
-  if (loading) {
+  if (loading && sprints.length === 0) {
     return <div className="text-center py-8 text-gray-600">Loading sprints...</div>;
   }
 

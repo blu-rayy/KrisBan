@@ -9,10 +9,13 @@ import { PlaceholderSection } from '../components/PlaceholderSection';
 import { ChangePasswordModal } from '../components/ChangePasswordModal';
 import { ProfileDropdown } from '../components/ProfileDropdown';
 import { useDashboardData } from '../hooks/useDashboardData';
+import { useQueryClient } from '@tanstack/react-query';
+import { sprintService } from '../services/sprintService';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const {
@@ -26,6 +29,18 @@ export const DashboardPage = () => {
   useEffect(() => {
     console.log('Current user object:', user);
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    queryClient.prefetchQuery({
+      queryKey: ['sprints'],
+      queryFn: async () => {
+        const response = await sprintService.getSprints();
+        return response?.data?.data || [];
+      }
+    });
+  }, [user?.id, queryClient]);
 
 
   const handleLogout = () => {

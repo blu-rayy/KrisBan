@@ -7,6 +7,9 @@ export const useSprints = () => {
     queryFn: async () => {
       const response = await sprintService.getSprints();
       return response?.data?.data || [];
-    }
+    },
+    staleTime: 600000,
+    keepPreviousData: true,
+    refetchOnMount: false
   });
 };
