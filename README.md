@@ -1,48 +1,145 @@
 # KrisBan 🚀
 
-> A streamlined Project Management System bridging the gap between Kanban task tracking and academic/research resource management.
+A role-based project workspace for teams, combining Kanban-style collaboration, sprint planning, and automated progress reporting.
 
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
-![Stack](https://img.shields.io/badge/Stack-MERN-blue)
+![Status](https://img.shields.io/badge/Status-Active-green)
+![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB)
+![Backend](https://img.shields.io/badge/Backend-Express-000000)
+![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E)
 
-## 📖 Overview
+---
 
-**KrisBan** is a custom-built project management solution designed to handle specific workflow frustrations found in generic tools. Unlike standard Kanban boards, this application integrates file management (Google Drive) and research review (PDF Annotation) directly into the task workflow, while automating the tedious process of weekly progress reporting.
+## ✨ What KrisBan Does
 
-## ✨ Key Features
+- **Role-based dashboard** for `ADMIN` and `USER`
+- **Progress report workflow** (create, view, edit, delete)
+- **Sprint + team plan tracking**
+- **Weekly progress analytics** and summary stats
+- **First-login password change enforcement**
+- **Modern UI** with Tailwind and React Query caching
 
-### 🛠 Project Management
-- **Kanban Board:** A dynamic Trello-like interface with "To Do," "Doing," and "Done" columns.
-- **Task Management:** Assign deadlines, tag users, and track status updates in real-time.
+---
 
-### 📄 Resource Integration
-- **Google Drive Sync:** Seamless redirection and linking to project resources stored in Drive.
-- **PDF Viewer & Annotation:** View research papers and technical documents directly within the app. (Planned: In-app annotation tools).
+## 🧱 Tech Stack
 
-### 🤖 Automation
-- **Automated Progress Reports:** Users submit a quick input + screenshot, and the system compiles a formatted progress report for the Project Manager.
-- **Admin Dashboard:** Exclusive backend view for PMs to generate reports and oversee project health.
+### Frontend
+- React + Vite
+- Tailwind CSS
+- TanStack React Query
+- Axios
+- Hugeicons
 
-### 🔐 Security & Roles
-- **Role-Based Access Control (RBAC):** Distinct `Admin` (PM) and `User` (Member) dashboards.
-- **Secure Authentication:** First-time login enforcement requiring immediate password changes for new accounts.
+### Backend
+- Node.js + Express
+- Supabase (`@supabase/supabase-js`)
+- JWT auth
+- bcryptjs
+- Helmet + CORS
 
-## 💻 Tech Stack
+### AI / Automation
+- Google Generative AI SDK (`@google/generative-ai`) for report generation flow
 
-- **Frontend:** React.js (Vite), Tailwind CSS
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB (Mongoose) / PostgreSQL
-- **Authentication:** JWT (JSON Web Tokens) with Bcrypt
+---
 
-## 🚀 Getting Started
+## 📁 Project Structure
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB/PostgreSQL instance
+- [frontend/](frontend)
+- [backend/](backend)
+- [build-frontend.js](build-frontend.js)
+- [Procfile](Procfile)
+- [vercel.json](vercel.json)
 
-### Installation
+---
 
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/yourusername/project-name.git](https://github.com/yourusername/project-name.git)
-   cd project-name
+## 🔐 Authentication & Access
+
+- Login is handled through [`authService.login`](frontend/src/services/api.js).
+- Auth/session state is managed in [`AuthContext`](frontend/src/context/AuthContext.jsx).
+- Protected backend routes use [`protect`](backend/src/middleware/auth.js).
+- First-time users are required to change password before full access.
+
+---
+
+## 📊 Progress Report API (Current)
+
+Defined in [backend/src/routes/progressReportRoutes.js](backend/src/routes/progressReportRoutes.js):
+
+- `GET /api/progress-reports/stats/summary` → [`progressReportController.getProgressReportSummary`](backend/src/controllers/progressReportController.js)
+- `GET /api/progress-reports/stats/last-week` → [`progressReportController.getLastWeekProgressStats`](backend/src/controllers/progressReportController.js)
+- `GET /api/progress-reports/:id` → [`progressReportController.getProgressReportById`](backend/src/controllers/progressReportController.js)
+- `GET /api/progress-reports` → [`progressReportController.getProgressReports`](backend/src/controllers/progressReportController.js)
+- `POST /api/progress-reports` → [`progressReportController.createProgressReport`](backend/src/controllers/progressReportController.js)
+- `PUT /api/progress-reports/:id` → [`progressReportController.updateProgressReport`](backend/src/controllers/progressReportController.js)
+- `DELETE /api/progress-reports/:id` → [`progressReportController.deleteProgressReport`](backend/src/controllers/progressReportController.js)
+
+All routes are protected by auth middleware.
+
+---
+
+## ⚙️ Local Development
+
+### 1) Install dependencies
+From project root:
+- install root deps
+- install frontend deps
+- install backend deps
+
+### 2) Environment setup
+
+Use:
+- [backend/.env.example](backend/.env.example)
+- [frontend/.env.example](frontend/.env.example)
+
+Create:
+- `backend/.env`
+- `frontend/.env` (if needed)
+
+### 3) Run apps
+
+**Backend** (default port `5000`):
+- script: `npm run dev` in [backend/package.json](backend/package.json)
+
+**Frontend** (default port `3000`):
+- script: `npm run dev` in [frontend/package.json](frontend/package.json)
+- dev proxy is configured in [frontend/vite.config.js](frontend/vite.config.js)
+
+---
+
+## 🏗 Build & Deploy
+
+- Frontend build helper: [build-frontend.js](build-frontend.js)
+- Backend start command: [Procfile](Procfile)
+- Vercel configs: [vercel.json](vercel.json), [frontend/vercel.json](frontend/vercel.json)
+
+---
+
+## 🌱 Seeding
+
+Available backend scripts in [backend/package.json](backend/package.json):
+
+- `npm run seed` → seeds sample users and boards via [backend/src/seed.js](backend/src/seed.js)
+- `npm run seed:progress` → seeds progress report data
+- Sprint seeding utility: [backend/src/seed-sprints.js](backend/src/seed-sprints.js)
+
+---
+
+## 🧭 Main Frontend Views
+
+- Dashboard: [frontend/src/components/DashboardView.jsx](frontend/src/components/DashboardView.jsx)
+- Progress reports: [frontend/src/components/ProgressReportsView.jsx](frontend/src/components/ProgressReportsView.jsx)
+- Sprints: [frontend/src/components/SprintsView.jsx](frontend/src/components/SprintsView.jsx)
+- Login: [frontend/src/pages/LoginPage.jsx](frontend/src/pages/LoginPage.jsx)
+
+---
+
+## 📌 Notes
+
+- Large payload support is enabled in backend JSON parsing for image/report payloads.
+- Image upload in progress reports currently supports base64 flow in the frontend form.
+- React Query keys are used across dashboard/progress/sprint modules for cache invalidation consistency.
+
+---
+
+## 📄 License
+
+MIT
