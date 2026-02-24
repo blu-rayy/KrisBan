@@ -102,6 +102,15 @@ export const dashboardService = {
     api.get('/progress-reports/stats/last-week')
 };
 
+export const weeklyReportService = {
+  list: () => api.get('/weekly-reports'),
+  getByWeek: (reportWeek) => api.get(`/weekly-reports/${reportWeek}`),
+  generateDraft: (payload) => api.post('/weekly-reports/generate', payload),
+  saveDraft: (reportWeek, payload) => api.post(`/weekly-reports/${reportWeek}/save`, payload),
+  exportPdf: (reportWeek) =>
+    api.post(`/weekly-reports/${reportWeek}/export-pdf`, {}, { responseType: 'blob' })
+};
+
 export const fetchProgressReports = async (filters = {}) => {
   try {
     const response = await dashboardService.getProgressReports(filters);

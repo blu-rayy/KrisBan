@@ -7,6 +7,8 @@ import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import progressReportRoutes from './routes/progressReportRoutes.js';
 import sprintsRoutes from './routes/sprintsRoutes.js';
+import weeklyReportRoutes from './routes/weeklyReportRoutes.js';
+import { startWeeklyReportScheduler } from './utils/weeklyReportScheduler.js';
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +17,7 @@ const app = express();
 
 // Connect to database
 connectDB();
+startWeeklyReportScheduler();
 
 // Middleware
 app.use(helmet());
@@ -45,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/progress-reports', progressReportRoutes);
 app.use('/api/sprints', sprintsRoutes);
+app.use('/api/weekly-reports', weeklyReportRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

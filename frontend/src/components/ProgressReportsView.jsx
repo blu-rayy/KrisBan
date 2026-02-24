@@ -1,33 +1,51 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { dashboardService } from '../services/api';
+import { dashboardService, weeklyReportService } from '../services/api';
 import { ProgressReportForm } from './ProgressReportForm';
 import { ProgressReportTable } from './ProgressReportTable';
 import { ProgressReportViewOnly } from './ProgressReportViewOnly';
-import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useInfiniteProgressReports } from '../hooks/useProgressReports';
-import { generateDailyAccomplishmentReport } from '../utils/geminiReportGenerator';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon } from '@hugeicons/core-free-icons';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
+
   const [activeTab, setActiveTab] = useState('view');
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [savingWeekly, setSavingWeekly] = useState(false);
+  const [loadingWeekly, setLoadingWeekly] = useState(false);
   const [reportError, setReportError] = useState('');
-  const [generatedSummaries, setGeneratedSummaries] = useState(null);
+  const [generationMessage, setGenerationMessage] = useState('');
+  const [exportWarning, setExportWarning] = useState('');
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const estimatedDuration = 25; // seconds
+
+  const [weeklyReports, setWeeklyReports] = useState([]);
+  const [selectedWeek, setSelectedWeek] = useState('');
+  const [weekDetailsByWeek, setWeekDetailsByWeek] = useState({});
+  const [loadingWeekDetailsByWeek, setLoadingWeekDetailsByWeek] = useState({});
+  const [expandedWeeks, setExpandedWeeks] = useState({});
+
+  const [reportingStartDate, setReportingStartDate] = useState('');
+  const [reportingEndDate, setReportingEndDate] = useState('');
+  const [signatoryDate, setSignatoryDate] = useState('');
+  const [reportingDateLabel, setReportingDateLabel] = useState('');
+  const [singleDayMode, setSingleDayMode] = useState(false);
+  const [singleDate, setSingleDate] = useState('');
+  const [generatedRows, setGeneratedRows] = useState([]);
+
+  const estimatedDuration = 25;
   const progressReportPageSize = 30;
   const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
   const progressReportsQueryKey = useMemo(() => ['progressReports', progressReportFilters], [progressReportFilters]);
+
   const {
     data: progressReportsData,
     isLoading: reportsLoading,
@@ -42,6 +60,25 @@ export const ProgressReportsView = () => {
     () => progressReportsData?.pages?.flatMap((page) => page?.data || []) || [],
     [progressReportsData]
   );
+
+  const weeklyReportsSorted = useMemo(
+    () => [...weeklyReports].sort((a, b) => Number(b.reportWeek) - Number(a.reportWeek)),
+    [weeklyReports]
+  );
+
+  const selectedWeekDetail = selectedWeek ? weekDetailsByWeek[selectedWeek] : null;
+
+  const canGenerate = useMemo(() => {
+    if (!selectedWeek || generatingReport) {
+      return false;
+    }
+
+    if (singleDayMode) {
+      return Boolean(singleDate);
+    }
+
+    return Boolean(reportingStartDate && reportingEndDate);
+  }, [selectedWeek, generatingReport, singleDayMode, singleDate, reportingStartDate, reportingEndDate]);
 
   const invalidateProgressRelatedQueries = async () => {
     await Promise.all([
@@ -82,31 +119,98 @@ export const ProgressReportsView = () => {
     return usersList;
   };
 
+  const allUsers = useMemo(() => buildUsersFromReports(progressReports), [progressReports, user?.id, user?.role]);
+
+  const reportsError = reportsIsError
+    ? (reportsQueryError?.message || 'Failed to load progress reports')
+    : '';
+
+  const applyWeekDetail = (detail) => {
+    if (!detail) return;
+
+    setReportingStartDate(detail.weekStartDate || '');
+    setReportingEndDate(detail.weekEndDate || '');
+    setSignatoryDate(detail.signatoryDate || '');
+    setReportingDateLabel(detail.reportingDate || '');
+  };
+
+  const fetchWeekDetail = async (weekNumber, updateFormState = false) => {
+    if (!weekNumber) return null;
+
+    if (weekDetailsByWeek[weekNumber]) {
+      if (updateFormState) {
+        applyWeekDetail(weekDetailsByWeek[weekNumber]);
+      }
+      return weekDetailsByWeek[weekNumber];
+    }
+
+    try {
+      setLoadingWeekDetailsByWeek((prev) => ({ ...prev, [weekNumber]: true }));
+      const response = await weeklyReportService.getByWeek(weekNumber);
+      const detail = response?.data?.data;
+
+      setWeekDetailsByWeek((prev) => ({ ...prev, [weekNumber]: detail }));
+      if (updateFormState) {
+        applyWeekDetail(detail);
+      }
+
+      return detail;
+    } catch (err) {
+      setReportError(err.response?.data?.message || 'Failed to load selected week details');
+      return null;
+    } finally {
+      setLoadingWeekDetailsByWeek((prev) => ({ ...prev, [weekNumber]: false }));
+    }
+  };
+
+  const loadWeeklyReports = async (preserveSelection = true) => {
+    try {
+      setLoadingWeekly(true);
+      const response = await weeklyReportService.list();
+      const weeks = response?.data?.data || [];
+      setWeeklyReports(weeks);
+
+      if (weeks.length === 0) {
+        setSelectedWeek('');
+        return;
+      }
+
+      const sorted = [...weeks].sort((a, b) => Number(b.reportWeek) - Number(a.reportWeek));
+      const targetWeek = preserveSelection && selectedWeek ? selectedWeek : String(sorted[0].reportWeek);
+      setSelectedWeek(targetWeek);
+      await fetchWeekDetail(targetWeek, true);
+    } catch (err) {
+      setReportError(err.response?.data?.message || 'Failed to load weekly reports');
+    } finally {
+      setLoadingWeekly(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'tickets-overview' && user?.role === 'ADMIN' && !reportData && !loading) {
       fetchProgressReport();
     }
   }, [activeTab, user?.role, reportData, loading]);
 
-  // Timer for report generation
+  useEffect(() => {
+    if (activeTab === 'generate-report' && user?.role === 'ADMIN') {
+      loadWeeklyReports(false);
+    }
+  }, [activeTab, user?.role]);
+
   useEffect(() => {
     let interval;
     if (generatingReport) {
       setElapsedTime(0);
       interval = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
+        setElapsedTime((prev) => prev + 1);
       }, 1000);
     }
+
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [generatingReport]);
-
-  const allUsers = useMemo(() => buildUsersFromReports(progressReports), [progressReports, user?.id, user?.role]);
-
-  const reportsError = reportsIsError
-    ? (reportsQueryError?.message || 'Failed to load progress reports')
-    : '';
 
   const fetchProgressReport = async () => {
     try {
@@ -143,7 +247,6 @@ export const ProgressReportsView = () => {
         };
       });
       await invalidateProgressRelatedQueries();
-      // Show success message
       alert('Progress report entry created successfully!');
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create progress report');
@@ -176,61 +279,163 @@ export const ProgressReportsView = () => {
   };
 
   const handleUpdateProgressReport = async (reportId, formData) => {
-    try {
-      const response = await dashboardService.updateProgressReport(reportId, formData);
-      queryClient.setQueryData(progressReportsQueryKey, (current) => {
-        if (!current?.pages?.length) {
-          return current;
-        }
+    const response = await dashboardService.updateProgressReport(reportId, formData);
 
-        return {
-          ...current,
-          pages: current.pages.map((page) => ({
-            ...page,
-            data: (page.data || []).map((report) => (report.id === reportId ? response.data.data : report))
-          }))
-        };
-      });
-      await invalidateProgressRelatedQueries();
-      alert('Progress report updated successfully!');
-    } catch (err) {
-      throw err;
-    }
+    queryClient.setQueryData(progressReportsQueryKey, (current) => {
+      if (!current?.pages?.length) {
+        return current;
+      }
+
+      return {
+        ...current,
+        pages: current.pages.map((page) => ({
+          ...page,
+          data: (page.data || []).map((report) => (report.id === reportId ? response.data.data : report))
+        }))
+      };
+    });
+
+    await invalidateProgressRelatedQueries();
+    alert('Progress report updated successfully!');
+  };
+
+  const handleSelectWeek = async (weekNumber) => {
+    setSelectedWeek(weekNumber);
+    setGeneratedRows([]);
+    setGenerationMessage('');
+    setReportError('');
+
+    await fetchWeekDetail(weekNumber, true);
   };
 
   const handleGenerateReport = async () => {
+    if (!canGenerate) return;
+
     try {
       setGeneratingReport(true);
       setReportError('');
-      setGeneratedSummaries(null);
-      
-      // Hardcoded to February 16, 2026
-      const report = await generateDailyAccomplishmentReport(
-        '2026-02-16',
-        import.meta.env.VITE_API_URL,
-        localStorage.getItem('token')
-      );
-      
-      setGeneratedSummaries({
-        date: 'February 16, 2026',
-        report
-      });
-    } catch (err) {
-      const errorMsg = err.message || 'Failed to generate report';
-      setReportError(errorMsg);
-      
-      // Show modal if Gemini Nano is not available
-      if (errorMsg.includes('Gemini Nano') || errorMsg.includes('not available')) {
-        setShowErrorModal(true);
+      setGenerationMessage('');
+      setGeneratedRows([]);
+
+      const payload = {
+        reportWeek: Number(selectedWeek),
+        ...(singleDayMode
+          ? { singleDate }
+          : {
+              startDate: reportingStartDate,
+              endDate: reportingEndDate
+            })
+      };
+
+      const response = await weeklyReportService.generateDraft(payload);
+      const data = response?.data?.data;
+
+      if (!data?.canGenerate) {
+        setReportError(data?.message || 'No entries found for the selected dates.');
+        return;
       }
+
+      setGenerationMessage(data?.message || 'Draft generated successfully.');
+      setGeneratedRows(data?.generatedRows || []);
+
+      if (data?.startDate && !singleDayMode) {
+        setReportingStartDate(data.startDate);
+      }
+      if (data?.endDate && !singleDayMode) {
+        setReportingEndDate(data.endDate);
+      }
+      if (data?.signatoryDate) {
+        setSignatoryDate(data.signatoryDate);
+      }
+      if (data?.reportingDate) {
+        setReportingDateLabel(data.reportingDate);
+      }
+    } catch (err) {
+      setReportError(err.response?.data?.message || 'Failed to generate weekly draft');
     } finally {
       setGeneratingReport(false);
     }
   };
 
+  const handleRowDateChange = (rowNumber, newDate) => {
+    setGeneratedRows((currentRows) =>
+      currentRows.map((row) => (row.rowNumber === rowNumber ? { ...row, rowDate: newDate, rowDateDisplay: newDate } : row))
+    );
+  };
+
+  const handleRowActivityChange = (rowNumber, rowActivity) => {
+    setGeneratedRows((currentRows) =>
+      currentRows.map((row) => (row.rowNumber === rowNumber ? { ...row, rowActivity } : row))
+    );
+  };
+
+  const handleSaveWeeklyReport = async () => {
+    if (!selectedWeek || generatedRows.length === 0) return;
+
+    try {
+      setSavingWeekly(true);
+      setExportWarning('');
+
+      const payload = {
+        entries: generatedRows.map((row) => ({
+          rowNumber: row.rowNumber,
+          rowDate: row.rowDate,
+          rowActivity: row.rowActivity,
+          hasSourceEntries: row.hasSourceEntries
+        })),
+        startDate: singleDayMode ? singleDate : reportingStartDate,
+        endDate: singleDayMode ? singleDate : reportingEndDate,
+        signatoryDate
+      };
+
+      const response = await weeklyReportService.saveDraft(Number(selectedWeek), payload);
+      const savedWeek = response?.data?.data;
+
+      setWeekDetailsByWeek((prev) => ({
+        ...prev,
+        [selectedWeek]: savedWeek
+      }));
+
+      setGenerationMessage('Saved weekly report draft successfully.');
+      await loadWeeklyReports(true);
+
+      try {
+        const pdfResponse = await weeklyReportService.exportPdf(Number(selectedWeek));
+        const fileBlob = new Blob([pdfResponse.data], { type: 'application/pdf' });
+        const objectUrl = window.URL.createObjectURL(fileBlob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = objectUrl;
+        downloadLink.download = `A Priori_W${selectedWeek}.pdf`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        window.URL.revokeObjectURL(objectUrl);
+        alert('Weekly report saved and PDF downloaded successfully!');
+      } catch (exportErr) {
+        const exportMessage = exportErr?.response?.data?.message || 'PDF export failed, but your weekly report was saved.';
+        setExportWarning(exportMessage);
+        alert('Weekly report saved successfully, but PDF export failed.');
+      }
+    } catch (err) {
+      setReportError(err.response?.data?.message || 'Failed to save weekly report');
+    } finally {
+      setSavingWeekly(false);
+    }
+  };
+
+  const handleToggleExpandedWeek = async (weekNumber) => {
+    setExpandedWeeks((prev) => ({
+      ...prev,
+      [weekNumber]: !prev[weekNumber]
+    }));
+
+    if (!weekDetailsByWeek[weekNumber]) {
+      await fetchWeekDetail(weekNumber, false);
+    }
+  };
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      {/* Tab Navigation - Forest Gradient Theme */}
       <div className="flex gap-4 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('view')}
@@ -245,6 +450,7 @@ export const ProgressReportsView = () => {
             <span>Entries</span>
           </span>
         </button>
+
         <button
           onClick={() => setActiveTab('sprint-tracker')}
           className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
@@ -258,26 +464,24 @@ export const ProgressReportsView = () => {
             <span>Add Entry</span>
           </span>
         </button>
+
         {user?.role === 'ADMIN' && (
-          <>
-            <button
-              onClick={() => setActiveTab('generate-report')}
-              className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
-                activeTab === 'generate-report'
-                  ? 'border-forest-green text-forest-green'
-                  : 'border-transparent text-gray-600 hover:text-dark-charcoal'
-              }`}
-            >
-              <span className="inline-flex items-center gap-2">
-                <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} />
-                <span>Generate Report</span>
-              </span>
-            </button>
-          </>
+          <button
+            onClick={() => setActiveTab('generate-report')}
+            className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
+              activeTab === 'generate-report'
+                ? 'border-forest-green text-forest-green'
+                : 'border-transparent text-gray-600 hover:text-dark-charcoal'
+            }`}
+          >
+            <span className="inline-flex items-center gap-2">
+              <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} />
+              <span>Generate Report</span>
+            </span>
+          </button>
         )}
       </div>
 
-      {/* View Entries Tab */}
       {activeTab === 'view' && (
         <div className="space-y-6">
           <div>
@@ -309,7 +513,6 @@ export const ProgressReportsView = () => {
         </div>
       )}
 
-      {/* Sprint Tracker Tab */}
       {activeTab === 'sprint-tracker' && (
         <div className="space-y-6">
           <div>
@@ -317,7 +520,6 @@ export const ProgressReportsView = () => {
             <p className="text-gray-600">Record your daily progress and task completion</p>
           </div>
 
-          {/* Form */}
           <ProgressReportForm
             members={allUsers.length > 0 ? allUsers : [user].filter(Boolean)}
             reports={progressReports}
@@ -326,7 +528,6 @@ export const ProgressReportsView = () => {
             userRole={user?.role}
           />
 
-          {/* Table */}
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Entries</h3>
             <ProgressReportTable
@@ -354,149 +555,249 @@ export const ProgressReportsView = () => {
         </div>
       )}
 
-      {/* Generate Report Tab */}
-      {activeTab === 'generate-report' && (
+      {activeTab === 'generate-report' && user?.role === 'ADMIN' && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-emerald-50 to-forest-light rounded-xl shadow-lg p-8 border border-forest-green border-opacity-20">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-4xl font-bold text-forest-green">Daily Report Generator</h2>
-              </div>
-              <p className="text-gray-700 ml-1 leading-relaxed">
-                Generate a professionally formatted daily accomplishment report for February 16, 2026 powered by Gemini Nano AI.
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-4">
+            <div>
+              <h2 className="text-3xl font-bold text-forest-green">Weekly Report Generator</h2>
+              <p className="text-gray-700">
+                Select a reporting week, generate daily draft rows from existing entries, edit if needed, then save.
               </p>
             </div>
-            
+
             {reportError && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 flex items-start gap-3">
-                <span className="text-xl mt-1">⚠️</span>
-                <div>
-                  <p className="font-semibold">Generation Error</p>
-                  <p className="text-sm mt-1">{reportError}</p>
-                </div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {reportError}
               </div>
             )}
 
-            <div className="mb-8">
-              <button
-                onClick={handleGenerateReport}
-                disabled={generatingReport}
-                className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-lg transition duration-300 inline-flex items-center gap-3 text-lg shadow-lg hover:shadow-xl hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                <HugeiconsIcon icon={DocumentAttachmentIcon} size={24} />
-                <span>
-                  {generatingReport 
-                    ? 'Processing...' 
-                    : 'Generate Report (Feb 16)'}
-                </span>
-              </button>
-              {generatingReport && (
-                <div className="mt-4 space-y-2">
-                  <div className="w-full bg-gray-300 rounded-full h-3 overflow-hidden">
-                    <div 
-                      className="h-3 bg-gradient-to-r from-emerald-500 to-forest-green rounded-full transition-all duration-500"
-                      style={{width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%`}}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-600 text-center">Generating your report...</p>
+            {generationMessage && (
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
+                {generationMessage}
+              </div>
+            )}
+
+            {exportWarning && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">
+                {exportWarning}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Reporting Week</label>
+                <select
+                  value={selectedWeek}
+                  onChange={(event) => handleSelectWeek(event.target.value)}
+                  disabled={loadingWeekly}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value="">Select week</option>
+                  {weeklyReportsSorted.map((week) => (
+                    <option key={week.id || week.reportWeek} value={String(week.reportWeek)}>
+                      Week {week.reportWeek}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Signatory Date</label>
+                <input
+                  type="date"
+                  value={signatoryDate}
+                  onChange={(event) => setSignatoryDate(event.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={reportingStartDate}
+                  onChange={(event) => setReportingStartDate(event.target.value)}
+                  disabled={singleDayMode}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={reportingEndDate}
+                  onChange={(event) => setReportingEndDate(event.target.value)}
+                  disabled={singleDayMode}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
+                />
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">Reporting Date:</span> {reportingDateLabel || '—'}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={singleDayMode}
+                  onChange={(event) => {
+                    setSingleDayMode(event.target.checked);
+                    setGeneratedRows([]);
+                    setGenerationMessage('');
+                    setReportError('');
+                  }}
+                />
+                Generate single day only
+              </label>
+
+              {singleDayMode && (
+                <div className="max-w-sm">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Single Date</label>
+                  <input
+                    type="date"
+                    value={singleDate}
+                    onChange={(event) => setSingleDate(event.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
                 </div>
               )}
             </div>
 
+            <div>
+              <button
+                onClick={handleGenerateReport}
+                disabled={!canGenerate}
+                className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-lg transition duration-300 inline-flex items-center gap-3 text-lg shadow-lg hover:shadow-xl hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <HugeiconsIcon icon={DocumentAttachmentIcon} size={24} />
+                <span>{generatingReport ? 'Processing...' : 'Generate Draft'}</span>
+              </button>
 
-
-            {/* Generated Report Output */}
-            {generatedSummaries && (
-              <div className="mt-8 pt-8 border-t-2 border-forest-green border-opacity-20">
-                <h3 className="text-2xl font-bold text-forest-green mb-6 flex items-center gap-2">
-                  <span>📄</span>
-                  Generated Report — {generatedSummaries.date}
-                </h3>
-                <div className="bg-white border-2 border-emerald-200 rounded-lg p-6 mb-6 shadow-sm">
-                  <pre className="text-dark-charcoal font-mono text-sm whitespace-pre-wrap break-words leading-relaxed">
-                    {generatedSummaries.report}
-                  </pre>
+              {generatingReport && (
+                <div className="mt-4 space-y-2">
+                  <div className="w-full bg-gray-300 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="h-3 bg-emerald-500 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-600 text-center">Generating draft rows...</p>
                 </div>
-                
-                <div className="flex gap-3">
+              )}
+            </div>
+
+            {generatedRows.length > 0 && (
+              <div className="pt-6 border-t border-gray-200 space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900">Generated Rows (Editable)</h3>
+
+                {generatedRows.map((row) => (
+                  <div key={row.rowNumber} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                      <div className="font-semibold text-gray-700">Row {row.rowNumber}</div>
+                      <input
+                        type="date"
+                        value={row.rowDate || ''}
+                        onChange={(event) => handleRowDateChange(row.rowNumber, event.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-2"
+                      />
+                      <div className="text-sm text-gray-500">Entries: {row.entryCount || 0}</div>
+                    </div>
+
+                    <textarea
+                      value={row.rowActivity || ''}
+                      onChange={(event) => handleRowActivityChange(row.rowNumber, event.target.value)}
+                      rows={6}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                    />
+                  </div>
+                ))}
+
+                <div className="flex justify-end">
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedSummaries.report);
-                      alert('✓ Report copied to clipboard!');
-                    }}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-forest-green hover:shadow-lg text-white font-semibold rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                    onClick={handleSaveWeeklyReport}
+                    disabled={savingWeekly}
+                    className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <span>📋</span> Copy Report
-                  </button>
-                  <button
-                    onClick={() => {
-                      const element = document.createElement('a');
-                      const file = new Blob([generatedSummaries.report], {type: 'text/plain'});
-                      element.href = URL.createObjectURL(file);
-                      element.download = `daily-report-february-16-2026.txt`;
-                      document.body.appendChild(element);
-                      element.click();
-                      document.body.removeChild(element);
-                    }}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg text-white font-semibold rounded-lg transition duration-200 flex items-center justify-center gap-2"
-                  >
-                    <span>⬇️</span> Download
+                    {savingWeekly ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Bottom Info */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900">Saved Weekly Reports</h3>
+
+            {weeklyReportsSorted.length === 0 && (
+              <p className="text-sm text-gray-500">No saved weekly reports yet.</p>
+            )}
+
+            {weeklyReportsSorted.map((week) => {
+              const weekNumber = String(week.reportWeek);
+              const isExpanded = Boolean(expandedWeeks[weekNumber]);
+              const detail = weekDetailsByWeek[weekNumber];
+              const loadingDetail = Boolean(loadingWeekDetailsByWeek[weekNumber]);
+
+              return (
+                <div key={week.id || weekNumber} className="border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => handleToggleExpandedWeek(weekNumber)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-left"
+                  >
+                    <div>
+                      <p className="font-semibold text-gray-900">Week {week.reportWeek}</p>
+                      <p className="text-sm text-gray-500">{week.reportingDate || 'No reporting date'}</p>
+                    </div>
+                    <span className="text-sm text-gray-500">{isExpanded ? '▲' : '▼'}</span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-4 pb-4 border-t border-gray-100 text-sm text-gray-700 space-y-2">
+                      {loadingDetail && <p>Loading details...</p>}
+
+                      {!loadingDetail && (
+                        <>
+                          <p>
+                            <span className="font-semibold">Reporting Date:</span> {detail?.reportingDate || week.reportingDate || '—'}
+                          </p>
+                          <p>
+                            <span className="font-semibold">Signatory Date:</span> {detail?.signatoryDate || week.signatoryDate || '—'}
+                          </p>
+                          <p>
+                            <span className="font-semibold">Status:</span> {detail?.status || week.status || '—'}
+                          </p>
+
+                          {(detail?.entries || []).length > 0 && (
+                            <div className="pt-2 space-y-2">
+                              {detail.entries.map((entry) => (
+                                <div key={entry.id || `${weekNumber}-${entry.rowNumber}`} className="bg-gray-50 rounded p-2 border border-gray-200">
+                                  <p className="font-semibold">Row {entry.rowNumber} — {entry.rowDate || '—'}</p>
+                                  <p className="text-xs text-gray-600 whitespace-pre-wrap">{entry.rowActivity || '(empty)'}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           <div className="text-center text-xs text-gray-400 px-4 py-3">
             <p className="font-mono flex items-center justify-center gap-1">
-              <HugeiconsIcon icon={HelpCircleIcon} size={14} /> Requires Chrome Canary with Prompt API enabled at <span className="font-semibold">chrome://flags/#prompt-api</span>
+              <HugeiconsIcon icon={HelpCircleIcon} size={14} /> Generate is enabled only after required week/date fields are filled.
             </p>
           </div>
         </div>
       )}
-
-      {/* Error Modal - Gemini Nano Not Available */}
-      {showErrorModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-4">🔧</div>
-              <h3 className="text-2xl font-bold text-dark-charcoal mb-2">Gemini Nano Not Available</h3>
-              <p className="text-gray-600">The AI report generator requires Chrome Canary with Gemini Nano enabled.</p>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-blue-900">
-              <p className="font-semibold mb-2">✓ Steps to enable:</p>
-              <ol className="space-y-2 list-decimal list-inside">
-                <li>Open <strong>Chrome Canary</strong></li>
-                <li>Visit <code className="bg-blue-100 px-2 py-1 rounded">chrome://flags/#prompt-api</code></li>
-                <li>Set <strong>Prompt API</strong> to "Enabled"</li>
-                <li>Restart Chrome Canary</li>
-              </ol>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowErrorModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
-              >
-                Close
-              </button>
-              <a
-                href="https://developers.google.com/chrome/prompts-api"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-forest-green hover:shadow-lg text-white font-semibold rounded-lg transition duration-200 text-center"
-              >
-                Documentation
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tickets Overview Tab (Admin Only) - REMOVED */}
     </div>
   );
 };
