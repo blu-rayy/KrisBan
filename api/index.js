@@ -45,13 +45,13 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/progress-reports', progressReportRoutes);
-app.use('/api/sprints', sprintsRoutes);
+app.use('/auth', authRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/progress-reports', progressReportRoutes);
+app.use('/sprints', sprintsRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'KrisBan Backend is running',
@@ -67,11 +67,11 @@ app.get('/', (req, res) => {
     message: 'KrisBan Backend API',
     version: '1.0.0',
     endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      dashboard: '/api/dashboard',
-      progressReports: '/api/progress-reports',
-      sprints: '/api/sprints'
+      health: '/health',
+      auth: '/auth',
+      dashboard: '/dashboard',
+      progressReports: '/progress-reports',
+      sprints: '/sprints'
     }
   });
 });
