@@ -1,14 +1,14 @@
 {
   "name": "pm-suite-backend",
   "version": "1.0.0",
-  "description": "PM-Suite: Project Management Application Backend",
+  "description": "KrisBan Backend API",
   "type": "module",
-  "main": "src/server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node --require dotenv/config src/server.js",
-    "dev": "nodemon --require dotenv/config src/server.js",
-    "seed": "node --require dotenv/config src/seed.js",
-    "seed:progress": "node --require dotenv/config src/seed-progress-reports.js",
+    "start": "node --require dotenv/config index.js",
+    "dev": "nodemon --require dotenv/config index.js",
+    "seed": "node --require dotenv/config seed.js",
+    "seed:progress": "node --require dotenv/config seed-progress-reports.js",
     "build": "echo 'No build needed for Node.js'"
   },
   "keywords": [

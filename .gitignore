@@ -30,3 +30,5 @@ coverage/
 .DS_Store
 Thumbs.db
 .vscode/*.code-workspace
+.vercel
+.env*.local
