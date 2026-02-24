@@ -386,8 +386,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       {/* Edit Modal */}
       {editingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-card-elevated max-w-2xl w-full max-h-96 overflow-y-auto border border-gray-100">
-            <div className="sticky top-0 bg-gradient-to-r from-dark-emerald to-forest-green border-b border-emerald-deep px-6 py-4 flex justify-between items-center">
+          <div className="bg-white rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 scrollbar-hide">
+            <div className="sticky top-0 bg-gradient-to-r from-dark-emerald to-forest-green px-6 py-4 flex justify-between items-center rounded-t-3xl">
               <h3 className="text-lg font-semibold text-white">Edit Progress Report</h3>
               <button
                 onClick={handleEditCancel}

@@ -8,7 +8,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useInfiniteProgressReports } from '../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ChartBarLineIcon, NoteAddIcon, Task01Icon } from '@hugeicons/core-free-icons';
+import { NoteAddIcon, Task01Icon, FileDownloadIcon } from '@hugeicons/core-free-icons';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
@@ -18,6 +18,8 @@ export const ProgressReportsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState('');
   const progressReportPageSize = 30;
   const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
   const progressReportsQueryKey = useMemo(() => ['progressReports', progressReportFilters], [progressReportFilters]);
@@ -80,7 +82,6 @@ export const ProgressReportsView = () => {
       fetchProgressReport();
     }
   }, [activeTab, user?.role, reportData, loading]);
-
 
   const allUsers = useMemo(() => buildUsersFromReports(progressReports), [progressReports, user?.id, user?.role]);
 
@@ -178,6 +179,28 @@ export const ProgressReportsView = () => {
     }
   };
 
+  const handleGenerateReport = async () => {
+    try {
+      setGeneratingReport(true);
+      setReportError('');
+      const response = await fetch('/api/progress-reports/test-gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate report');
+      }
+      alert('Report generated successfully!');
+    } catch (err) {
+      setReportError(err.message || 'Failed to generate report. Please try again.');
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Tab Navigation - Forest Gradient Theme */}
@@ -210,16 +233,16 @@ export const ProgressReportsView = () => {
         </button>
         {user?.role === 'ADMIN' && (
           <button
-            onClick={() => setActiveTab('tickets-overview')}
+            onClick={() => setActiveTab('generate-report')}
             className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
-              activeTab === 'tickets-overview'
+              activeTab === 'generate-report'
                 ? 'border-forest-green text-forest-green'
                 : 'border-transparent text-gray-600 hover:text-dark-charcoal'
             }`}
           >
             <span className="inline-flex items-center gap-2">
-              <HugeiconsIcon icon={ChartBarLineIcon} size={18} color="currentColor" />
-              <span>Tickets Overview</span>
+              <HugeiconsIcon icon={FileDownloadIcon} size={18} color="currentColor" />
+              <span>Generate Report</span>
             </span>
           </button>
         )}
@@ -302,148 +325,34 @@ export const ProgressReportsView = () => {
         </div>
       )}
 
-      {/* Tickets Overview Tab (Admin Only) */}
-      {activeTab === 'tickets-overview' && reportData && (
+      {/* Generate Report Tab */}
+      {activeTab === 'generate-report' && (
         <div className="space-y-6">
-          {/* Header */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tickets Overview</h2>
-            <p className="text-gray-600">Comprehensive overview of all active tickets</p>
-          </div>
-
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Total Tickets</p>
-                  <p className="text-3xl font-bold text-gray-900">{reportData.totalBoards}</p>
-                </div>
-                <div className="text-4xl">📊</div>
+          <div className="bg-white rounded-lg shadow p-8">
+            <h2 className="text-3xl font-bold text-dark-charcoal mb-4">Generate AI Report</h2>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Click the button below to generate an AI-powered report of your progress. This will analyze all your entries and create a comprehensive summary of your team's performance and progress.
+            </p>
+            
+            {reportError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                {reportError}
               </div>
-            </div>
+            )}
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Total Tasks</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {reportData.boardsList.reduce((sum, board) => sum + board.cardCount, 0)}
-                  </p>
-                </div>
-                <div className="text-4xl">🎯</div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Avg Tasks/Ticket</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {reportData.totalBoards > 0
-                      ? (
-                          reportData.boardsList.reduce((sum, board) => sum + board.cardCount, 0) /
-                          reportData.totalBoards
-                        ).toFixed(1)
-                      : 0}
-                  </p>
-                </div>
-                <div className="text-4xl">📈</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Cards by Priority */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tasks by Priority</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="text-3xl">🔴</div>
-                <div>
-                  <p className="text-sm text-gray-600">High Priority</p>
-                  <p className="text-2xl font-bold text-red-600">{reportData.cardsByPriority.HIGH}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <div className="text-3xl">🟡</div>
-                <div>
-                  <p className="text-sm text-gray-600">Medium Priority</p>
-                  <p className="text-2xl font-bold text-yellow-600">{reportData.cardsByPriority.MEDIUM}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                <div className="text-3xl">🟢</div>
-                <div>
-                  <p className="text-sm text-gray-600">Low Priority</p>
-                  <p className="text-2xl font-bold text-green-600">{reportData.cardsByPriority.LOW}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tickets Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Ticket Details</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Ticket</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Owner</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Members</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Tasks</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Columns</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {reportData.boardsList.map(board => (
-                    <tr key={board.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{board.title}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{board.owner}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {board.memberCount}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {board.cardCount}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {board.columnCount}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Last Updated */}
-          <div className="text-xs text-gray-500 text-right">
-            Last updated: {new Date(reportData.timestamp).toLocaleString()}
+            <button
+              onClick={handleGenerateReport}
+              disabled={generatingReport}
+              className="px-8 py-3 bg-gradient-action hover:opacity-90 disabled:opacity-60 text-white font-semibold rounded-lg transition duration-200 flex items-center gap-2"
+            >
+              <HugeiconsIcon icon={FileDownloadIcon} size={20} color="currentColor" />
+              <span>{generatingReport ? 'Generating...' : 'Generate'}</span>
+            </button>
           </div>
         </div>
       )}
 
-      {loading && activeTab === 'tickets-overview' && (
-        <div className="flex items-center justify-center h-96">
-          <div className="text-gray-600">Loading progress report...</div>
-        </div>
-      )}
-
-      {error && activeTab === 'tickets-overview' && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
+      {/* Tickets Overview Tab (Admin Only) - REMOVED */}
     </div>
   );
 };
