@@ -4,20 +4,15 @@
   "description": "KrisBan - Project Management System for thesis/research",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd api && npm run dev\"",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd api && npm run dev",
-    "build": "cd frontend && npm run build",
-    "install-all": "npm install && cd frontend && npm install && cd ../api && npm install",
-    "start": "cd api && npm start",
-    "seed": "cd api && npm run seed",
-    "seed:progress": "cd api && npm run seed:progress",
-    "deploy": "vercel deploy --prod"
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "node build-frontend.js"
   },
   "engines": {
     "node": "18.x"
-  },
-  "devDependencies": {
+  }
+}
     "concurrently": "^8.0.0",
     "vercel": "^latest"
   }
