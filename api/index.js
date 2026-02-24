@@ -102,5 +102,7 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Export for Vercel serverless
-export default app;
+// Vercel serverless handler
+export default (req, res) => {
+  return app(req, res);
+};
