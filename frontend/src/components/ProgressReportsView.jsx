@@ -7,8 +7,9 @@ import { ProgressReportViewOnly } from './ProgressReportViewOnly';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useInfiniteProgressReports } from '../hooks/useProgressReports';
+import { generateDailyAccomplishmentReport } from '../utils/geminiReportGenerator';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { NoteAddIcon, Task01Icon, FileDownloadIcon } from '@hugeicons/core-free-icons';
+import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
@@ -20,6 +21,9 @@ export const ProgressReportsView = () => {
   const [submitting, setSubmitting] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [reportError, setReportError] = useState('');
+  const [generatedSummaries, setGeneratedSummaries] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const estimatedDuration = 25; // seconds
   const progressReportPageSize = 30;
   const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
   const progressReportsQueryKey = useMemo(() => ['progressReports', progressReportFilters], [progressReportFilters]);
@@ -82,6 +86,20 @@ export const ProgressReportsView = () => {
       fetchProgressReport();
     }
   }, [activeTab, user?.role, reportData, loading]);
+
+  // Timer for report generation
+  useEffect(() => {
+    let interval;
+    if (generatingReport) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [generatingReport]);
 
   const allUsers = useMemo(() => buildUsersFromReports(progressReports), [progressReports, user?.id, user?.role]);
 
@@ -183,19 +201,21 @@ export const ProgressReportsView = () => {
     try {
       setGeneratingReport(true);
       setReportError('');
-      const response = await fetch('/api/progress-reports/test-gemini', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      setGeneratedSummaries(null);
+      
+      // Hardcoded to February 16, 2026
+      const report = await generateDailyAccomplishmentReport(
+        '2026-02-16',
+        import.meta.env.VITE_API_URL,
+        localStorage.getItem('token')
+      );
+      
+      setGeneratedSummaries({
+        date: 'February 16, 2026',
+        report
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to generate report');
-      }
-      alert('Report generated successfully!');
     } catch (err) {
-      setReportError(err.message || 'Failed to generate report. Please try again.');
+      setReportError(err.message || 'Failed to generate report. Make sure Gemini Nano is enabled in Chrome Canary.');
     } finally {
       setGeneratingReport(false);
     }
@@ -214,7 +234,7 @@ export const ProgressReportsView = () => {
           }`}
         >
           <span className="inline-flex items-center gap-2">
-            <HugeiconsIcon icon={Task01Icon} size={18} color="currentColor" />
+            <HugeiconsIcon icon={Ticket01Icon} size={18} />
             <span>Entries</span>
           </span>
         </button>
@@ -227,24 +247,26 @@ export const ProgressReportsView = () => {
           }`}
         >
           <span className="inline-flex items-center gap-2">
-            <HugeiconsIcon icon={NoteAddIcon} size={18} color="currentColor" />
+            <HugeiconsIcon icon={Edit02Icon} size={18} />
             <span>Add Entry</span>
           </span>
         </button>
         {user?.role === 'ADMIN' && (
-          <button
-            onClick={() => setActiveTab('generate-report')}
-            className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
-              activeTab === 'generate-report'
-                ? 'border-forest-green text-forest-green'
-                : 'border-transparent text-gray-600 hover:text-dark-charcoal'
-            }`}
-          >
-            <span className="inline-flex items-center gap-2">
-              <HugeiconsIcon icon={FileDownloadIcon} size={18} color="currentColor" />
-              <span>Generate Report</span>
-            </span>
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab('generate-report')}
+              className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
+                activeTab === 'generate-report'
+                  ? 'border-forest-green text-forest-green'
+                  : 'border-transparent text-gray-600 hover:text-dark-charcoal'
+              }`}
+            >
+              <span className="inline-flex items-center gap-2">
+                <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} />
+                <span>Generate Report</span>
+              </span>
+            </button>
+          </>
         )}
       </div>
 
@@ -329,9 +351,9 @@ export const ProgressReportsView = () => {
       {activeTab === 'generate-report' && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-3xl font-bold text-dark-charcoal mb-4">Generate AI Report</h2>
+            <h2 className="text-3xl font-bold text-dark-charcoal mb-4">Daily Accomplishment Report</h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Click the button below to generate an AI-powered report of your progress. This will analyze all your entries and create a comprehensive summary of your team's performance and progress.
+              Generate a professionally formatted daily accomplishment report for February 16, 2026 using Gemini Nano AI.
             </p>
             
             {reportError && (
@@ -340,14 +362,77 @@ export const ProgressReportsView = () => {
               </div>
             )}
 
-            <button
-              onClick={handleGenerateReport}
-              disabled={generatingReport}
-              className="px-8 py-3 bg-gradient-action hover:opacity-90 disabled:opacity-60 text-white font-semibold rounded-lg transition duration-200 flex items-center gap-2"
-            >
-              <HugeiconsIcon icon={FileDownloadIcon} size={20} color="currentColor" />
-              <span>{generatingReport ? 'Generating...' : 'Generate'}</span>
-            </button>
+            <div className="mb-6">
+              <button
+                onClick={handleGenerateReport}
+                disabled={generatingReport}
+                className="px-8 py-3 bg-gradient-action hover:opacity-90 disabled:opacity-60 text-white font-semibold rounded-lg transition duration-200 flex items-center gap-2"
+              >
+                <HugeiconsIcon icon={DocumentAttachmentIcon} size={20} />
+                <span>
+                  {generatingReport 
+                    ? `Processing... (${elapsedTime}s / ~${Math.max(0, estimatedDuration - elapsedTime)}s remaining)` 
+                    : 'Generate Report (Feb 16)'}
+                </span>
+              </button>
+              {generatingReport && (
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-forest-green h-2 rounded-full transition-all duration-500"
+                      style={{width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%`}}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    ⏳ Waiting for Gemini Nano... Typically completes in ~{estimatedDuration} seconds
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Info Box */}
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+              <p className="font-semibold mb-1">💡 Gemini Nano Required:</p>
+              <p>This feature uses Chrome's on-device Gemini Nano AI. Enable at <code className="bg-blue-100 px-1 rounded">chrome://flags/#prompt-api</code> in Chrome Canary.</p>
+            </div>
+
+            {/* Generated Report Output */}
+            {generatedSummaries && (
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <h3 className="text-2xl font-bold text-dark-charcoal mb-6">Generated Report for {generatedSummaries.date}</h3>
+                <div className="bg-gray-50 border border-gray-300 rounded-lg p-6 mb-4">
+                  <pre className="text-dark-charcoal font-mono text-sm whitespace-pre-wrap break-words leading-relaxed">
+                    {generatedSummaries.report}
+                  </pre>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedSummaries.report);
+                      alert('Report copied to clipboard!');
+                    }}
+                    className="px-6 py-2 bg-forest-green hover:bg-opacity-90 text-white font-semibold rounded-lg transition duration-200"
+                  >
+                    Copy Report
+                  </button>
+                  <button
+                    onClick={() => {
+                      const element = document.createElement('a');
+                      const file = new Blob([generatedSummaries.report], {type: 'text/plain'});
+                      element.href = URL.createObjectURL(file);
+                      element.download = `daily-report-february-16-2026.txt`;
+                      document.body.appendChild(element);
+                      element.click();
+                      document.body.removeChild(element);
+                    }}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200"
+                  >
+                    Download Report
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

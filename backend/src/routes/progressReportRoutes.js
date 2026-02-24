@@ -6,7 +6,9 @@ import {
   updateProgressReport,
   deleteProgressReport,
   getProgressReportSummary,
-  getLastWeekProgressStats
+  getLastWeekProgressStats,
+  generateReportSummary,
+  generateDailyReport
 } from '../controllers/progressReportController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -16,6 +18,8 @@ const router = express.Router();
 router.use(protect);
 
 // GET routes
+router.get('/daily-report', generateDailyReport);
+router.get('/report/summary', generateReportSummary);
 router.get('/stats/summary', getProgressReportSummary);
 router.get('/stats/last-week', getLastWeekProgressStats);
 router.get('/:id', getProgressReportById);

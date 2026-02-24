@@ -2,6 +2,7 @@ import ProgressReport from '../models/ProgressReport.js';
 import User from '../models/User.js';
 import Sprint from '../models/Sprint.js';
 import { supabase } from '../config/database.js';
+import { pipeline } from '@xenova/transformers';
 
 const normalizeSupabaseErrorMessage = (error, fallbackMessage) => {
   const rawMessage = error?.message || '';
@@ -583,6 +584,428 @@ export const getProgressReportSummary = async (req, res) => {
     res.status(200).json({
       success: true,
       data: summary
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Helper function to extract categories from task descriptions
+const extractCategories = (tasks) => {
+  if (!tasks || tasks.length === 0) return [];
+  
+  const categoryKeywords = {
+    'Branding': ['logo', 'brand', 'color', 'design', 'visual', 'theme', 'layout', 'font'],
+    'Implementation': ['implement', 'code', 'develop', 'build', 'create', 'function', 'feature', 'developed'],
+    'Documentation': ['document', 'write', 'documentation', 'readme', 'guide', 'documented'],
+    'Revision': ['revise', 'proofread', 'edit', 'update', 'revised', 'chapter', 'section'],
+    'Testing': ['test', 'qa', 'quality', 'debug', 'fix', 'tested'],
+    'Research': ['research', 'study', 'analyze', 'investigate', 'explore', 'investigated']
+  };
+
+  const foundCategories = new Set();
+  
+  tasks.forEach(taskDesc => {
+    if (!taskDesc) return;
+    const lowerDesc = String(taskDesc).toLowerCase();
+    
+    Object.entries(categoryKeywords).forEach(([category, keywords]) => {
+      if (keywords.some(keyword => lowerDesc.includes(keyword))) {
+        foundCategories.add(category);
+      }
+    });
+  });
+
+  return Array.from(foundCategories);
+};
+
+// Initialize summarizer (lazy loaded on first use)
+let summarizer = null;
+
+const getSummarizer = async () => {
+  if (!summarizer) {
+    try {
+      summarizer = await pipeline('summarization', 'Xenova/bart-large-cnn');
+    } catch (error) {
+      console.warn('Summarizer initialization failed:', error.message);
+      return null;
+    }
+  }
+  return summarizer;
+};
+
+// Helper function to generate natural language summary using NLP
+const generateNaturalSummary = async (taskDescriptions, teamPlans) => {
+  const summarizer = await getSummarizer();
+  
+  if (!summarizer || (taskDescriptions.length === 0 && teamPlans.length === 0)) {
+    // Fallback if no summarizer or no data
+    if (teamPlans.length > 0) {
+      return `The team ${teamPlans[0]}.`;
+    }
+    if (taskDescriptions.length > 0) {
+      return `The team worked on ${taskDescriptions.slice(0, 2).join(' and ')}.`;
+    }
+    return 'Team progress report.';
+  }
+
+  try {
+    // Combine all descriptions into a single text for summarization
+    const textToSummarize = [
+      ...teamPlans.slice(0, 3),
+      ...taskDescriptions.slice(0, 5)
+    ].join(' ').substring(0, 1024); // Limit to 1024 chars for performance
+
+    if (textToSummarize.length < 50) {
+      // If text is too short, just return it naturally formatted
+      return `The team ${textToSummarize}.`;
+    }
+
+    const summary = await summarizer(textToSummarize, {
+      max_length: 100,
+      min_length: 30,
+      do_sample: false
+    });
+
+    if (summary && summary[0]) {
+      let summaryText = summary[0].summary_text;
+      // Ensure it starts with lowercase after "The team" or capitalize first letter
+      if (!summaryText.startsWith('The team')) {
+        summaryText = summaryText.charAt(0).toLowerCase() + summaryText.slice(1);
+        return `The team ${summaryText}.`;
+      }
+      return summaryText.endsWith('.') ? summaryText : summaryText + '.';
+    }
+  } catch (error) {
+    console.warn('NLP summary generation failed:', error.message);
+  }
+
+  // Fallback to simple combination
+  return `The team ${[...teamPlans.slice(0, 2), ...taskDescriptions.slice(0, 2)].join(' and ')}.`;
+};
+
+// Helper function to create member name from full name
+const getMemberDisplayName = (fullName, username) => {
+  if (!fullName && !username) return 'UNKNOWN';
+  
+  const name = fullName || username;
+  const firstName = String(name).split(' ')[0].toUpperCase();
+  
+  // Map common names to required format
+  const nameMap = {
+    'KRISTIAN': 'KRISTIAN',
+    'ANGEL': 'ANGEL',
+    'MICHAEL': 'MICHAEL',
+    'MARIANNE': 'MARIANNE',
+    'KRIS': 'KRISTIAN',
+    'KRISTIAN': 'KRISTIAN'
+  };
+  
+  return nameMap[firstName] || firstName;
+};
+
+// Helper to generate one-sentence summary per member
+const generateMemberSummary = (memberName, tasks, teamPlans) => {
+  if (!tasks || tasks.length === 0) {
+    return `No task recorded for this date.`;
+  }
+  
+  // Combine tasks into a single sentence
+  const taskSummary = tasks.slice(0, 3).join(' and ');
+  return taskSummary.charAt(0).toUpperCase() + taskSummary.slice(1) + (taskSummary.endsWith('.') ? '' : '.');
+};
+
+// Helper to create team-wide summary sentence
+const generateTeamSummary = (allTasks, allPlans) => {
+  const tasks = [...new Set([...allTasks, ...allPlans])].filter(Boolean);
+  if (tasks.length === 0) return 'No team activity recorded.';
+  
+  // Extract key actions (verbs) from tasks
+  const actionKeywords = {
+    'Coded': ['coded', 'code', 'implemented', 'developed', 'created'],
+    'Refined': ['refined', 'improved', 'enhanced', 'optimized'],
+    'Added': ['added', 'created', 'included', 'introduced'],
+    'Revised': ['revised', 'edited', 'updated', 'proofread'],
+    'Analyzed': ['analyzed', 'examined', 'studied', 'investigated'],
+    'Designed': ['designed', 'created', 'planned', 'architected']
+  };
+  
+  const foundActions = new Set();
+  tasks.forEach(task => {
+    const lower = String(task).toLowerCase();
+    Object.entries(actionKeywords).forEach(([action, keywords]) => {
+      if (keywords.some(kw => lower.includes(kw))) {
+        foundActions.add(action);
+      }
+    });
+  });
+  
+  const actions = Array.from(foundActions).slice(0, 3);
+  if (actions.length === 0) {
+    return `The team accomplished multiple tasks and objectives.`;
+  }
+  
+  return `The team ${actions.join(', ')} various components and requirements.`;
+};
+
+// @route   GET /api/progress-reports/daily-report
+// @desc    Generate formatted daily accomplishment report
+// @access  Private
+export const generateDailyReport = async (req, res) => {
+  try {
+    const { date } = req.query;
+    
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date is required (YYYY-MM-DD format)'
+      });
+    }
+
+    // Fetch reports for the specific date
+    const { data: reports, error } = await supabase
+      .from('progress_reports')
+      .select('*')
+      .eq('date', date)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!reports || reports.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          date,
+          report: `DATE: ${date}\n* No progress reports recorded for this date.\n\nKRISTIAN:\nANGEL:\nMICHAEL:\nMARIANNE:`,
+          message: 'No data for this date'
+        }
+      });
+    }
+
+    // Fetch user data
+    const userIds = [...new Set(reports.map(r => r.member_id).filter(Boolean))];
+    const usersMap = await fetchUsersMapByIds(userIds);
+
+    // Group reports by member
+    const memberReports = {};
+    const allTasks = [];
+    const allPlans = [];
+
+    reports.forEach(report => {
+      const userId = String(report.member_id);
+      if (!memberReports[userId]) {
+        memberReports[userId] = [];
+      }
+      memberReports[userId].push(report);
+
+      if (report.task_done && report.task_done.trim()) {
+        allTasks.push(report.task_done);
+      }
+      if (report.team_plan && report.team_plan.trim()) {
+        allPlans.push(report.team_plan);
+      }
+    });
+
+    // Required members in specific order
+    const requiredMembers = [
+      { id: 'KRISTIAN', name: 'KRISTIAN' },
+      { id: 'ANGEL', name: 'ANGEL' },
+      { id: 'MICHAEL', name: 'MICHAEL' },
+      { id: 'MARIANNE', name: 'MARIANNE' }
+    ];
+
+    // Generate team summary
+    const teamSummary = generateTeamSummary(allTasks, allPlans);
+
+    // Format date nicely
+    const dateObj = new Date(date);
+    const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+    const dayNum = dateObj.getDate();
+    const formattedDate = `${monthName} ${dayNum}, ${dateObj.getFullYear()}`;
+
+    // Build the report
+    let reportText = `DATE: ${formattedDate}\n* ${teamSummary}\n\n`;
+
+    // Add each member's summary
+    requiredMembers.forEach(member => {
+      // Try to find user by matching first name
+      let memberTasks = [];
+      let foundUser = false;
+
+      Object.entries(memberReports).forEach(([userId, reports]) => {
+        const user = usersMap.get(userId);
+        if (user) {
+          const firstName = String(user.fullName || user.username || '').split(' ')[0].toUpperCase();
+          if (firstName === member.name || member.name.includes(firstName)) {
+            foundUser = true;
+            reports.forEach(report => {
+              if (report.task_done && report.task_done.trim()) {
+                memberTasks.push(report.task_done);
+              }
+            });
+          }
+        }
+      });
+
+      const memberSummary = generateMemberSummary(member.name, memberTasks, []);
+      reportText += `${member.name}:\n${memberSummary}\n\n`;
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        date: formattedDate,
+        report: reportText.trim(),
+        rawReport: {
+          teamSummary,
+          members: requiredMembers.map(m => ({
+            name: m.name,
+            tasks: memberReports[m.id]?.map(r => r.task_done) || []
+          }))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Daily Report Error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to generate daily report'
+    });
+  }
+};
+
+// @route   GET /api/progress-reports/report/summary
+// @desc    Generate formatted progress report summaries grouped by date
+// @access  Private
+export const generateReportSummary = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    // Fetch all reports and enrich with user data
+    const allReports = await ProgressReport.getAll('created_at', false);
+    
+    let filteredReports = allReports;
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      
+      filteredReports = allReports.filter(report => {
+        const reportDate = new Date(report.date || report.created_at);
+        return reportDate >= start && reportDate <= end;
+      });
+    }
+
+    // Group by date
+    const groupedByDate = {};
+    const userIds = new Set();
+    
+    filteredReports.forEach(report => {
+      const dateStr = formatDateOnly(new Date(report.date || report.created_at));
+      if (!groupedByDate[dateStr]) {
+        groupedByDate[dateStr] = [];
+      }
+      groupedByDate[dateStr].push(report);
+      if (report.member_id) {
+        userIds.add(report.member_id);
+      }
+    });
+
+    // Fetch user data
+    const usersMap = await fetchUsersMapByIds(Array.from(userIds));
+
+    // Format summaries
+    const summaries = {};
+    
+    for (const [dateStr, reports] of Object.entries(groupedByDate)) {
+      // Group by member
+      const byMember = {};
+      
+      reports.forEach(report => {
+        const userId = String(report.member_id);
+        if (!byMember[userId]) {
+          byMember[userId] = [];
+        }
+        byMember[userId].push(report);
+      });
+
+      // Format date (e.g., "February 4")
+      const [year, month, day] = dateStr.split('-');
+      const dateObj = new Date(year, parseInt(month) - 1, parseInt(day));
+      const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+      const dayNum = parseInt(day);
+      const dateHeader = `${monthName} ${dayNum}`;
+
+      // Collect all task descriptions and extract categories
+      let allTaskDescriptions = [];
+      const teamPlanDescriptions = [];
+      
+      Object.values(byMember).forEach(memberReports => {
+        memberReports.forEach(report => {
+          if (report.task_done && report.task_done.trim()) {
+            allTaskDescriptions.push(report.task_done);
+          }
+          if (report.team_plan && report.team_plan.trim()) {
+            teamPlanDescriptions.push(report.team_plan);
+          }
+        });
+      });
+      
+      const categories = extractCategories(allTaskDescriptions);
+
+      // Build summary text using NLP
+      let summaryText = `${dateHeader}\n\n`;
+      
+      // Generate natural language overview using NLP
+      const naturalOverview = await generateNaturalSummary(allTaskDescriptions, teamPlanDescriptions);
+      summaryText += `${naturalOverview}\n\n`;
+
+      // Add member details with shortened names
+      const memberTexts = [];
+      Object.entries(byMember).forEach(([userId, memberReports]) => {
+        const user = usersMap.get(userId);
+        // Extract first name and uppercase it
+        let memberName = user?.username || `User ${userId}`;
+        if (user?.fullName) {
+          memberName = user.fullName.split(' ')[0]; // Get first name only
+        }
+        memberName = memberName.toUpperCase();
+        
+        const memberTasks = [];
+        memberReports.forEach(report => {
+          if (report.task_done && report.task_done.trim()) {
+            memberTasks.push(report.task_done);
+          }
+        });
+
+        if (memberTasks.length > 0) {
+          memberTexts.push(`${memberName}: ${memberTasks.join(', ')}.`);
+        }
+      });
+
+      if (memberTexts.length > 0) {
+        summaryText += memberTexts.join('\n');
+      }
+
+      summaries[dateStr] = {
+        date: dateHeader,
+        summary: summaryText.trim(),
+        categories: categories,
+        memberCount: Object.keys(byMember).length,
+        taskCount: allTaskDescriptions.length
+      };
+    }
+
+    res.status(200).json({
+      success: true,
+      data: summaries,
+      period: {
+        startDate,
+        endDate
+      }
     });
   } catch (error) {
     res.status(500).json({

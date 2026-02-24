@@ -241,7 +241,7 @@ export const LoginPage = () => {
               value={studentNumber}
               onChange={(e) => setStudentNumber(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white text-dark-charcoal"
               placeholder="Enter your student number"
             />
           </div>
@@ -254,7 +254,7 @@ export const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white pr-10"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white text-dark-charcoal pr-10"
                 placeholder="••••••"
               />
               <button
