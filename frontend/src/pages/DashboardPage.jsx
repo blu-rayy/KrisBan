@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
@@ -11,6 +11,7 @@ import { ProfileDropdown } from '../components/ProfileDropdown';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
+import { fetchProgressReports } from '../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Menu01Icon } from '@hugeicons/core-free-icons';
 
@@ -25,6 +26,8 @@ export const DashboardPage = () => {
   const [isMobile, setIsMobile] = useState(initialIsMobile);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(initialIsMobile);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const progressReportPageSize = 30;
+  const progressReportFilters = useMemo(() => ({ sortBy: 'created_at', sortOrder: 'desc' }), []);
   const {
     data: dashboardData,
     isLoading,
@@ -47,7 +50,27 @@ export const DashboardPage = () => {
         return response?.data?.data || [];
       }
     });
-  }, [user?.id, queryClient]);
+
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ['progressReports', progressReportFilters],
+      queryFn: async ({ pageParam = 1 }) => {
+        const data = await fetchProgressReports({
+          ...progressReportFilters,
+          page: pageParam,
+          pageSize: progressReportPageSize
+        });
+
+        return {
+          data,
+          pagination: {
+            page: pageParam,
+            pageSize: progressReportPageSize
+          }
+        };
+      },
+      initialPageParam: 1
+    });
+  }, [user?.id, queryClient, progressReportFilters]);
 
   useEffect(() => {
     const handleResize = () => {

@@ -4,10 +4,24 @@ import { dashboardService, weeklyReportService } from '../services/api';
 import { ProgressReportForm } from './ProgressReportForm';
 import { ProgressReportTable } from './ProgressReportTable';
 import { ProgressReportViewOnly } from './ProgressReportViewOnly';
+import { generateFormattedReportWithGemini } from '../utils/geminiReportGenerator';
 import { AuthContext } from '../context/AuthContext';
 import { useInfiniteProgressReports } from '../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon } from '@hugeicons/core-free-icons';
+
+const normalizeMemberName = (name) => {
+  if (!name) return 'UNKNOWN';
+  const first = String(name).toLowerCase().split(' ')[0];
+  const map = {
+    kristian: 'KRISTIAN',
+    kris: 'KRISTIAN',
+    angel: 'ANGEL',
+    michael: 'MICHAEL',
+    marianne: 'MARIANNE'
+  };
+  return map[first] || String(name).toUpperCase();
+};
 
 export const ProgressReportsView = () => {
   const { user } = useContext(AuthContext);
@@ -124,6 +138,28 @@ export const ProgressReportsView = () => {
   const reportsError = reportsIsError
     ? (reportsQueryError?.message || 'Failed to load progress reports')
     : '';
+
+  const extractApiErrorMessage = async (error, fallback) => {
+    const responseData = error?.response?.data;
+
+    if (responseData?.message) {
+      return responseData.message;
+    }
+
+    if (responseData instanceof Blob) {
+      try {
+        const text = await responseData.text();
+        const parsed = JSON.parse(text);
+        if (parsed?.message) {
+          return parsed.message;
+        }
+      } catch (_blobParseError) {
+        return fallback;
+      }
+    }
+
+    return fallback;
+  };
 
   const applyWeekDetail = (detail) => {
     if (!detail) return;
@@ -335,8 +371,41 @@ export const ProgressReportsView = () => {
         return;
       }
 
-      setGenerationMessage(data?.message || 'Draft generated successfully.');
-      setGeneratedRows(data?.generatedRows || []);
+      const rows = data?.generatedRows || [];
+      const generatedWithGemini = [];
+
+      for (const row of rows) {
+        const rowDate = row.rowDate;
+        const dateObj = new Date(`${rowDate}T00:00:00`);
+        const formattedDate = dateObj.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        let reportsForGemini = Array.isArray(row.sourceReports) ? row.sourceReports : [];
+
+        if (reportsForGemini.length === 0 && rowDate) {
+          const dailyResponse = await dashboardService.getProgressReports({ date: rowDate });
+          const dailyReports = dailyResponse?.data?.data || [];
+
+          reportsForGemini = dailyReports
+            .map((report) => ({
+              memberName: normalizeMemberName(report.memberName || report.memberFullName || report.username),
+              taskDone: report.taskDone || report.task_done || ''
+            }))
+            .filter((item) => String(item.taskDone || '').trim());
+        }
+
+        const geminiReport = await generateFormattedReportWithGemini(reportsForGemini, formattedDate);
+        generatedWithGemini.push({
+          ...row,
+          rowActivity: geminiReport
+        });
+      }
+
+      setGenerationMessage(`${data?.message || 'Draft generated successfully.'} Generated with Gemini Nano.`);
+      setGeneratedRows(generatedWithGemini);
 
       if (data?.startDate && !singleDayMode) {
         setReportingStartDate(data.startDate);
@@ -351,7 +420,7 @@ export const ProgressReportsView = () => {
         setReportingDateLabel(data.reportingDate);
       }
     } catch (err) {
-      setReportError(err.response?.data?.message || 'Failed to generate weekly draft');
+      setReportError(err?.message || err.response?.data?.message || 'Failed to generate weekly draft with Gemini Nano');
     } finally {
       setGeneratingReport(false);
     }
@@ -412,9 +481,31 @@ export const ProgressReportsView = () => {
         window.URL.revokeObjectURL(objectUrl);
         alert('Weekly report saved and PDF downloaded successfully!');
       } catch (exportErr) {
-        const exportMessage = exportErr?.response?.data?.message || 'PDF export failed, but your weekly report was saved.';
-        setExportWarning(exportMessage);
-        alert('Weekly report saved successfully, but PDF export failed.');
+        const exportMessage = await extractApiErrorMessage(
+          exportErr,
+          'PDF export failed, but your weekly report was saved.'
+        );
+
+        try {
+          const docxResponse = await weeklyReportService.exportDocx(Number(selectedWeek));
+          const docxBlob = new Blob([docxResponse.data], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+          const docxUrl = window.URL.createObjectURL(docxBlob);
+          const docxLink = document.createElement('a');
+          docxLink.href = docxUrl;
+          docxLink.download = `A Priori_W${selectedWeek}.docx`;
+          document.body.appendChild(docxLink);
+          docxLink.click();
+          document.body.removeChild(docxLink);
+          window.URL.revokeObjectURL(docxUrl);
+
+          setExportWarning(`${exportMessage} Downloaded DOCX fallback instead.`);
+          alert('Weekly report saved. PDF unavailable, so DOCX was downloaded instead.');
+        } catch (_docxErr) {
+          setExportWarning(exportMessage);
+          alert('Weekly report saved successfully, but export failed.');
+        }
       }
     } catch (err) {
       setReportError(err.response?.data?.message || 'Failed to save weekly report');

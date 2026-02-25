@@ -108,7 +108,9 @@ export const weeklyReportService = {
   generateDraft: (payload) => api.post('/weekly-reports/generate', payload),
   saveDraft: (reportWeek, payload) => api.post(`/weekly-reports/${reportWeek}/save`, payload),
   exportPdf: (reportWeek) =>
-    api.post(`/weekly-reports/${reportWeek}/export-pdf`, {}, { responseType: 'blob' })
+    api.post(`/weekly-reports/${reportWeek}/export-pdf`, {}, { responseType: 'blob' }),
+  exportDocx: (reportWeek) =>
+    api.post(`/weekly-reports/${reportWeek}/export-docx`, {}, { responseType: 'blob' })
 };
 
 export const fetchProgressReports = async (filters = {}) => {

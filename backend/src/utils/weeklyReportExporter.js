@@ -62,6 +62,26 @@ const removeEmptyRows = (docxBuffer, emptyMarkers = []) => {
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 };
 
+const applyTextStyleOverrides = (docxBuffer) => {
+  const zip = new PizZip(docxBuffer);
+  const documentXmlPath = 'word/document.xml';
+  const documentXmlFile = zip.file(documentXmlPath);
+  if (!documentXmlFile) {
+    return docxBuffer;
+  }
+
+  let xmlContent = documentXmlFile.asText();
+
+  // Decrease reporting date font size by 1pt (20 -> 18 half-points in Word XML)
+  xmlContent = xmlContent.replace('<w:sz w:val="20"/><w:szCs w:val="20"/>', '<w:sz w:val="18"/><w:szCs w:val="18"/>');
+
+  // Force left alignment to avoid justified spacing in generated activities
+  xmlContent = xmlContent.replace(/<w:jc w:val="both"\/>/g, '<w:jc w:val="left"/>');
+
+  zip.file(documentXmlPath, xmlContent);
+  return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+};
+
 const buildTemplateData = (weeklyReport) => {
   const entries = (weeklyReport.entries || []).map((entry) => ({
     rowNumber: entry.rowNumber,
@@ -93,8 +113,9 @@ export const renderWeeklyReportDocxBuffer = async (weeklyReport) => {
   const { data, emptyMarkers } = buildTemplateData(weeklyReport);
   doc.render(data);
   const renderedDocx = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+  const styleAdjustedDocx = applyTextStyleOverrides(renderedDocx);
 
-  return removeEmptyRows(renderedDocx, emptyMarkers);
+  return removeEmptyRows(styleAdjustedDocx, emptyMarkers);
 };
 
 export const exportWeeklyReportPdf = async (weeklyReport) => {

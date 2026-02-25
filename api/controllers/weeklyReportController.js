@@ -3,8 +3,6 @@ import WeeklyReport from '../models/WeeklyReport.js';
 import { exportWeeklyReportPdf, renderWeeklyReportDocxBuffer } from '../utils/weeklyReportExporter.js';
 import { formatMMDDYYYY, formatReportingDateRange, parseISODate } from '../utils/weeklyReportDates.js';
 
-const REQUIRED_MEMBER_ORDER = ['KRISTIAN', 'ANGEL', 'MICHAEL', 'MARIANNE'];
-
 const isISODate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
 
 const buildDateRange = (startDateISO, endDateISO) => {
@@ -55,38 +53,16 @@ const fetchUsersMapByIds = async (ids = []) => {
   return new Map((users || []).map((user) => [String(user.id), user]));
 };
 
-const buildDailyActivityText = (dateISO, reports = [], usersMap = new Map()) => {
-  const byMember = new Map();
-  const allTasks = [];
-
-  reports.forEach((report) => {
-    const user = usersMap.get(String(report.member_id));
-    const memberName = mapDisplayMemberName(user?.full_name, user?.username);
-    const existing = byMember.get(memberName) || [];
-    const task = String(report.task_done || '').trim();
-
-    if (task) {
-      existing.push(task);
-      allTasks.push(task);
-    }
-
-    byMember.set(memberName, existing);
-  });
-
-  const uniqueTasks = [...new Set(allTasks)].slice(0, 3);
-  const dateLabel = formatMMDDYYYY(parseISODate(dateISO));
-  const teamSummary =
-    uniqueTasks.length > 0
-      ? `The team worked on ${uniqueTasks.join('; ')}.`
-      : 'No summarized activity available.';
-
-  const memberLines = REQUIRED_MEMBER_ORDER.map((memberName) => {
-    const tasks = byMember.get(memberName) || [];
-    const taskSummary = tasks.length > 0 ? tasks.join(' and ') : 'No task recorded for this date.';
-    return `${memberName}: ${taskSummary}`;
-  });
-
-  return [`DATE: ${dateLabel}`, `* ${teamSummary}`, ...memberLines].join('\n');
+const buildGeminiSourceReports = (reports = [], usersMap = new Map()) => {
+  return reports
+    .map((report) => {
+      const user = usersMap.get(String(report.member_id));
+      return {
+        memberName: mapDisplayMemberName(user?.full_name, user?.username),
+        taskDone: String(report.task_done || '').trim()
+      };
+    })
+    .filter((item) => item.taskDone);
 };
 
 // @route   GET /api/weekly-reports
@@ -252,7 +228,8 @@ export const generateWeeklyReportDraft = async (req, res) => {
         rowNumber,
         rowDate: dateISO,
         rowDateDisplay: formatMMDDYYYY(parseISODate(dateISO)),
-        rowActivity: buildDailyActivityText(dateISO, dayReports, usersMap),
+        rowActivity: '',
+        sourceReports: buildGeminiSourceReports(dayReports, usersMap),
         hasSourceEntries: true,
         entryCount: dayReports.length
       });

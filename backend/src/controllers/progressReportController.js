@@ -2,7 +2,6 @@ import ProgressReport from '../models/ProgressReport.js';
 import User from '../models/User.js';
 import Sprint from '../models/Sprint.js';
 import { supabase } from '../config/database.js';
-import { pipeline } from '@xenova/transformers';
 
 const normalizeSupabaseErrorMessage = (error, fallbackMessage) => {
   const rawMessage = error?.message || '';
@@ -622,69 +621,20 @@ const extractCategories = (tasks) => {
   return Array.from(foundCategories);
 };
 
-// Initialize summarizer (lazy loaded on first use)
-let summarizer = null;
+// Helper function to generate natural language summary without server-side NLP
+const generateNaturalSummary = (taskDescriptions, teamPlans) => {
+  const cleanedPlans = (teamPlans || []).map((item) => String(item).trim()).filter(Boolean);
+  const cleanedTasks = (taskDescriptions || []).map((item) => String(item).trim()).filter(Boolean);
 
-const getSummarizer = async () => {
-  if (!summarizer) {
-    try {
-      summarizer = await pipeline('summarization', 'Xenova/bart-large-cnn');
-    } catch (error) {
-      console.warn('Summarizer initialization failed:', error.message);
-      return null;
-    }
-  }
-  return summarizer;
-};
-
-// Helper function to generate natural language summary using NLP
-const generateNaturalSummary = async (taskDescriptions, teamPlans) => {
-  const summarizer = await getSummarizer();
-  
-  if (!summarizer || (taskDescriptions.length === 0 && teamPlans.length === 0)) {
-    // Fallback if no summarizer or no data
-    if (teamPlans.length > 0) {
-      return `The team ${teamPlans[0]}.`;
-    }
-    if (taskDescriptions.length > 0) {
-      return `The team worked on ${taskDescriptions.slice(0, 2).join(' and ')}.`;
-    }
+  if (cleanedPlans.length === 0 && cleanedTasks.length === 0) {
     return 'Team progress report.';
   }
 
-  try {
-    // Combine all descriptions into a single text for summarization
-    const textToSummarize = [
-      ...teamPlans.slice(0, 3),
-      ...taskDescriptions.slice(0, 5)
-    ].join(' ').substring(0, 1024); // Limit to 1024 chars for performance
-
-    if (textToSummarize.length < 50) {
-      // If text is too short, just return it naturally formatted
-      return `The team ${textToSummarize}.`;
-    }
-
-    const summary = await summarizer(textToSummarize, {
-      max_length: 100,
-      min_length: 30,
-      do_sample: false
-    });
-
-    if (summary && summary[0]) {
-      let summaryText = summary[0].summary_text;
-      // Ensure it starts with lowercase after "The team" or capitalize first letter
-      if (!summaryText.startsWith('The team')) {
-        summaryText = summaryText.charAt(0).toLowerCase() + summaryText.slice(1);
-        return `The team ${summaryText}.`;
-      }
-      return summaryText.endsWith('.') ? summaryText : summaryText + '.';
-    }
-  } catch (error) {
-    console.warn('NLP summary generation failed:', error.message);
+  if (cleanedPlans.length > 0) {
+    return `The team ${cleanedPlans.slice(0, 2).join(' and ')}.`;
   }
 
-  // Fallback to simple combination
-  return `The team ${[...teamPlans.slice(0, 2), ...taskDescriptions.slice(0, 2)].join(' and ')}.`;
+  return `The team worked on ${cleanedTasks.slice(0, 3).join(' and ')}.`;
 };
 
 // Helper function to create member name from full name
@@ -956,11 +906,11 @@ export const generateReportSummary = async (req, res) => {
       
       const categories = extractCategories(allTaskDescriptions);
 
-      // Build summary text using NLP
+      // Build summary text using non-NLP fallback (Gemini Nano summarization is handled client-side)
       let summaryText = `${dateHeader}\n\n`;
       
-      // Generate natural language overview using NLP
-      const naturalOverview = await generateNaturalSummary(allTaskDescriptions, teamPlanDescriptions);
+      // Generate natural language overview
+      const naturalOverview = generateNaturalSummary(allTaskDescriptions, teamPlanDescriptions);
       summaryText += `${naturalOverview}\n\n`;
 
       // Add member details with shortened names
