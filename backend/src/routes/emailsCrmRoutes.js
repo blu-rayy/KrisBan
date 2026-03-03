@@ -1,0 +1,28 @@
+import express from 'express';
+import { protect } from '../middleware/auth.js';
+import {
+  getSmes,
+  createSme,
+  updateSme,
+  deleteSme,
+  getTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate
+} from '../controllers/emailsCrmController.js';
+
+const router = express.Router();
+
+router.use(protect);
+
+router.get('/smes', getSmes);
+router.post('/smes', createSme);
+router.put('/smes/:id', updateSme);
+router.delete('/smes/:id', deleteSme);
+
+router.get('/templates', getTemplates);
+router.post('/templates', createTemplate);
+router.put('/templates/:id', updateTemplate);
+router.delete('/templates/:id', deleteTemplate);
+
+export default router;

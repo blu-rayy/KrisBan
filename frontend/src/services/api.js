@@ -113,6 +113,18 @@ export const weeklyReportService = {
     api.post(`/weekly-reports/${reportWeek}/export-docx`, {}, { responseType: 'blob' })
 };
 
+export const emailsCrmService = {
+  getSmes: () => api.get('/emails-crm/smes'),
+  createSme: (payload) => api.post('/emails-crm/smes', payload),
+  updateSme: (id, payload) => api.put(`/emails-crm/smes/${id}`, payload),
+  deleteSme: (id) => api.delete(`/emails-crm/smes/${id}`),
+
+  getTemplates: () => api.get('/emails-crm/templates'),
+  createTemplate: (payload) => api.post('/emails-crm/templates', payload),
+  updateTemplate: (id, payload) => api.put(`/emails-crm/templates/${id}`, payload),
+  deleteTemplate: (id) => api.delete(`/emails-crm/templates/${id}`)
+};
+
 export const fetchProgressReports = async (filters = {}) => {
   try {
     const response = await dashboardService.getProgressReports(filters);

@@ -4,22 +4,9 @@ import { BubbleChatIcon, DocumentAttachmentIcon } from '@hugeicons/core-free-ico
 import { OutreachHub } from './sme-outreach/OutreachHub';
 import { SMERoster } from './sme-outreach/SMERoster';
 import { TemplateManagerPanel } from './sme-outreach/TemplateManagerPanel';
-import { POINT_PEOPLE, SME_STATUSES, initialSmes, initialTemplates } from '../utils/smeOutreachMockData';
+import { POINT_PEOPLE, SME_STATUSES } from '../utils/smeOutreachMockData';
 import { parseSmeTemplate } from '../utils/smeTemplateParser';
-
-const SME_STORAGE_KEY = 'krisban_sme_roster_v1';
-const TEMPLATE_STORAGE_KEY = 'krisban_sme_templates_v1';
-
-const getStoredArray = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
-};
+import { emailsCrmService } from '../services/api';
 
 const emptySmeForm = {
   name: '',
@@ -37,12 +24,14 @@ const emptyTemplateForm = {
 };
 
 export const SMEOutreachView = () => {
-  const [smes, setSmes] = useState(() => getStoredArray(SME_STORAGE_KEY, initialSmes));
-  const [templates, setTemplates] = useState(() => getStoredArray(TEMPLATE_STORAGE_KEY, initialTemplates));
+  const [smes, setSmes] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [selectedSmeId, setSelectedSmeId] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [draftMessage, setDraftMessage] = useState('');
   const [copyButtonText, setCopyButtonText] = useState('Copy to Clipboard');
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const [showSmeForm, setShowSmeForm] = useState(false);
   const [editingSmeId, setEditingSmeId] = useState(null);
   const [smeForm, setSmeForm] = useState(emptySmeForm);
@@ -52,12 +41,26 @@ export const SMEOutreachView = () => {
   const [activeTab, setActiveTab] = useState('outreach');
 
   useEffect(() => {
-    localStorage.setItem(SME_STORAGE_KEY, JSON.stringify(smes));
-  }, [smes]);
+    const loadEmailsCrmData = async () => {
+      try {
+        setIsLoading(true);
+        const [smesResponse, templatesResponse] = await Promise.all([
+          emailsCrmService.getSmes(),
+          emailsCrmService.getTemplates()
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
-  }, [templates]);
+        setSmes(smesResponse?.data?.data || []);
+        setTemplates(templatesResponse?.data?.data || []);
+        setErrorMessage('');
+      } catch (error) {
+        setErrorMessage(error?.response?.data?.message || 'Failed to load Emails CRM data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadEmailsCrmData();
+  }, []);
 
   const selectedSme = useMemo(
     () => smes.find((sme) => sme.id === selectedSmeId) || null,
@@ -97,12 +100,20 @@ export const SMEOutreachView = () => {
     setDraftMessage(parsedContent);
   };
 
-  const handleStatusChange = (status) => {
+  const handleStatusChange = async (status) => {
     if (!selectedSme) return;
 
-    setSmes((current) =>
-      current.map((sme) => (sme.id === selectedSme.id ? { ...sme, status } : sme))
-    );
+    try {
+      const response = await emailsCrmService.updateSme(selectedSme.id, { status });
+      const updatedSme = response?.data?.data;
+
+      setSmes((current) =>
+        current.map((sme) => (sme.id === selectedSme.id ? (updatedSme || { ...sme, status }) : sme))
+      );
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to update SME status');
+    }
   };
 
   const handleCopy = async () => {
@@ -139,38 +150,54 @@ export const SMEOutreachView = () => {
     setShowSmeForm(true);
   };
 
-  const handleSaveSme = (event) => {
+  const handleSaveSme = async (event) => {
     event.preventDefault();
 
     if (!smeForm.name.trim() || !smeForm.title.trim() || !smeForm.organization.trim()) {
       return;
     }
 
-    if (editingSmeId) {
-      setSmes((current) =>
-        current.map((sme) => (sme.id === editingSmeId ? { ...sme, ...smeForm } : sme))
-      );
-    } else {
-      const newSme = {
-        id: `sme-${Date.now()}`,
-        ...smeForm
-      };
-      setSmes((current) => [newSme, ...current]);
-      setSelectedSmeId(newSme.id);
-    }
+    try {
+      if (editingSmeId) {
+        const response = await emailsCrmService.updateSme(editingSmeId, smeForm);
+        const updatedSme = response?.data?.data;
 
-    setShowSmeForm(false);
-    setEditingSmeId(null);
-    setSmeForm(emptySmeForm);
+        setSmes((current) =>
+          current.map((sme) => (sme.id === editingSmeId ? (updatedSme || { ...sme, ...smeForm }) : sme))
+        );
+      } else {
+        const response = await emailsCrmService.createSme(smeForm);
+        const newSme = response?.data?.data;
+
+        if (newSme) {
+          setSmes((current) => [newSme, ...current]);
+          setSelectedSmeId(newSme.id);
+        }
+      }
+
+      setShowSmeForm(false);
+      setEditingSmeId(null);
+      setSmeForm(emptySmeForm);
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to save SME');
+    }
   };
 
-  const handleDeleteSme = (id) => {
-    setSmes((current) => current.filter((sme) => sme.id !== id));
+  const handleDeleteSme = async (id) => {
+    try {
+      await emailsCrmService.deleteSme(id);
+      setSmes((current) => current.filter((sme) => sme.id !== id));
 
-    if (selectedSmeId === id) {
-      setSelectedSmeId(null);
-      setSelectedTemplateId('');
-      setDraftMessage('');
+      if (selectedSmeId === id) {
+        setSelectedSmeId(null);
+        setSelectedTemplateId('');
+        setDraftMessage('');
+      }
+
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to delete SME');
     }
   };
 
@@ -191,46 +218,64 @@ export const SMEOutreachView = () => {
     setActiveTab('templates');
   };
 
-  const handleSaveTemplate = (event) => {
+  const handleSaveTemplate = async (event) => {
     event.preventDefault();
 
     if (!templateForm.templateName.trim() || !templateForm.content.trim()) {
       return;
     }
 
-    if (editingTemplateId) {
-      setTemplates((current) =>
-        current.map((template) =>
-          template.id === editingTemplateId ? { ...template, ...templateForm } : template
-        )
-      );
-    } else {
-      const newTemplate = {
-        id: `template-${Date.now()}`,
-        ...templateForm
-      };
-      setTemplates((current) => [newTemplate, ...current]);
-      setSelectedTemplateId(newTemplate.id);
-      if (selectedSme) {
-        const parsedContent = parseSmeTemplate({
-          templateContent: newTemplate.content,
-          sme: selectedSme
-        });
-        setDraftMessage(parsedContent);
-      }
-    }
+    try {
+      if (editingTemplateId) {
+        const response = await emailsCrmService.updateTemplate(editingTemplateId, templateForm);
+        const updatedTemplate = response?.data?.data;
 
-    setEditingTemplateId(null);
-    setTemplateForm(emptyTemplateForm);
-    setIsEditingTemplate(false);
+        setTemplates((current) =>
+          current.map((template) =>
+            template.id === editingTemplateId
+              ? (updatedTemplate || { ...template, ...templateForm })
+              : template
+          )
+        );
+      } else {
+        const response = await emailsCrmService.createTemplate(templateForm);
+        const newTemplate = response?.data?.data;
+
+        if (newTemplate) {
+          setTemplates((current) => [newTemplate, ...current]);
+          setSelectedTemplateId(newTemplate.id);
+          if (selectedSme) {
+            const parsedContent = parseSmeTemplate({
+              templateContent: newTemplate.content,
+              sme: selectedSme
+            });
+            setDraftMessage(parsedContent);
+          }
+        }
+      }
+
+      setEditingTemplateId(null);
+      setTemplateForm(emptyTemplateForm);
+      setIsEditingTemplate(false);
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to save template');
+    }
   };
 
-  const handleDeleteTemplate = (id) => {
-    setTemplates((current) => current.filter((template) => template.id !== id));
+  const handleDeleteTemplate = async (id) => {
+    try {
+      await emailsCrmService.deleteTemplate(id);
+      setTemplates((current) => current.filter((template) => template.id !== id));
 
-    if (selectedTemplateId === id) {
-      setSelectedTemplateId('');
-      setDraftMessage('');
+      if (selectedTemplateId === id) {
+        setSelectedTemplateId('');
+        setDraftMessage('');
+      }
+
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to delete template');
     }
   };
 
@@ -284,7 +329,19 @@ export const SMEOutreachView = () => {
         </div>
       </div>
 
-      {showSmeForm && (
+      {errorMessage && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
+          Loading Emails CRM data...
+        </div>
+      )}
+
+      {!isLoading && showSmeForm && (
         <section className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">
             {editingSmeId ? 'Edit SME' : 'Add SME'}
@@ -372,7 +429,7 @@ export const SMEOutreachView = () => {
         </section>
       )}
 
-      {activeTab === 'outreach' && (
+      {!isLoading && activeTab === 'outreach' && (
         <div className="space-y-6">
           <SMERoster
             smes={smes}
@@ -401,7 +458,7 @@ export const SMEOutreachView = () => {
         </div>
       )}
 
-      {activeTab === 'templates' && (
+      {!isLoading && activeTab === 'templates' && (
         <TemplateManagerPanel
           templates={templates}
           editingTemplateId={editingTemplateId}
@@ -416,7 +473,7 @@ export const SMEOutreachView = () => {
         />
       )}
 
-      {activeTab === 'outreach' && selectedSme && (
+      {!isLoading && activeTab === 'outreach' && selectedSme && (
         <div className="hidden lg:flex fixed inset-0 z-50 items-center justify-center bg-slate-800/40 p-6">
           <button
             type="button"

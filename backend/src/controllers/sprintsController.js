@@ -205,8 +205,7 @@ export const createSprint = async (req, res) => {
       .insert([{
         sprint_number: sprintNumber,
         color: finalColor,
-        created_by: userId,
-        team_plans: teamPlans || []
+        created_by: userId
       }])
       .select()
       .single();
@@ -216,6 +215,38 @@ export const createSprint = async (req, res) => {
       throw error;
     }
 
+    const normalizedTeamPlans = Array.isArray(teamPlans)
+      ? [...new Set(teamPlans.map((value) => String(value || '').trim()).filter(Boolean))]
+      : [];
+
+    let createdTeamPlans = [];
+
+    if (normalizedTeamPlans.length > 0) {
+      const { data: insertedTeamPlans, error: teamPlanInsertError } = await supabase
+        .from('sprint_team_plans')
+        .insert(
+          normalizedTeamPlans.map((teamPlan) => ({
+            sprint_id: sprint.id,
+            team_plan: teamPlan,
+            created_by: userId
+          }))
+        )
+        .select('id, sprint_id, team_plan, created_by, created_at')
+        .order('created_at', { ascending: true });
+
+      if (teamPlanInsertError) {
+        throw teamPlanInsertError;
+      }
+
+      createdTeamPlans = (insertedTeamPlans || []).map((entry) => ({
+        id: String(entry.id),
+        sprint_id: String(entry.sprint_id),
+        team_plan: entry.team_plan,
+        created_by: entry.created_by,
+        created_at: entry.created_at
+      }));
+    }
+
     res.status(201).json({
       success: true,
       message: 'Sprint created successfully',
@@ -223,7 +254,7 @@ export const createSprint = async (req, res) => {
         id: String(sprint.id),
         sprintNumber: sprint.sprint_number,
         color: sprint.color,
-        teamPlans: sprint.team_plans || [],
+        teamPlans: createdTeamPlans,
         createdBy: sprint.created_by,
         createdAt: sprint.created_at
       }
@@ -257,13 +288,29 @@ export const getSprintById = async (req, res) => {
       });
     }
 
+    const { data: sprintTeamPlans, error: teamPlansError } = await supabase
+      .from('sprint_team_plans')
+      .select('id, sprint_id, team_plan, created_by, created_at')
+      .eq('sprint_id', id)
+      .order('created_at', { ascending: true });
+
+    if (teamPlansError) {
+      throw teamPlansError;
+    }
+
     res.status(200).json({
       success: true,
       data: {
         id: String(sprint.id),
         sprintNumber: sprint.sprint_number,
         color: sprint.color,
-        teamPlans: sprint.team_plans || [],
+        teamPlans: (sprintTeamPlans || []).map((entry) => ({
+          id: String(entry.id),
+          sprint_id: String(entry.sprint_id),
+          team_plan: entry.team_plan,
+          created_by: entry.created_by,
+          created_at: entry.created_at
+        })),
         createdBy: sprint.created_by,
         createdAt: sprint.created_at,
         updatedAt: sprint.updated_at
@@ -311,7 +358,7 @@ export const updateSprint = async (req, res) => {
         id: String(updatedSprint.id),
         sprintNumber: updatedSprint.sprint_number,
         color: updatedSprint.color,
-        teamPlans: updatedSprint.team_plans || [],
+        teamPlans: [],
         createdBy: updatedSprint.created_by,
         createdAt: updatedSprint.created_at,
         updatedAt: updatedSprint.updated_at
@@ -362,19 +409,18 @@ export const addTeamPlan = async (req, res) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { teamPlan } = req.body;
+    const trimmedTeamPlan = String(req.body?.teamPlan || '').trim();
 
-    if (!teamPlan) {
+    if (!trimmedTeamPlan) {
       return res.status(400).json({
         success: false,
         message: 'Team plan is required'
       });
     }
 
-    // Get the sprint first
     const { data: sprint, error: fetchError } = await supabase
       .from('sprints')
-      .select('team_plans')
+      .select('id, sprint_number')
       .eq('id', id)
       .single();
 
@@ -385,31 +431,56 @@ export const addTeamPlan = async (req, res) => {
       });
     }
 
-    // Add team plan to array
-    const teamPlans = sprint.team_plans || [];
-    if (!teamPlans.includes(teamPlan)) {
-      teamPlans.push(teamPlan);
+    const { data: existingPlan, error: existingPlanError } = await supabase
+      .from('sprint_team_plans')
+      .select('id')
+      .eq('sprint_id', id)
+      .eq('team_plan', trimmedTeamPlan)
+      .maybeSingle();
+
+    if (existingPlanError) {
+      throw existingPlanError;
     }
 
-    // Update sprint
-    const { data: updatedSprint, error: updateError } = await supabase
-      .from('sprints')
-      .update({ team_plans: teamPlans })
-      .eq('id', id)
-      .select()
-      .single();
+    if (!existingPlan) {
+      const { error: insertError } = await supabase
+        .from('sprint_team_plans')
+        .insert([
+          {
+            sprint_id: id,
+            team_plan: trimmedTeamPlan,
+            created_by: userId
+          }
+        ]);
 
-    if (updateError) {
-      throw updateError;
+      if (insertError) {
+        throw insertError;
+      }
+    }
+
+    const { data: sprintTeamPlans, error: listError } = await supabase
+      .from('sprint_team_plans')
+      .select('id, sprint_id, team_plan, created_by, created_at')
+      .eq('sprint_id', id)
+      .order('created_at', { ascending: true });
+
+    if (listError) {
+      throw listError;
     }
 
     res.status(200).json({
       success: true,
       message: 'Team plan added successfully',
       data: {
-        id: String(updatedSprint.id),
-        sprintNumber: updatedSprint.sprint_number,
-        teamPlans: updatedSprint.team_plans
+        id: String(sprint.id),
+        sprintNumber: sprint.sprint_number,
+        teamPlans: (sprintTeamPlans || []).map((entry) => ({
+          id: String(entry.id),
+          sprint_id: String(entry.sprint_id),
+          team_plan: entry.team_plan,
+          created_by: entry.created_by,
+          created_at: entry.created_at
+        }))
       }
     });
   } catch (error) {
@@ -427,11 +498,11 @@ export const addTeamPlan = async (req, res) => {
 export const removeTeamPlan = async (req, res) => {
   try {
     const { id, plan } = req.params;
+    const decodedPlan = decodeURIComponent(plan);
 
-    // Get the sprint first
     const { data: sprint, error: fetchError } = await supabase
       .from('sprints')
-      .select('team_plans')
+      .select('id, sprint_number')
       .eq('id', id)
       .single();
 
@@ -442,28 +513,48 @@ export const removeTeamPlan = async (req, res) => {
       });
     }
 
-    // Remove team plan from array
-    const teamPlans = (sprint.team_plans || []).filter(p => p !== decodeURIComponent(plan));
+    let deleteQuery = supabase
+      .from('sprint_team_plans')
+      .delete()
+      .eq('sprint_id', id);
 
-    // Update sprint
-    const { data: updatedSprint, error: updateError } = await supabase
-      .from('sprints')
-      .update({ team_plans: teamPlans })
-      .eq('id', id)
-      .select()
-      .single();
+    const isUuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decodedPlan);
 
-    if (updateError) {
-      throw updateError;
+    if (isUuidLike) {
+      deleteQuery = deleteQuery.eq('id', decodedPlan);
+    } else {
+      deleteQuery = deleteQuery.eq('team_plan', decodedPlan);
+    }
+
+    const { error: deleteError } = await deleteQuery;
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    const { data: sprintTeamPlans, error: listError } = await supabase
+      .from('sprint_team_plans')
+      .select('id, sprint_id, team_plan, created_by, created_at')
+      .eq('sprint_id', id)
+      .order('created_at', { ascending: true });
+
+    if (listError) {
+      throw listError;
     }
 
     res.status(200).json({
       success: true,
       message: 'Team plan removed successfully',
       data: {
-        id: String(updatedSprint.id),
-        sprintNumber: updatedSprint.sprint_number,
-        teamPlans: updatedSprint.team_plans
+        id: String(sprint.id),
+        sprintNumber: sprint.sprint_number,
+        teamPlans: (sprintTeamPlans || []).map((entry) => ({
+          id: String(entry.id),
+          sprint_id: String(entry.sprint_id),
+          team_plan: entry.team_plan,
+          created_by: entry.created_by,
+          created_at: entry.created_at
+        }))
       }
     });
   } catch (error) {
