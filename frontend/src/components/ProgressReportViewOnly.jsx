@@ -7,6 +7,7 @@ import { useSprints } from '../hooks/useSprints';
 export const ProgressReportViewOnly = ({ reports = [], loading = false, error = '', onDelete, onUpdate, currentUserId, userRole }) => {
   const { user } = useContext(AuthContext);
   const [dateFilter, setDateFilter] = useState('all');
+  const [memberFilter, setMemberFilter] = useState('all');
   const [sprintFilter, setSprintFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingId, setEditingId] = useState(null);
@@ -158,9 +159,16 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
     return colors[category] || 'bg-gray-100 text-gray-800';
   };;
 
-  // Get unique sprints and categories for filters
+  // Get unique members, sprints and categories for filters
+  const uniqueMembers = [...new Set(reports.map(r => r.memberName).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const uniqueSprints = [...new Set(reports.map(r => r.sprintNo))].sort();
   const uniqueCategories = [...new Set(reports.map(r => r.category))].sort();
+
+  useEffect(() => {
+    if (memberFilter !== 'all' && !uniqueMembers.includes(memberFilter)) {
+      setMemberFilter('all');
+    }
+  }, [memberFilter, uniqueMembers]);
 
   // Filter reports
   const filteredReports = useMemo(() => {
@@ -184,6 +192,9 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
         if (reportDate < cutoffDate) return false;
       }
 
+      // Member filter
+      if (memberFilter !== 'all' && report.memberName !== memberFilter) return false;
+
       // Sprint filter
       if (sprintFilter !== 'all' && report.sprintNo !== sprintFilter) return false;
 
@@ -192,7 +203,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
       return true;
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [reports, dateFilter, sprintFilter, categoryFilter]);
+  }, [reports, dateFilter, memberFilter, sprintFilter, categoryFilter]);
 
   if (loading) {
     return (
@@ -270,7 +281,27 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Member Filter */}
+          <div>
+            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
+              Person
+            </label>
+            <select
+              id="memberFilter"
+              value={memberFilter}
+              onChange={(e) => setMemberFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+            >
+              <option value="all">All Members</option>
+              {uniqueMembers.map(member => (
+                <option key={member} value={member}>
+                  {member}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Sprint Filter */}
           <div>
             <label htmlFor="sprintFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">

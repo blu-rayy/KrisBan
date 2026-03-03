@@ -47,6 +47,7 @@ export const ProgressReportTable = ({
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+  const [memberFilter, setMemberFilter] = useState('all');
   const { data: sprints = [] } = useSprints();
 
   // Get sprint index by name for consistent coloring
@@ -222,7 +223,19 @@ export const ProgressReportTable = ({
     );
   }
 
-  // Filter reports based on user role and permissions
+  const uniqueMembers = [...new Set(
+    (reports || [])
+      .map((report) => report.memberName)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+
+  useEffect(() => {
+    if (memberFilter !== 'all' && !uniqueMembers.includes(memberFilter)) {
+      setMemberFilter('all');
+    }
+  }, [memberFilter, uniqueMembers]);
+
+  // Filter reports based on user role/permissions and selected member
   const filteredReports = reports.filter(report => {
     // Ensure we have necessary data
     if (!userRole || !currentUserId) return false;
@@ -231,7 +244,14 @@ export const ProgressReportTable = ({
     const isOwnEntry = report.createdBy && String(report.createdBy) === String(currentUserId);
     
     // Show entry if: user is admin OR user created the entry
-    return isAdmin || isOwnEntry;
+    const canView = isAdmin || isOwnEntry;
+    if (!canView) return false;
+
+    if (memberFilter !== 'all' && report.memberName !== memberFilter) {
+      return false;
+    }
+
+    return true;
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (filteredReports.length === 0) {
@@ -253,6 +273,30 @@ export const ProgressReportTable = ({
 
   return (
     <div className="bg-white rounded-lg shadow-card-soft overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-surface-ground">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+          <div>
+            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-1">
+              Person
+            </label>
+            <select
+              id="memberFilter"
+              value={memberFilter}
+              onChange={(event) => setMemberFilter(event.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="all">All Members</option>
+              {uniqueMembers.map((memberName) => (
+                <option key={memberName} value={memberName}>
+                  {memberName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-sm text-gray-600 md:text-right">Showing {filteredReports.length} entries</p>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1200px]">
           <thead className="bg-gradient-hero border-b border-forest-green">
