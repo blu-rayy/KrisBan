@@ -335,14 +335,14 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       ) : (
         <div className="bg-white rounded-xl shadow-card-soft overflow-hidden border border-gray-100">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full min-w-[1200px] border-collapse">
               <thead>
                 <tr className="bg-gradient-hero h-14">
                   <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Date</th>
                   <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Member</th>
                   <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Sprint #</th>
                   <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Team Plan</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white whitespace-nowrap w-56 min-w-[14rem]">Category</th>
                   <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">What I Did Today</th>
                 </tr>
               </thead>
@@ -365,9 +365,9 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                     <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100">
                       {report.teamPlan || '-'}
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-100">
+                    <td className="px-6 py-4 text-sm border border-gray-100 whitespace-nowrap w-56 min-w-[14rem]">
                       <span
-                        className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('category', report.category)}`}
+                        className={`px-3 py-1 rounded-full font-medium text-sm inline-flex whitespace-nowrap ${getBadgeStyle('category', report.category)}`}
                       >
                         {report.category}
                       </span>

@@ -254,14 +254,14 @@ export const ProgressReportTable = ({
   return (
     <div className="bg-white rounded-lg shadow-card-soft overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[1200px]">
           <thead className="bg-gradient-hero border-b border-forest-green">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Date</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Member</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Sprint #</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Team Plan</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Category</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap w-56 min-w-[14rem]">Category</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">What I Did Today</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Actions</th>
             </tr>
@@ -286,8 +286,8 @@ export const ProgressReportTable = ({
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {report.teamPlan || '-'}
                 </td>
-                <td className="px-6 py-4 text-sm">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getBadgeStyle('category', report.category)}`}>
+                <td className="px-6 py-4 text-sm whitespace-nowrap w-56 min-w-[14rem]">
+                  <span className={`inline-flex items-center whitespace-nowrap px-3 py-1 rounded-full text-sm font-medium ${getBadgeStyle('category', report.category)}`}>
                     {report.category}
                   </span>
                 </td>

@@ -8,6 +8,42 @@ import { SME_STATUSES } from '../utils/smeOutreachMockData';
 import { parseSmeTemplate } from '../utils/smeTemplateParser';
 import { emailsCrmService } from '../services/api';
 
+const EMAILS_CRM_WARM_BOOT_CACHE_KEY = 'emailsCrmWarmBootCacheV1';
+
+const loadWarmBootCache = () => {
+  try {
+    const raw = localStorage.getItem(EMAILS_CRM_WARM_BOOT_CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    return {
+      smes: Array.isArray(parsed.smes) ? parsed.smes : [],
+      templates: Array.isArray(parsed.templates) ? parsed.templates : [],
+      pointPeople: Array.isArray(parsed.pointPeople) ? parsed.pointPeople : []
+    };
+  } catch (_error) {
+    return null;
+  }
+};
+
+const saveWarmBootCache = ({ smes, templates, pointPeople }) => {
+  try {
+    localStorage.setItem(
+      EMAILS_CRM_WARM_BOOT_CACHE_KEY,
+      JSON.stringify({
+        smes: Array.isArray(smes) ? smes : [],
+        templates: Array.isArray(templates) ? templates : [],
+        pointPeople: Array.isArray(pointPeople) ? pointPeople : [],
+        updatedAt: new Date().toISOString()
+      })
+    );
+  } catch (_error) {
+    // Ignore localStorage write errors
+  }
+};
+
 const emptySmeForm = {
   name: '',
   title: '',
@@ -46,15 +82,29 @@ export const SMEOutreachView = () => {
     const loadEmailsCrmData = async () => {
       try {
         setIsLoading(true);
+
+        const cachedData = loadWarmBootCache();
+        if (cachedData && cachedData.smes.length > 0) {
+          setSmes(cachedData.smes);
+          setTemplates(cachedData.templates);
+          setPointPeople(cachedData.pointPeople);
+          setIsLoading(false);
+        }
+
         const [smesResponse, templatesResponse, pointPeopleResponse] = await Promise.all([
           emailsCrmService.getSmes(),
           emailsCrmService.getTemplates(),
           emailsCrmService.getPointPeople()
         ]);
 
-        setSmes(smesResponse?.data?.data || []);
-        setTemplates(templatesResponse?.data?.data || []);
-        setPointPeople(pointPeopleResponse?.data?.data || []);
+        const nextSmes = smesResponse?.data?.data || [];
+        const nextTemplates = templatesResponse?.data?.data || [];
+        const nextPointPeople = pointPeopleResponse?.data?.data || [];
+
+        setSmes(nextSmes);
+        setTemplates(nextTemplates);
+        setPointPeople(nextPointPeople);
+        saveWarmBootCache({ smes: nextSmes, templates: nextTemplates, pointPeople: nextPointPeople });
         setErrorMessage('');
       } catch (error) {
         setErrorMessage(error?.response?.data?.message || 'Failed to load Emails CRM data');

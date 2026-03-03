@@ -30,6 +30,48 @@ const PointPersonCell = ({ name, profilePicture }) => (
   </div>
 );
 
+const getBusinessDaysSinceLastContact = (lastContactDate) => {
+  if (!lastContactDate) return Number.POSITIVE_INFINITY;
+
+  const startDate = new Date(lastContactDate);
+  if (Number.isNaN(startDate.getTime())) return Number.POSITIVE_INFINITY;
+
+  const today = new Date();
+  const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  if (start >= end) return 0;
+
+  let businessDays = 0;
+  const cursor = new Date(start);
+  cursor.setDate(cursor.getDate() + 1);
+
+  while (cursor <= end) {
+    const day = cursor.getDay();
+    const isWeekday = day !== 0 && day !== 6;
+    if (isWeekday) businessDays += 1;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return businessDays;
+};
+
+const getDesktopRowClassByAge = (businessDaysSinceLastContact) => {
+  if (businessDaysSinceLastContact <= 7) return 'bg-emerald-50/40 hover:bg-emerald-50';
+  if (businessDaysSinceLastContact <= 10) return 'bg-rose-50/50 hover:bg-rose-50';
+  if (businessDaysSinceLastContact <= 15) return 'bg-red-50/60 hover:bg-red-50';
+  if (businessDaysSinceLastContact <= 20) return 'bg-red-100/60 hover:bg-red-100';
+  return 'bg-red-100/80 hover:bg-red-100';
+};
+
+const getMobileCardClassByAge = (businessDaysSinceLastContact) => {
+  if (businessDaysSinceLastContact <= 7) return 'border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50';
+  if (businessDaysSinceLastContact <= 10) return 'border-rose-100 bg-rose-50/50 hover:bg-rose-50';
+  if (businessDaysSinceLastContact <= 15) return 'border-red-100 bg-red-50/60 hover:bg-red-50';
+  if (businessDaysSinceLastContact <= 20) return 'border-red-200 bg-red-100/60 hover:bg-red-100';
+  return 'border-red-200 bg-red-100/80 hover:bg-red-100';
+};
+
 export const SMERoster = ({
   smes,
   selectedSmeId,
@@ -71,11 +113,13 @@ export const SMERoster = ({
           <tbody className="divide-y divide-slate-200 bg-slate-50 text-slate-800">
             {smes.map((sme) => {
               const isSelected = selectedSmeId === sme.id;
+              const businessDaysSinceLastContact = getBusinessDaysSinceLastContact(sme.lastContactDate);
+              const ageClass = getDesktopRowClassByAge(businessDaysSinceLastContact);
 
               return (
                 <tr
                   key={sme.id}
-                  className={`cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50' : 'hover:bg-slate-100'}`}
+                  className={`cursor-pointer transition-colors ${isSelected ? 'bg-emerald-100' : ageClass}`}
                   onClick={() => onSelectSme(sme.id)}
                 >
                   <td className="px-4 py-3">
@@ -128,6 +172,8 @@ export const SMERoster = ({
       <div className="space-y-3 lg:hidden">
         {smes.map((sme) => {
           const isSelected = selectedSmeId === sme.id;
+          const businessDaysSinceLastContact = getBusinessDaysSinceLastContact(sme.lastContactDate);
+          const ageClass = getMobileCardClassByAge(businessDaysSinceLastContact);
 
           return (
             <div
@@ -136,7 +182,7 @@ export const SMERoster = ({
               className={`w-full rounded-lg border p-4 text-left transition-colors ${
                 isSelected
                   ? 'border-emerald-300 bg-emerald-50'
-                  : 'border-slate-200 bg-slate-100 hover:bg-slate-50'
+                  : ageClass
               }`}
             >
               <div className="flex items-start justify-between gap-3">
