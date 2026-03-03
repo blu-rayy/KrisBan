@@ -525,8 +525,30 @@ export const ProgressReportsView = () => {
     }
   };
 
+  const pageHeading =
+    activeTab === 'sprint-tracker'
+      ? {
+          title: 'Add Sprint Entry',
+          description: 'Record your daily progress and task completion'
+        }
+      : activeTab === 'generate-report'
+      ? {
+          title: 'Report Generator',
+          description:
+            'Select a reporting week, generate daily draft rows from existing entries, edit if needed, then save.'
+        }
+      : {
+          title: 'Sprint Entries',
+          description: 'View all team progress entries'
+        };
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      <div>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal">{pageHeading.title}</h2>
+        <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{pageHeading.description}</p>
+      </div>
+
       <div className="flex gap-4 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('view')}
@@ -575,11 +597,6 @@ export const ProgressReportsView = () => {
 
       {activeTab === 'view' && (
         <div className="space-y-6">
-          <div>
-            <h2 className="text-3xl font-bold text-dark-charcoal">Sprint Entries</h2>
-            <p className="text-gray-600">View all team progress entries</p>
-          </div>
-
           <ProgressReportViewOnly
             reports={progressReports}
             loading={reportsLoading}
@@ -606,11 +623,6 @@ export const ProgressReportsView = () => {
 
       {activeTab === 'sprint-tracker' && (
         <div className="space-y-6">
-          <div>
-            <h2 className="text-3xl font-bold text-dark-charcoal">Add Sprint Entry</h2>
-            <p className="text-gray-600">Record your daily progress and task completion</p>
-          </div>
-
           <ProgressReportForm
             members={allUsers.length > 0 ? allUsers : [user].filter(Boolean)}
             reports={progressReports}
@@ -649,13 +661,6 @@ export const ProgressReportsView = () => {
       {activeTab === 'generate-report' && user?.role === 'ADMIN' && (
         <div className="space-y-6">
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-4">
-            <div>
-              <h2 className="text-3xl font-bold text-forest-green">Weekly Report Generator</h2>
-              <p className="text-gray-700">
-                Select a reporting week, generate daily draft rows from existing entries, edit if needed, then save.
-              </p>
-            </div>
-
             {reportError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {reportError}

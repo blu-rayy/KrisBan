@@ -55,7 +55,7 @@ export const SprintsView = ({ userRole }) => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal">Sprints</h1>
-          <p className="text-gray-600 text-sm mt-1">Manage sprints and their associated team plans</p>
+          <p className="text-gray-600 text-sm sm:text-base lg:text-lg">Manage sprints and their associated team plans</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

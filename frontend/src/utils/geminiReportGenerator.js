@@ -30,8 +30,27 @@ export const generateFormattedReportWithGemini = async (progressReports, date) =
       }
     });
 
-    const buildFallbackSummary = () => {
-      return 'The team completed planned work items and updated project deliverables for this date. The completed activities support current implementation and documentation objectives.';
+    const buildFallbackSummary = (tasks = []) => {
+      const cleanedTasks = tasks
+        .map((task) => String(task || '').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+
+      const uniqueTasks = [];
+      const seenTasks = new Set();
+      cleanedTasks.forEach((task) => {
+        const key = task.toLowerCase();
+        if (!seenTasks.has(key)) {
+          seenTasks.add(key);
+          uniqueTasks.push(task);
+        }
+      });
+
+      if (uniqueTasks.length === 0) {
+        return 'The team completed planned work items and updated project deliverables for this date. The completed activities support current implementation and documentation objectives.';
+      }
+
+      const highlights = uniqueTasks.slice(0, 3).join('; ');
+      return `The team completed work on ${highlights}. These activities supported current sprint goals and report deliverables.`;
     };
 
     const truncateToWordLimit = (text, limit = 11) => {
@@ -77,21 +96,11 @@ export const generateFormattedReportWithGemini = async (progressReports, date) =
       });
 
       let selectedSentences = uniqueSentences.slice(0, 3);
-      if (selectedSentences.length < 2) {
-        return buildFallbackSummary();
+      if (selectedSentences.length < 1) {
+        return buildFallbackSummary(allTasks);
       }
 
       return selectedSentences.slice(0, 3).join(' ');
-    };
-
-    const buildMemberLinesFromData = () => {
-      return requiredMembers
-        .map((memberName) => {
-          const tasks = (memberReports[memberName] || []).filter((task) => String(task || '').trim());
-          const memberTask = tasks.length > 0 ? truncateToWordLimit(tasks[0], 11) : 'No task recorded for this date.';
-          return `${memberName}: ${memberTask}`;
-        })
-        .join('\n');
     };
 
     // If no accomplishments were provided, skip Gemini prompt and return deterministic fallback
@@ -116,7 +125,7 @@ export const generateFormattedReportWithGemini = async (progressReports, date) =
       'ANGEL:',
       'MICHAEL:',
       'MARIANNE:',
-      '- Write 2 to 3 sentences for the team summary.',
+      '- Write 2 sentences for the team summary.',
       '- Describe the team collective work only.',
       '- Do not mention any individual names.',
       '- Do not restate individual tasks in detail.',
@@ -163,7 +172,7 @@ export const generateFormattedReportWithGemini = async (progressReports, date) =
       .filter(Boolean);
 
     const summarySource = summaryCandidates.join(' ').trim();
-    const summaryText = summarySource ? enforceTeamSummaryRules(summarySource) : buildFallbackSummary();
+    const summaryText = summarySource ? enforceTeamSummaryRules(summarySource) : buildFallbackSummary(allTasks);
 
     const memberEntries = {};
     requiredMembers.forEach((memberName) => {

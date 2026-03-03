@@ -5,6 +5,7 @@ import { Sidebar } from '../components/Sidebar';
 import { DashboardView } from '../components/DashboardView';
 import { ProgressReportsView } from '../components/ProgressReportsView';
 import { SprintsView } from '../components/SprintsView';
+import { SMEOutreachView } from '../components/SMEOutreachView';
 import { PlaceholderSection } from '../components/PlaceholderSection';
 import { ChangePasswordModal } from '../components/ChangePasswordModal';
 import { ProfileDropdown } from '../components/ProfileDropdown';
@@ -180,6 +181,7 @@ export const DashboardPage = () => {
           {activeSection === 'dashboard' && <DashboardView dashboardData={dashboardData} userRole={user?.role} />}
           {activeSection === 'progress-reports' && <ProgressReportsView />}
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
+          {activeSection === 'emails' && <SMEOutreachView />}
           {activeSection === 'kanban' && <PlaceholderSection title="KanBan" icon="📊" />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <PlaceholderSection title="Tickets" icon="🎫" />}

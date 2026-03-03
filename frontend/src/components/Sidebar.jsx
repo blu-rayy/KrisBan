@@ -7,6 +7,7 @@ import {
   FlashIcon,
   HelpCircleIcon,
   KanbanIcon,
+  Mail01Icon,
   Menu01Icon,
   Settings01Icon,
   Ticket01Icon
@@ -43,6 +44,14 @@ export const Sidebar = ({
       id: 'sprints',
       label: 'Sprints',
       icon: FlashIcon,
+      status: 'active',
+      visibility: 'all',
+      section: 'MENU'
+    },
+    {
+      id: 'emails',
+      label: 'Emails',
+      icon: Mail01Icon,
       status: 'active',
       visibility: 'all',
       section: 'MENU'
