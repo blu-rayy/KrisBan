@@ -115,6 +115,7 @@ export const weeklyReportService = {
 
 export const emailsCrmService = {
   getSmes: () => api.get('/emails-crm/smes'),
+  getPointPeople: () => api.get('/emails-crm/point-people'),
   createSme: (payload) => api.post('/emails-crm/smes', payload),
   updateSme: (id, payload) => api.put(`/emails-crm/smes/${id}`, payload),
   deleteSme: (id) => api.delete(`/emails-crm/smes/${id}`),

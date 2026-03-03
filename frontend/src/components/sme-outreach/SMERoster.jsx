@@ -2,6 +2,34 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons';
 import { SMEStatusBadge } from './SMEStatusBadge';
 
+const getInitials = (fullName = '') => {
+  const parts = String(fullName || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (parts.length === 0) return '?';
+  return parts.map((part) => part[0].toUpperCase()).join('');
+};
+
+const PointPersonCell = ({ name, profilePicture }) => (
+  <div className="flex items-center gap-2">
+    {profilePicture ? (
+      <img
+        src={profilePicture}
+        alt={name || 'Point person'}
+        className="h-7 w-7 rounded-full border border-slate-200 object-cover"
+      />
+    ) : (
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-200 text-[10px] font-semibold text-slate-700">
+        {getInitials(name)}
+      </span>
+    )}
+    <span className="text-slate-700">{name || 'N/A'}</span>
+  </div>
+);
+
 export const SMERoster = ({
   smes,
   selectedSmeId,
@@ -55,7 +83,9 @@ export const SMERoster = ({
                     <p className="text-xs text-slate-600">{sme.title}</p>
                   </td>
                   <td className="px-4 py-3 text-slate-700">{sme.organization}</td>
-                  <td className="px-4 py-3 text-slate-700">{sme.pointPerson}</td>
+                  <td className="px-4 py-3 text-slate-700">
+                    <PointPersonCell name={sme.pointPerson} profilePicture={sme.pointPersonProfilePicture} />
+                  </td>
                   <td className="px-4 py-3">
                     <SMEStatusBadge status={sme.status} />
                   </td>
@@ -118,7 +148,10 @@ export const SMERoster = ({
               </div>
               <div className="mt-3 space-y-1 text-sm text-slate-700">
                 <p>{sme.organization}</p>
-                <p>Point Person: {sme.pointPerson}</p>
+                <div className="flex items-center gap-2">
+                  <span>Point Person:</span>
+                  <PointPersonCell name={sme.pointPerson} profilePicture={sme.pointPersonProfilePicture} />
+                </div>
                 <p>Last Contact: {sme.lastContactDate || 'N/A'}</p>
               </div>
               <div className="mt-3 flex items-center gap-2">

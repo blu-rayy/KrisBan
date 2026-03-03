@@ -2,6 +2,7 @@ import express from 'express';
 import { protect } from '../middleware/auth.js';
 import {
   getSmes,
+  getPointPeople,
   createSme,
   updateSme,
   deleteSme,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/smes', getSmes);
+router.get('/point-people', getPointPeople);
 router.post('/smes', createSme);
 router.put('/smes/:id', updateSme);
 router.delete('/smes/:id', deleteSme);

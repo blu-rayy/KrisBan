@@ -4,7 +4,7 @@ import { BubbleChatIcon, DocumentAttachmentIcon } from '@hugeicons/core-free-ico
 import { OutreachHub } from './sme-outreach/OutreachHub';
 import { SMERoster } from './sme-outreach/SMERoster';
 import { TemplateManagerPanel } from './sme-outreach/TemplateManagerPanel';
-import { POINT_PEOPLE, SME_STATUSES } from '../utils/smeOutreachMockData';
+import { SME_STATUSES } from '../utils/smeOutreachMockData';
 import { parseSmeTemplate } from '../utils/smeTemplateParser';
 import { emailsCrmService } from '../services/api';
 
@@ -12,7 +12,8 @@ const emptySmeForm = {
   name: '',
   title: '',
   organization: '',
-  pointPerson: POINT_PEOPLE[0],
+  pointPersonUserId: '',
+  pointPersonNameSnapshot: '',
   status: SME_STATUSES[0],
   lastContactDate: '',
   notes: ''
@@ -25,6 +26,7 @@ const emptyTemplateForm = {
 
 export const SMEOutreachView = () => {
   const [smes, setSmes] = useState([]);
+  const [pointPeople, setPointPeople] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedSmeId, setSelectedSmeId] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -44,13 +46,15 @@ export const SMEOutreachView = () => {
     const loadEmailsCrmData = async () => {
       try {
         setIsLoading(true);
-        const [smesResponse, templatesResponse] = await Promise.all([
+        const [smesResponse, templatesResponse, pointPeopleResponse] = await Promise.all([
           emailsCrmService.getSmes(),
-          emailsCrmService.getTemplates()
+          emailsCrmService.getTemplates(),
+          emailsCrmService.getPointPeople()
         ]);
 
         setSmes(smesResponse?.data?.data || []);
         setTemplates(templatesResponse?.data?.data || []);
+        setPointPeople(pointPeopleResponse?.data?.data || []);
         setErrorMessage('');
       } catch (error) {
         setErrorMessage(error?.response?.data?.message || 'Failed to load Emails CRM data');
@@ -61,6 +65,23 @@ export const SMEOutreachView = () => {
 
     loadEmailsCrmData();
   }, []);
+
+  useEffect(() => {
+    if (!showSmeForm) return;
+
+    setSmeForm((current) => {
+      if (current.pointPersonUserId || current.pointPersonNameSnapshot || pointPeople.length === 0) {
+        return current;
+      }
+
+      const defaultPointPerson = pointPeople[0];
+      return {
+        ...current,
+        pointPersonUserId: defaultPointPerson?.id || '',
+        pointPersonNameSnapshot: defaultPointPerson?.fullName || ''
+      };
+    });
+  }, [pointPeople, showSmeForm]);
 
   const selectedSme = useMemo(
     () => smes.find((sme) => sme.id === selectedSmeId) || null,
@@ -142,7 +163,8 @@ export const SMEOutreachView = () => {
       name: sme.name || '',
       title: sme.title || '',
       organization: sme.organization || '',
-      pointPerson: sme.pointPerson || POINT_PEOPLE[0],
+      pointPersonUserId: sme.pointPersonUserId || '',
+      pointPersonNameSnapshot: sme.pointPersonNameSnapshot || sme.pointPerson || '',
       status: sme.status || SME_STATUSES[0],
       lastContactDate: sme.lastContactDate || '',
       notes: sme.notes || ''
@@ -378,16 +400,34 @@ export const SMEOutreachView = () => {
               className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
             />
             <select
-              value={smeForm.pointPerson}
-              onChange={(event) => setSmeForm((current) => ({ ...current, pointPerson: event.target.value }))}
+              value={smeForm.pointPersonUserId}
+              onChange={(event) => {
+                const selectedUser = pointPeople.find((person) => person.id === event.target.value);
+                setSmeForm((current) => ({
+                  ...current,
+                  pointPersonUserId: event.target.value,
+                  pointPersonNameSnapshot: selectedUser?.fullName || current.pointPersonNameSnapshot
+                }));
+              }}
               className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
             >
-              {POINT_PEOPLE.map((person) => (
-                <option key={person} value={person}>
-                  {person}
+              <option value="">Select point person...</option>
+              {pointPeople.map((person) => (
+                <option key={person.id} value={person.id}>
+                  {person.fullName}
                 </option>
               ))}
             </select>
+            <input
+              type="text"
+              value={smeForm.pointPersonNameSnapshot}
+              onChange={(event) =>
+                setSmeForm((current) => ({ ...current, pointPersonNameSnapshot: event.target.value }))
+              }
+              placeholder="Point Person Name (snapshot)"
+              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+              required
+            />
             <select
               value={smeForm.status}
               onChange={(event) => setSmeForm((current) => ({ ...current, status: event.target.value }))}

@@ -1,20 +1,34 @@
 import EmailsCrm from '../models/EmailsCrm.js';
 
-const POINT_PEOPLE = ['Kristian', 'Marianne', 'Angel', 'Michael'];
 const SME_STATUSES = ['Draft', 'Sent', 'Waiting', 'Responded', 'No Reply'];
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const validateSmePayload = (payload, { partial = false } = {}) => {
-  const requiredFields = ['name', 'title', 'organization', 'pointPerson', 'status'];
+  const requiredFields = ['name', 'title', 'organization', 'status'];
 
   if (!partial) {
     const missingField = requiredFields.find((field) => !String(payload?.[field] || '').trim());
     if (missingField) {
       return `${missingField} is required`;
     }
+
+    const hasPointPersonId = !!String(payload?.pointPersonUserId || '').trim();
+    const hasPointPersonName = !!String(payload?.pointPersonNameSnapshot || payload?.pointPerson || '').trim();
+
+    if (!hasPointPersonId && !hasPointPersonName) {
+      return 'pointPersonUserId or pointPersonNameSnapshot is required';
+    }
   }
 
-  if (payload.pointPerson !== undefined && !POINT_PEOPLE.includes(payload.pointPerson)) {
-    return 'Invalid pointPerson value';
+  if (payload.pointPersonUserId !== undefined) {
+    const normalized = String(payload.pointPersonUserId || '').trim();
+    if (normalized && !UUID_REGEX.test(normalized)) {
+      return 'Invalid pointPersonUserId value';
+    }
+  }
+
+  if (payload.pointPersonNameSnapshot !== undefined && !String(payload.pointPersonNameSnapshot || '').trim()) {
+    return 'pointPersonNameSnapshot cannot be empty';
   }
 
   if (payload.status !== undefined && !SME_STATUSES.includes(payload.status)) {
@@ -44,6 +58,15 @@ export const getSmes = async (_req, res) => {
     res.status(200).json({ success: true, data: smes });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch SMEs' });
+  }
+};
+
+export const getPointPeople = async (_req, res) => {
+  try {
+    const pointPeople = await EmailsCrm.listPointPeople();
+    res.status(200).json({ success: true, data: pointPeople });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch point people' });
   }
 };
 
