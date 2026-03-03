@@ -1,6 +1,17 @@
 import { SME_STATUSES } from '../../utils/smeOutreachMockData';
 import { SMEStatusBadge } from './SMEStatusBadge';
 
+const getInitials = (fullName = '') => {
+  const parts = String(fullName || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (parts.length === 0) return '?';
+  return parts.map((part) => part[0].toUpperCase()).join('');
+};
+
 export const OutreachHub = ({
   selectedSme,
   templates,
@@ -21,6 +32,21 @@ export const OutreachHub = ({
         <p className="mt-3 text-base font-medium text-slate-800">{selectedSme.name}</p>
         <p className="text-sm text-slate-700">{selectedSme.title}</p>
         <p className="text-sm text-slate-700">{selectedSme.organization}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-sm text-slate-700">Point Person:</span>
+          {selectedSme.pointPersonProfilePicture ? (
+            <img
+              src={selectedSme.pointPersonProfilePicture}
+              alt={selectedSme.pointPerson || 'Point person'}
+              className="h-7 w-7 rounded-full border border-slate-200 object-cover"
+            />
+          ) : (
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-200 text-[10px] font-semibold text-slate-700">
+              {getInitials(selectedSme.pointPerson)}
+            </span>
+          )}
+          <span className="text-sm font-medium text-slate-700">{selectedSme.pointPerson || 'N/A'}</span>
+        </div>
         <div className="mt-3 flex items-center gap-2">
           <span className="text-sm text-slate-700">Current Status:</span>
           <SMEStatusBadge status={selectedSme.status} />

@@ -5,26 +5,38 @@ const TEMPLATES_TABLE = 'emails_crm_templates';
 
 const formatPointPerson = (userRow = {}) => ({
   id: String(userRow.id),
-  fullName: userRow.full_name,
+  username: userRow.username || '',
   profilePicture: userRow.profile_picture || null
 });
 
-const enrichSmeRows = async (rows = []) => {
-  const userIds = [...new Set(
-    rows
-      .map((row) => row.point_person_user_id)
-      .filter(Boolean)
-      .map((id) => String(id))
-  )];
+const normalizeText = (value) => String(value || '').trim().toLowerCase();
 
-  if (userIds.length === 0) {
+const getPrimaryNameToken = (value) => normalizeText(value).split(/\s+/).filter(Boolean)[0] || '';
+
+const findUserBySnapshot = (users = [], snapshotValue = '') => {
+  const normalizedSnapshot = normalizeText(snapshotValue);
+  if (!normalizedSnapshot) return null;
+
+  const snapshotToken = getPrimaryNameToken(snapshotValue);
+
+  const exactMatch = users.find((user) => normalizeText(user.username) === normalizedSnapshot);
+
+  if (exactMatch) return exactMatch;
+
+  return users.find((user) => {
+    const usernameToken = getPrimaryNameToken(user.username);
+    return usernameToken === snapshotToken;
+  }) || null;
+};
+
+const enrichSmeRows = async (rows = []) => {
+  if (!rows.length) {
     return rows;
   }
 
   const { data: users, error } = await supabase
     .from('users')
-    .select('id, full_name, profile_picture')
-    .in('id', userIds);
+    .select('id, username, profile_picture');
 
   if (error) throw new Error(error.message);
 
@@ -32,9 +44,13 @@ const enrichSmeRows = async (rows = []) => {
 
   return rows.map((row) => ({
     ...row,
-    point_person_user: row.point_person_user_id
-      ? usersById.get(String(row.point_person_user_id)) || null
-      : null
+    point_person_user: (() => {
+      if (row.point_person_user_id) {
+        return usersById.get(String(row.point_person_user_id)) || null;
+      }
+
+      return findUserBySnapshot(users || [], row.point_person_name_snapshot);
+    })()
   }));
 };
 
@@ -45,7 +61,7 @@ const formatSme = (row = {}) => ({
   organization: row.organization,
   pointPersonUserId: row.point_person_user_id ? String(row.point_person_user_id) : null,
   pointPersonNameSnapshot: row.point_person_name_snapshot,
-  pointPerson: row.point_person_user?.full_name || row.point_person_name_snapshot || '',
+  pointPerson: row.point_person_user?.username || row.point_person_name_snapshot || '',
   pointPersonProfilePicture: row.point_person_user?.profile_picture || null,
   status: row.status,
   lastContactDate: row.last_contact_date,
@@ -79,9 +95,9 @@ class EmailsCrm {
   static async listPointPeople() {
     const { data, error } = await supabase
       .from('users')
-      .select('id, full_name, profile_picture')
+      .select('id, username, profile_picture')
       .eq('is_active', true)
-      .order('full_name', { ascending: true });
+      .order('username', { ascending: true });
 
     if (error) throw new Error(error.message);
     return (data || []).map(formatPointPerson);
@@ -92,12 +108,24 @@ class EmailsCrm {
 
     const { data, error } = await supabase
       .from('users')
-      .select('id, full_name, profile_picture')
+      .select('id, username, profile_picture')
       .eq('id', String(userId))
       .maybeSingle();
 
     if (error) throw new Error(error.message);
     return data || null;
+  }
+
+  static async getPointPersonByName(name) {
+    const normalizedName = String(name || '').trim();
+    if (!normalizedName) return null;
+
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, username, profile_picture');
+
+    if (error) throw new Error(error.message);
+    return findUserBySnapshot(users || [], normalizedName);
   }
 
   static async getSmeById(id) {
@@ -124,7 +152,13 @@ class EmailsCrm {
       }
 
       pointPersonUserId = String(pointPersonUser.id);
-      pointPersonNameSnapshot = pointPersonUser.full_name || pointPersonNameSnapshot;
+      pointPersonNameSnapshot = pointPersonUser.username || pointPersonNameSnapshot;
+    } else if (pointPersonNameSnapshot) {
+      const pointPersonUser = await this.getPointPersonByName(pointPersonNameSnapshot);
+      if (pointPersonUser) {
+        pointPersonUserId = String(pointPersonUser.id);
+        pointPersonNameSnapshot = pointPersonUser.username || pointPersonNameSnapshot;
+      }
     }
 
     const { data, error } = await supabase
@@ -166,9 +200,9 @@ class EmailsCrm {
         updateData.point_person_user_id = String(pointPersonUser.id);
 
         if (payload.pointPersonNameSnapshot !== undefined) {
-          updateData.point_person_name_snapshot = String(payload.pointPersonNameSnapshot || '').trim() || pointPersonUser.full_name;
+          updateData.point_person_name_snapshot = String(payload.pointPersonNameSnapshot || '').trim() || pointPersonUser.username;
         } else {
-          updateData.point_person_name_snapshot = pointPersonUser.full_name;
+          updateData.point_person_name_snapshot = pointPersonUser.username;
         }
       } else {
         updateData.point_person_user_id = null;
@@ -181,6 +215,17 @@ class EmailsCrm {
 
     if (payload.pointPerson !== undefined && updateData.point_person_name_snapshot === undefined) {
       updateData.point_person_name_snapshot = String(payload.pointPerson || '').trim();
+    }
+
+    if (
+      !updateData.point_person_user_id &&
+      updateData.point_person_name_snapshot
+    ) {
+      const pointPersonUser = await this.getPointPersonByName(updateData.point_person_name_snapshot);
+      if (pointPersonUser) {
+        updateData.point_person_user_id = String(pointPersonUser.id);
+        updateData.point_person_name_snapshot = pointPersonUser.username || updateData.point_person_name_snapshot;
+      }
     }
 
     if (payload.status !== undefined) updateData.status = payload.status;

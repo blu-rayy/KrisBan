@@ -78,7 +78,7 @@ export const SMEOutreachView = () => {
       return {
         ...current,
         pointPersonUserId: defaultPointPerson?.id || '',
-        pointPersonNameSnapshot: defaultPointPerson?.fullName || ''
+        pointPersonNameSnapshot: defaultPointPerson?.username || ''
       };
     });
   }, [pointPeople, showSmeForm]);
@@ -406,7 +406,7 @@ export const SMEOutreachView = () => {
                 setSmeForm((current) => ({
                   ...current,
                   pointPersonUserId: event.target.value,
-                  pointPersonNameSnapshot: selectedUser?.fullName || current.pointPersonNameSnapshot
+                  pointPersonNameSnapshot: selectedUser?.username || current.pointPersonNameSnapshot
                 }));
               }}
               className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
@@ -414,7 +414,7 @@ export const SMEOutreachView = () => {
               <option value="">Select point person...</option>
               {pointPeople.map((person) => (
                 <option key={person.id} value={person.id}>
-                  {person.fullName}
+                  {person.username}
                 </option>
               ))}
             </select>
@@ -424,7 +424,7 @@ export const SMEOutreachView = () => {
               onChange={(event) =>
                 setSmeForm((current) => ({ ...current, pointPersonNameSnapshot: event.target.value }))
               }
-              placeholder="Point Person Name (snapshot)"
+              placeholder="Point Person Username (snapshot)"
               className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
               required
             />
