@@ -30,6 +30,26 @@ const PointPersonCell = ({ name, profilePicture }) => (
   </div>
 );
 
+const SmeAvatar = ({ name, profilePicture, size = 'md' }) => {
+  const sizeClasses = size === 'lg'
+    ? 'h-10 w-10 text-sm'
+    : 'h-8 w-8 text-[11px]';
+
+  return profilePicture ? (
+    <img
+      src={profilePicture}
+      alt={name || 'SME'}
+      className={`${sizeClasses} flex-shrink-0 rounded-full border-2 border-slate-200 object-cover`}
+    />
+  ) : (
+    <span
+      className={`${sizeClasses} inline-flex flex-shrink-0 items-center justify-center rounded-full border-2 border-emerald-100 bg-emerald-50 font-bold text-emerald-700`}
+    >
+      {getInitials(name)}
+    </span>
+  );
+};
+
 const getBusinessDaysSinceLastContact = (lastContactDate) => {
   if (!lastContactDate) return Number.POSITIVE_INFINITY;
 
@@ -123,8 +143,13 @@ export const SMERoster = ({
                   onClick={() => onSelectSme(sme.id)}
                 >
                   <td className="px-4 py-3">
-                    <p className="font-medium text-slate-800">{sme.name}</p>
-                    <p className="text-xs text-slate-600">{sme.title}</p>
+                    <div className="flex items-center gap-3">
+                      <SmeAvatar name={sme.name} profilePicture={sme.profilePicture} />
+                      <div>
+                        <p className="font-medium text-slate-800">{sme.name}</p>
+                        <p className="text-xs text-slate-600">{sme.title}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-slate-700">{sme.organization}</td>
                   <td className="px-4 py-3 text-slate-700">
@@ -186,9 +211,12 @@ export const SMERoster = ({
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-slate-800">{sme.name}</p>
-                  <p className="text-sm text-slate-600">{sme.title}</p>
+                <div className="flex items-start gap-3">
+                  <SmeAvatar name={sme.name} profilePicture={sme.profilePicture} size="lg" />
+                  <div>
+                    <p className="font-semibold text-slate-800">{sme.name}</p>
+                    <p className="text-sm text-slate-600">{sme.title}</p>
+                  </div>
                 </div>
                 <SMEStatusBadge status={sme.status} />
               </div>
