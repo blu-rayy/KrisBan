@@ -8,7 +8,8 @@ if (isDev) {
 }
 
 const api = axios.create({
-  baseURL: API_BASE_URL
+  baseURL: API_BASE_URL,
+  timeout: 15000
 });
 
 const normalizeApiError = (error, fallbackMessage) => {
@@ -16,13 +17,19 @@ const normalizeApiError = (error, fallbackMessage) => {
   const backendMessage = error?.response?.data?.message;
   const rawMessage = backendMessage || error?.message || '';
   const isGatewayIssue = status === 502 || /502|bad gateway|cloudflare/i.test(rawMessage);
+  const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(rawMessage);
 
   const normalized = new Error(
-    isGatewayIssue ? 'Service is temporarily unavailable. Please try again in a moment.' : (backendMessage || fallbackMessage)
+    isTimeout
+      ? 'Request timed out. The server may be waking up — please try again in a moment.'
+      : isGatewayIssue
+      ? 'Service is temporarily unavailable. Please try again in a moment.'
+      : (backendMessage || fallbackMessage)
   );
 
   normalized.status = status;
   normalized.isUpstream502 = isGatewayIssue;
+  normalized.isTimeout = isTimeout;
   return normalized;
 };
 

@@ -26,6 +26,10 @@ export const LoginPage = () => {
       if (err.response?.status === 403 && err.response?.data?.requiresPasswordChange) {
         // This is expected - navigate to dashboard where modal will appear
         navigate('/dashboard');
+      } else if (err.code === 'ECONNABORTED' || /timeout/i.test(err.message)) {
+        setError('Request timed out. The server may be waking up — please try again in a moment.');
+      } else if (!err.response) {
+        setError('Unable to reach the server. Please check your connection and try again.');
       } else {
         setError(err.response?.data?.message || 'Login failed');
       }

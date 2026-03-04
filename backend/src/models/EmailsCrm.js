@@ -66,6 +66,11 @@ const formatSme = (row = {}) => ({
   status: row.status,
   lastContactDate: row.last_contact_date,
   notes: row.notes || '',
+  profilePicture: row.profile_picture || null,
+  summary: row.summary || '',
+  email: row.email || '',
+  phone: row.phone || '',
+  linkedinUrl: row.linkedin_url || '',
   createdBy: row.created_by ? String(row.created_by) : null,
   createdAt: row.created_at,
   updatedAt: row.updated_at
@@ -173,6 +178,11 @@ class EmailsCrm {
           status: payload.status,
           last_contact_date: payload.lastContactDate || null,
           notes: payload.notes || '',
+          profile_picture: payload.profilePicture || null,
+          summary: payload.summary || null,
+          email: payload.email || null,
+          phone: payload.phone || null,
+          linkedin_url: payload.linkedinUrl || null,
           created_by: userId
         }
       ])
@@ -231,6 +241,11 @@ class EmailsCrm {
     if (payload.status !== undefined) updateData.status = payload.status;
     if (payload.lastContactDate !== undefined) updateData.last_contact_date = payload.lastContactDate || null;
     if (payload.notes !== undefined) updateData.notes = payload.notes || '';
+    if (payload.profilePicture !== undefined) updateData.profile_picture = payload.profilePicture || null;
+    if (payload.summary !== undefined) updateData.summary = payload.summary || null;
+    if (payload.email !== undefined) updateData.email = payload.email || null;
+    if (payload.phone !== undefined) updateData.phone = payload.phone || null;
+    if (payload.linkedinUrl !== undefined) updateData.linkedin_url = payload.linkedinUrl || null;
 
     const { data, error } = await supabase
       .from(SMES_TABLE)

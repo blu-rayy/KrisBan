@@ -52,7 +52,12 @@ const emptySmeForm = {
   pointPersonNameSnapshot: '',
   status: SME_STATUSES[0],
   lastContactDate: '',
-  notes: ''
+  notes: '',
+  profilePicture: '',
+  summary: '',
+  email: '',
+  phone: '',
+  linkedinUrl: ''
 };
 
 const emptyTemplateForm = {
@@ -217,7 +222,12 @@ export const SMEOutreachView = () => {
       pointPersonNameSnapshot: sme.pointPersonNameSnapshot || sme.pointPerson || '',
       status: sme.status || SME_STATUSES[0],
       lastContactDate: sme.lastContactDate || '',
-      notes: sme.notes || ''
+      notes: sme.notes || '',
+      profilePicture: sme.profilePicture || '',
+      summary: sme.summary || '',
+      email: sme.email || '',
+      phone: sme.phone || '',
+      linkedinUrl: sme.linkedinUrl || ''
     });
     setShowSmeForm(true);
   };
@@ -496,6 +506,48 @@ export const SMEOutreachView = () => {
               rows={3}
               className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
             />
+
+            <div className="md:col-span-2">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Profile &amp; Contact</p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <input
+                  type="url"
+                  value={smeForm.profilePicture}
+                  onChange={(event) => setSmeForm((current) => ({ ...current, profilePicture: event.target.value }))}
+                  placeholder="Profile Picture URL"
+                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+                />
+                <textarea
+                  value={smeForm.summary}
+                  onChange={(event) => setSmeForm((current) => ({ ...current, summary: event.target.value }))}
+                  placeholder="Brief summary / bio"
+                  rows={2}
+                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+                />
+                <input
+                  type="email"
+                  value={smeForm.email}
+                  onChange={(event) => setSmeForm((current) => ({ ...current, email: event.target.value }))}
+                  placeholder="Email address"
+                  className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+                />
+                <input
+                  type="tel"
+                  value={smeForm.phone}
+                  onChange={(event) => setSmeForm((current) => ({ ...current, phone: event.target.value }))}
+                  placeholder="Phone / mobile number"
+                  className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+                />
+                <input
+                  type="url"
+                  value={smeForm.linkedinUrl}
+                  onChange={(event) => setSmeForm((current) => ({ ...current, linkedinUrl: event.target.value }))}
+                  placeholder="LinkedIn profile URL"
+                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+                />
+              </div>
+            </div>
+
             <div className="md:col-span-2 flex items-center gap-3">
               <button
                 type="submit"
