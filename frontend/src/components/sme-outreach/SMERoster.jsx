@@ -118,7 +118,7 @@ export const SMERoster = ({
         </div>
       </div>
 
-      <div className="hidden lg:block overflow-x-auto rounded-lg border border-slate-200 bg-slate-100">
+      <div className="hidden lg:block overflow-x-auto scrollbar-hide rounded-lg border border-slate-200 bg-slate-100">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="bg-slate-100 text-slate-700">
             <tr>

@@ -3,6 +3,7 @@ import { fetchProgressReports } from '../services/api';
 
 const fetchProgressReportsPage = async (filters = {}, page = 1, pageSize = 30) => {
   const data = await fetchProgressReports({
+    includeImages: false,
     ...filters,
     page,
     pageSize

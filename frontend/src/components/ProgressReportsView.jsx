@@ -386,7 +386,7 @@ export const ProgressReportsView = () => {
         let reportsForGemini = Array.isArray(row.sourceReports) ? row.sourceReports : [];
 
         if (reportsForGemini.length === 0 && rowDate) {
-          const dailyResponse = await dashboardService.getProgressReports({ date: rowDate });
+          const dailyResponse = await dashboardService.getProgressReports({ date: rowDate, includeImages: false });
           const dailyReports = dailyResponse?.data?.data || [];
 
           reportsForGemini = dailyReports

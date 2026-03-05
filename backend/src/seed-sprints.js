@@ -1,4 +1,15 @@
+import dotenv from 'dotenv';
 import { supabase } from './config/database.js';
+
+dotenv.config();
+
+// ⛔ Safety guard — never run seed scripts against production
+const supabaseUrl = process.env.SUPABASE_URL || '';
+if (supabaseUrl.includes('supabase.co')) {
+  console.error('\n⛔  BLOCKED: Seed scripts cannot run against the production Supabase database.');
+  console.error('    Set SUPABASE_URL to a local instance (e.g. http://localhost:54321) and retry.\n');
+  process.exit(1);
+}
 
 // Color palette for sprints (from controller)
 const SPRINT_COLORS = [

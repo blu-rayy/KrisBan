@@ -365,7 +365,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-card-soft overflow-hidden border border-gray-100">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full min-w-[1200px] border-collapse">
               <thead>
                 <tr className="bg-gradient-hero h-14">

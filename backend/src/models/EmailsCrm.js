@@ -86,17 +86,29 @@ const formatTemplate = (row = {}) => ({
   updatedAt: row.updated_at
 });
 
-const formatSmeLog = (row = {}) => ({
-  id: String(row.id),
-  smeId: String(row.sme_id),
-  logDate: row.log_date || null,
-  sentMessage: row.sent_message || '',
-  response: row.response || '',
-  templateId: row.template_id ? String(row.template_id) : null,
-  createdBy: row.created_by ? String(row.created_by) : null,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at
-});
+const formatSmeLog = (row = {}) => {
+  // Prefer explicit messages array; fall back to legacy sent_message/response for old rows
+  let messages;
+  if (Array.isArray(row.messages) && row.messages.length > 0) {
+    messages = row.messages;
+  } else {
+    messages = [
+      ...(row.sent_message ? [{ direction: 'sent', content: row.sent_message }] : []),
+      ...(row.response ? [{ direction: 'received', content: row.response }] : [])
+    ];
+  }
+
+  return {
+    id: String(row.id),
+    smeId: String(row.sme_id),
+    logDate: row.log_date || null,
+    messages,
+    templateId: row.template_id ? String(row.template_id) : null,
+    createdBy: row.created_by ? String(row.created_by) : null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+};
 
 class EmailsCrm {
   static async listSmes() {
@@ -350,14 +362,17 @@ class EmailsCrm {
   }
 
   static async createSmeLog(smeId, payload, userId) {
+    const messages = Array.isArray(payload.messages) && payload.messages.length > 0
+      ? payload.messages.map((m) => ({ direction: m.direction, content: m.content }))
+      : null;
+
     const { data, error } = await supabase
       .from(LOGS_TABLE)
       .insert([
         {
           sme_id: String(smeId),
           log_date: payload.logDate || null,
-          sent_message: payload.sentMessage || null,
-          response: payload.response || null,
+          messages,
           template_id: payload.templateId || null,
           created_by: userId || null
         }
@@ -375,8 +390,11 @@ class EmailsCrm {
     };
 
     if (payload.logDate !== undefined) updateData.log_date = payload.logDate || null;
-    if (payload.sentMessage !== undefined) updateData.sent_message = payload.sentMessage || null;
-    if (payload.response !== undefined) updateData.response = payload.response || null;
+    if (payload.messages !== undefined) {
+      updateData.messages = Array.isArray(payload.messages) && payload.messages.length > 0
+        ? payload.messages.map((m) => ({ direction: m.direction, content: m.content }))
+        : null;
+    }
     if (payload.templateId !== undefined) updateData.template_id = payload.templateId || null;
 
     const { data, error } = await supabase

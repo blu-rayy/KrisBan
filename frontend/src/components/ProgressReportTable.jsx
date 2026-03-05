@@ -297,7 +297,7 @@ export const ProgressReportTable = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto scrollbar-hide">
         <table className="w-full min-w-[1200px]">
           <thead className="bg-gradient-hero border-b border-forest-green">
             <tr>

@@ -58,7 +58,8 @@ export const DashboardPage = () => {
         const data = await fetchProgressReports({
           ...progressReportFilters,
           page: pageParam,
-          pageSize: progressReportPageSize
+          pageSize: progressReportPageSize,
+          includeImages: false
         });
 
         return {
@@ -170,7 +171,7 @@ export const DashboardPage = () => {
         />
 
         {/* Content Area - Add margin for fixed sidebar */}
-        <main className={`flex-1 overflow-auto transition-[margin-left] duration-300 ease-in-out ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+        <main className={`flex-1 overflow-auto scrollbar-hide transition-[margin-left] duration-300 ease-in-out ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
           {isError && error && (
             <div className="m-8 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error.message || 'Failed to load dashboard'}

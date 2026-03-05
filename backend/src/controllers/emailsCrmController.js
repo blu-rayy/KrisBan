@@ -165,8 +165,12 @@ export const getSmeLogsForSme = async (req, res) => {
 };
 
 const validateSmeLogPayload = (payload, { partial = false } = {}) => {
-  if (!partial && !String(payload?.sentMessage || '').trim() && !String(payload?.response || '').trim()) {
-    return 'At least a sent message or a response is required';
+  if (!partial) {
+    const hasMessages = Array.isArray(payload?.messages) &&
+      payload.messages.some((m) => String(m?.content || '').trim());
+    if (!hasMessages) {
+      return 'At least one message with content is required';
+    }
   }
   return null;
 };

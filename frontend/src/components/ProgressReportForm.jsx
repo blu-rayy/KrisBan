@@ -377,7 +377,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-card-soft max-h-48 overflow-y-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-card-soft max-h-48 overflow-y-auto scrollbar-hide">
               <div className="p-2 text-xs text-gray-600 bg-surface-ground font-semibold">Suggestions for this sprint</div>
               {filteredSuggestions.map((suggestion, idx) => (
                 <button

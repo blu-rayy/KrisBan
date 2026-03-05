@@ -442,7 +442,7 @@ export const SMEOutreachView = () => {
       </header>
 
       <div className="mb-6 border-b border-slate-200">
-        <div className="flex gap-4 overflow-x-auto">
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           <button
             type="button"
             onClick={() => setActiveTab('outreach')}
@@ -687,7 +687,7 @@ export const SMEOutreachView = () => {
             onClick={closeOutreachModal}
           />
 
-          <div className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             <button
               type="button"
               onClick={closeOutreachModal}

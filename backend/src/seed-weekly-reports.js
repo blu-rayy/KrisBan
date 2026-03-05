@@ -4,6 +4,14 @@ import WeeklyReport from './models/WeeklyReport.js';
 
 dotenv.config();
 
+// ⛔ Safety guard — never run seed scripts against production
+const supabaseUrl = process.env.SUPABASE_URL || '';
+if (supabaseUrl.includes('supabase.co')) {
+  console.error('\n⛔  BLOCKED: Seed scripts cannot run against the production Supabase database.');
+  console.error('    Set SUPABASE_URL to a local instance (e.g. http://localhost:54321) and retry.\n');
+  process.exit(1);
+}
+
 const seedWeeklyReports = async () => {
   try {
     await connectDB();
