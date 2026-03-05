@@ -152,3 +152,53 @@ export const deleteTemplate = async (req, res) => {
     res.status(500).json({ success: false, message: error.message || 'Failed to delete template' });
   }
 };
+
+// --- Conversation Logs ---
+
+export const getSmeLogsForSme = async (req, res) => {
+  try {
+    const logs = await EmailsCrm.listSmeLogsBySmeId(req.params.id);
+    res.status(200).json({ success: true, data: logs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch SME logs' });
+  }
+};
+
+const validateSmeLogPayload = (payload, { partial = false } = {}) => {
+  if (!partial && !String(payload?.sentMessage || '').trim() && !String(payload?.response || '').trim()) {
+    return 'At least a sent message or a response is required';
+  }
+  return null;
+};
+
+export const createSmeLog = async (req, res) => {
+  try {
+    const validationError = validateSmeLogPayload(req.body);
+    if (validationError) {
+      return res.status(400).json({ success: false, message: validationError });
+    }
+
+    const log = await EmailsCrm.createSmeLog(req.params.id, req.body, req.user?.id || null);
+    res.status(201).json({ success: true, message: 'Log entry created', data: log });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to create SME log' });
+  }
+};
+
+export const updateSmeLog = async (req, res) => {
+  try {
+    const updated = await EmailsCrm.updateSmeLog(req.params.logId, req.body);
+    res.status(200).json({ success: true, message: 'Log entry updated', data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to update SME log' });
+  }
+};
+
+export const deleteSmeLog = async (req, res) => {
+  try {
+    await EmailsCrm.deleteSmeLog(req.params.logId);
+    res.status(200).json({ success: true, message: 'Log entry deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to delete SME log' });
+  }
+};

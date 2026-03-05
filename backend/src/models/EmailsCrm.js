@@ -2,6 +2,7 @@ import { supabase } from '../config/database.js';
 
 const SMES_TABLE = 'emails_crm_smes';
 const TEMPLATES_TABLE = 'emails_crm_templates';
+const LOGS_TABLE = 'emails_crm_sme_logs';
 
 const formatPointPerson = (userRow = {}) => ({
   id: String(userRow.id),
@@ -80,6 +81,18 @@ const formatTemplate = (row = {}) => ({
   id: String(row.id),
   templateName: row.template_name,
   content: row.content,
+  createdBy: row.created_by ? String(row.created_by) : null,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at
+});
+
+const formatSmeLog = (row = {}) => ({
+  id: String(row.id),
+  smeId: String(row.sme_id),
+  logDate: row.log_date || null,
+  sentMessage: row.sent_message || '',
+  response: row.response || '',
+  templateId: row.template_id ? String(row.template_id) : null,
   createdBy: row.created_by ? String(row.created_by) : null,
   createdAt: row.created_at,
   updatedAt: row.updated_at
@@ -316,6 +329,70 @@ class EmailsCrm {
   static async deleteTemplate(id) {
     const { error } = await supabase
       .from(TEMPLATES_TABLE)
+      .delete()
+      .eq('id', String(id));
+
+    if (error) throw new Error(error.message);
+  }
+
+  // --- Conversation Logs ---
+
+  static async listSmeLogsBySmeId(smeId) {
+    const { data, error } = await supabase
+      .from(LOGS_TABLE)
+      .select('*')
+      .eq('sme_id', String(smeId))
+      .order('log_date', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return (data || []).map(formatSmeLog);
+  }
+
+  static async createSmeLog(smeId, payload, userId) {
+    const { data, error } = await supabase
+      .from(LOGS_TABLE)
+      .insert([
+        {
+          sme_id: String(smeId),
+          log_date: payload.logDate || null,
+          sent_message: payload.sentMessage || null,
+          response: payload.response || null,
+          template_id: payload.templateId || null,
+          created_by: userId || null
+        }
+      ])
+      .select('*')
+      .single();
+
+    if (error) throw new Error(error.message);
+    return formatSmeLog(data);
+  }
+
+  static async updateSmeLog(id, payload) {
+    const updateData = {
+      updated_at: new Date().toISOString()
+    };
+
+    if (payload.logDate !== undefined) updateData.log_date = payload.logDate || null;
+    if (payload.sentMessage !== undefined) updateData.sent_message = payload.sentMessage || null;
+    if (payload.response !== undefined) updateData.response = payload.response || null;
+    if (payload.templateId !== undefined) updateData.template_id = payload.templateId || null;
+
+    const { data, error } = await supabase
+      .from(LOGS_TABLE)
+      .update(updateData)
+      .eq('id', String(id))
+      .select('*')
+      .single();
+
+    if (error) throw new Error(error.message);
+    return formatSmeLog(data);
+  }
+
+  static async deleteSmeLog(id) {
+    const { error } = await supabase
+      .from(LOGS_TABLE)
       .delete()
       .eq('id', String(id));
 

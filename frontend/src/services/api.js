@@ -130,7 +130,12 @@ export const emailsCrmService = {
   getTemplates: () => api.get('/emails-crm/templates'),
   createTemplate: (payload) => api.post('/emails-crm/templates', payload),
   updateTemplate: (id, payload) => api.put(`/emails-crm/templates/${id}`, payload),
-  deleteTemplate: (id) => api.delete(`/emails-crm/templates/${id}`)
+  deleteTemplate: (id) => api.delete(`/emails-crm/templates/${id}`),
+
+  getSmeLogs: (smeId) => api.get(`/emails-crm/smes/${smeId}/logs`),
+  createSmeLog: (smeId, payload) => api.post(`/emails-crm/smes/${smeId}/logs`, payload),
+  updateSmeLog: (logId, payload) => api.put(`/emails-crm/sme-logs/${logId}`, payload),
+  deleteSmeLog: (logId) => api.delete(`/emails-crm/sme-logs/${logId}`)
 };
 
 export const fetchProgressReports = async (filters = {}) => {

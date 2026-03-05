@@ -82,6 +82,7 @@ export const SMEOutreachView = () => {
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [templateForm, setTemplateForm] = useState(emptyTemplateForm);
   const [activeTab, setActiveTab] = useState('outreach');
+  const [smeLogs, setSmeLogs] = useState([]);
 
   useEffect(() => {
     const loadEmailsCrmData = async () => {
@@ -150,13 +151,33 @@ export const SMEOutreachView = () => {
       setSelectedSmeId(null);
       setSelectedTemplateId('');
       setDraftMessage('');
+      setSmeLogs([]);
     }
   }, [smes, selectedSmeId]);
+
+  useEffect(() => {
+    if (!selectedSmeId) {
+      setSmeLogs([]);
+      return;
+    }
+
+    const loadLogs = async () => {
+      try {
+        const response = await emailsCrmService.getSmeLogs(selectedSmeId);
+        setSmeLogs(response?.data?.data || []);
+      } catch (_error) {
+        setSmeLogs([]);
+      }
+    };
+
+    loadLogs();
+  }, [selectedSmeId]);
 
   const handleSelectSme = (smeId) => {
     setSelectedSmeId(smeId);
     setSelectedTemplateId('');
     setDraftMessage('');
+    setSmeLogs([]);
   };
 
   const handleTemplateSelect = (templateId) => {
@@ -365,6 +386,44 @@ export const SMEOutreachView = () => {
     setSelectedSmeId(null);
     setSelectedTemplateId('');
     setDraftMessage('');
+    setSmeLogs([]);
+  };
+
+  const handleAddLog = async (logForm) => {
+    if (!selectedSmeId) return;
+    try {
+      const response = await emailsCrmService.createSmeLog(selectedSmeId, logForm);
+      const newLog = response?.data?.data;
+      if (newLog) {
+        setSmeLogs((current) => [newLog, ...current]);
+      }
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to save conversation log');
+    }
+  };
+
+  const handleUpdateLog = async (logId, payload) => {
+    try {
+      const response = await emailsCrmService.updateSmeLog(logId, payload);
+      const updated = response?.data?.data;
+      setSmeLogs((current) =>
+        current.map((log) => (log.id === logId ? (updated || { ...log, ...payload }) : log))
+      );
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to update conversation log');
+    }
+  };
+
+  const handleDeleteLog = async (logId) => {
+    try {
+      await emailsCrmService.deleteSmeLog(logId);
+      setSmeLogs((current) => current.filter((log) => log.id !== logId));
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to delete conversation log');
+    }
   };
 
   const cancelTemplateEdit = () => {
@@ -590,10 +649,14 @@ export const SMEOutreachView = () => {
                 selectedTemplateId={selectedTemplateId}
                 draftMessage={draftMessage}
                 copyButtonText={copyButtonText}
+                smeLogs={smeLogs}
                 onTemplateSelect={handleTemplateSelect}
                 onDraftChange={setDraftMessage}
                 onCopy={handleCopy}
                 onStatusChange={handleStatusChange}
+                onAddLog={handleAddLog}
+                onUpdateLog={handleUpdateLog}
+                onDeleteLog={handleDeleteLog}
               />
             </div>
           )}
@@ -639,10 +702,14 @@ export const SMEOutreachView = () => {
               selectedTemplateId={selectedTemplateId}
               draftMessage={draftMessage}
               copyButtonText={copyButtonText}
+              smeLogs={smeLogs}
               onTemplateSelect={handleTemplateSelect}
               onDraftChange={setDraftMessage}
               onCopy={handleCopy}
               onStatusChange={handleStatusChange}
+              onAddLog={handleAddLog}
+              onUpdateLog={handleUpdateLog}
+              onDeleteLog={handleDeleteLog}
             />
           </div>
         </div>
