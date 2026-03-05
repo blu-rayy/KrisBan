@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { dashboardService } from '../services/api';
-import { SprintBadge } from './SprintBadge';
-import { getBadgeStyle } from '../utils/badgeStyles';
-import { useSprints } from '../hooks/useSprints';
+import { dashboardService } from '../../services/api';
+import { SprintBadge } from '../sprints/SprintBadge';
+import { getBadgeStyle } from '../../utils/badgeStyles';
+import { useSprints } from '../../hooks/useSprints';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',

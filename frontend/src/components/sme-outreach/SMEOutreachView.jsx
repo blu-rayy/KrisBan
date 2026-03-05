@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { BubbleChatIcon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
-import { OutreachHub } from './sme-outreach/OutreachHub';
-import { SMERoster } from './sme-outreach/SMERoster';
-import { TemplateManagerPanel } from './sme-outreach/TemplateManagerPanel';
-import { SME_STATUSES } from '../utils/smeOutreachMockData';
-import { parseSmeTemplate } from '../utils/smeTemplateParser';
-import { emailsCrmService } from '../services/api';
+import { OutreachHub } from './OutreachHub';
+import { SMERoster } from './SMERoster';
+import { TemplateManagerPanel } from './TemplateManagerPanel';
+import { SME_STATUSES } from '../../utils/smeOutreachMockData';
+import { parseSmeTemplate } from '../../utils/smeTemplateParser';
+import { emailsCrmService } from '../../services/api';
 
 const EMAILS_CRM_WARM_BOOT_CACHE_KEY = 'emailsCrmWarmBootCacheV1';
 

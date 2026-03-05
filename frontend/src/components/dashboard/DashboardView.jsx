@@ -1,7 +1,7 @@
 import React from 'react';
 import { StatCard } from './StatCard';
-import { getBadgeStyle } from '../utils/badgeStyles';
-import { useLastWeekProgressStats, useRecentProgressActivity } from '../hooks/useDashboardActivity';
+import { getBadgeStyle } from '../../utils/badgeStyles';
+import { useLastWeekProgressStats, useRecentProgressActivity } from '../../hooks/useDashboardActivity';
 
 /**
  * DashboardView Component

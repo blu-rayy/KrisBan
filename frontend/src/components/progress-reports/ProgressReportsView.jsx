@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { dashboardService, weeklyReportService } from '../services/api';
+import { dashboardService, weeklyReportService } from '../../services/api';
 import { ProgressReportForm } from './ProgressReportForm';
 import { ProgressReportTable } from './ProgressReportTable';
 import { ProgressReportViewOnly } from './ProgressReportViewOnly';
-import { generateFormattedReportWithGemini } from '../utils/geminiReportGenerator';
-import { AuthContext } from '../context/AuthContext';
-import { useInfiniteProgressReports } from '../hooks/useProgressReports';
+import { generateFormattedReportWithGemini } from '../../utils/geminiReportGenerator';
+import { AuthContext } from '../../context/AuthContext';
+import { useInfiniteProgressReports } from '../../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon } from '@hugeicons/core-free-icons';
 

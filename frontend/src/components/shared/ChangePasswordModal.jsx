@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 
 export const ChangePasswordModal = () => {
   const [newPassword, setNewPassword] = useState('');

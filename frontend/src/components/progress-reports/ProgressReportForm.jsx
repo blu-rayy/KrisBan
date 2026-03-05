@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthContext } from '../context/AuthContext';
-import { SprintBadge } from './SprintBadge';
-import { useSprints } from '../hooks/useSprints';
+import { AuthContext } from '../../context/AuthContext';
+import { SprintBadge } from '../sprints/SprintBadge';
+import { useSprints } from '../../hooks/useSprints';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',

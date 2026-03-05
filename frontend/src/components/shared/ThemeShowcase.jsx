@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatCard } from './StatCard';
+import { StatCard } from '../dashboard/StatCard';
 
 /**
  * ThemeShowcase Component

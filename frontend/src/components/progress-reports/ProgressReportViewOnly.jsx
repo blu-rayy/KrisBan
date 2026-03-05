@@ -1,8 +1,8 @@
 import { useState, useMemo, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { SprintBadge } from './SprintBadge';
-import { getBadgeStyle } from '../utils/badgeStyles';
-import { useSprints } from '../hooks/useSprints';
+import { AuthContext } from '../../context/AuthContext';
+import { SprintBadge } from '../sprints/SprintBadge';
+import { getBadgeStyle } from '../../utils/badgeStyles';
+import { useSprints } from '../../hooks/useSprints';
 
 export const ProgressReportViewOnly = ({ reports = [], loading = false, error = '', onDelete, onUpdate, currentUserId, userRole }) => {
   const { user } = useContext(AuthContext);

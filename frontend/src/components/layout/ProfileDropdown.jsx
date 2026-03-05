@@ -1,6 +1,6 @@
 import { useContext, useRef, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { authService } from '../services/api';
+import { AuthContext } from '../../context/AuthContext';
+import { authService } from '../../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Logout03Icon, Edit02Icon } from '@hugeicons/core-free-icons';
 

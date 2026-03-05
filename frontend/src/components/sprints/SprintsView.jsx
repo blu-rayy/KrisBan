@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { sprintService } from '../services/sprintService';
+import { AuthContext } from '../../context/AuthContext';
+import { sprintService } from '../../services/sprintService';
 import { SprintForm } from './SprintForm';
 import { SprintTable } from './SprintTable';
-import { useSprints } from '../hooks/useSprints';
+import { useSprints } from '../../hooks/useSprints';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const SprintsView = ({ userRole }) => {

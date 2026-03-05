@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sprintService } from '../services/sprintService';
+import { sprintService } from '../../services/sprintService';
 import { SprintBadge } from './SprintBadge';
 
 export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole }) => {
