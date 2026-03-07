@@ -46,6 +46,7 @@ export const ProgressReportTable = ({
   const [editImageFile, setEditImageFile] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
+  const [loadingEditImage, setLoadingEditImage] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
   const [imageLightbox, setImageLightbox] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -112,7 +113,7 @@ export const ProgressReportTable = ({
     }
   };
 
-  const handleEditClick = (report) => {
+  const handleEditClick = async (report) => {
     setEditingId(report.id);
     setEditForm({
       date: report.date,
@@ -120,11 +121,28 @@ export const ProgressReportTable = ({
       teamPlan: report.teamPlan || '',
       category: report.category,
       taskDone: report.taskDone,
-      imageUrl: report.imageUrl
+      imageUrl: report.imageUrl || null
     });
     setEditImagePreview(report.imageUrl || null);
     setEditImageFile(null);
     setEditErrors({});
+
+    // Fetch full report to load imageUrl (list fetches omit images for performance)
+    if (!report.imageUrl) {
+      try {
+        setLoadingEditImage(true);
+        const res = await dashboardService.getProgressReportById(report.id);
+        const fullReport = res?.data?.data || res?.data;
+        if (fullReport?.imageUrl) {
+          setEditImagePreview(fullReport.imageUrl);
+          setEditForm(prev => ({ ...prev, imageUrl: fullReport.imageUrl }));
+        }
+      } catch {
+        // silently ignore — image just won't appear
+      } finally {
+        setLoadingEditImage(false);
+      }
+    }
   };
 
   const handleEditCancel = () => {
@@ -516,7 +534,16 @@ export const ProgressReportTable = ({
                     className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-green-50 file:text-forest-green hover:file:bg-green-100 transition"
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
-                  {editImagePreview && (
+                  {loadingEditImage && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                      <svg className="animate-spin h-4 w-4 text-forest-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                      Loading image...
+                    </div>
+                  )}
+                  {!loadingEditImage && editImagePreview && (
                     <div className="mt-3 space-y-2">
                       <div className="relative inline-block">
                         <img
