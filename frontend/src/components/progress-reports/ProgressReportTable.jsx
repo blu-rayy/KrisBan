@@ -47,6 +47,8 @@ export const ProgressReportTable = ({
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submittingEdit, setSubmittingEdit] = useState(false);
   const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+  const [imageLightbox, setImageLightbox] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [memberFilter, setMemberFilter] = useState('all');
   const { data: sprints = [] } = useSprints();
 
@@ -82,6 +84,19 @@ export const ProgressReportTable = ({
   };
 
 
+
+  const copyImageToClipboard = async (src) => {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      // Fallback: open in new tab so user can copy manually
+      window.open(src, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   const canEditReport = (report) => {
     return userRole === 'ADMIN' || (report.createdBy && currentUserId && String(report.createdBy) === String(currentUserId));
@@ -502,9 +517,15 @@ export const ProgressReportTable = ({
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
-                    <div className="mt-3">
+                    <div className="mt-3 space-y-2">
                       <div className="relative inline-block">
-                        <img src={editImagePreview} alt="Preview" className="h-32 w-auto rounded-lg border border-gray-300" />
+                        <img
+                          src={editImagePreview}
+                          alt="Preview"
+                          className="h-32 w-auto rounded-lg border border-gray-300 cursor-zoom-in hover:opacity-90 transition"
+                          title="Click to view full size"
+                          onClick={() => setImageLightbox(editImagePreview)}
+                        />
                         <button
                           type="button"
                           onClick={() => setConfirmDeleteImage(true)}
@@ -512,6 +533,22 @@ export const ProgressReportTable = ({
                           title="Remove image"
                         >
                           ×
+                        </button>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setImageLightbox(editImagePreview)}
+                          className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-forest-green border border-forest-green rounded-lg hover:bg-green-50 transition"
+                        >
+                          <span>&#128065;</span> View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => copyImageToClipboard(editImagePreview)}
+                          className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 border border-blue-400 rounded-lg hover:bg-blue-50 transition"
+                        >
+                          {copySuccess ? '✓ Copied!' : '⧉ Copy Image'}
                         </button>
                       </div>
                     </div>
@@ -536,6 +573,48 @@ export const ProgressReportTable = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Lightbox */}
+      {imageLightbox && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[60] p-4"
+          onClick={() => setImageLightbox(null)}
+        >
+          <div
+            className="relative max-w-[90vw] max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={imageLightbox}
+              alt="Full size preview"
+              className="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain"
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => copyImageToClipboard(imageLightbox)}
+                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-blue-600 text-xs font-medium px-3 py-1 rounded-lg shadow transition"
+              >
+                {copySuccess ? '✓ Copied!' : '⧉ Copy'}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open(imageLightbox, '_blank', 'noopener,noreferrer')}
+                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-lg shadow transition"
+              >
+                &#8599; Open
+              </button>
+              <button
+                type="button"
+                onClick={() => setImageLightbox(null)}
+                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-lg shadow transition"
+              >
+                ×
+              </button>
+            </div>
           </div>
         </div>
       )}
