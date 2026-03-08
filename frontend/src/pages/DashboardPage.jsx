@@ -7,6 +7,8 @@ import { ProgressReportsView } from '../components/progress-reports/ProgressRepo
 import { SprintsView } from '../components/sprints/SprintsView';
 import { SMEOutreachView } from '../components/sme-outreach/SMEOutreachView';
 import { PlaceholderSection } from '../components/dashboard/PlaceholderSection';
+import { KanbanView } from '../components/kanban/KanbanView';
+import { TicketsListView } from '../components/kanban/TicketsListView';
 import { ChangePasswordModal } from '../components/shared/ChangePasswordModal';
 import { ProfileDropdown } from '../components/layout/ProfileDropdown';
 import { useDashboardData } from '../hooks/useDashboardData';
@@ -183,9 +185,9 @@ export const DashboardPage = () => {
           {activeSection === 'progress-reports' && <ProgressReportsView />}
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'emails' && <SMEOutreachView />}
-          {activeSection === 'kanban' && <PlaceholderSection title="KanBan" icon="📊" />}
+          {activeSection === 'kanban' && <KanbanView />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
-          {activeSection === 'tickets' && <PlaceholderSection title="Tickets" icon="🎫" />}
+          {activeSection === 'tickets' && <TicketsListView />}
         </main>
       </div>
 

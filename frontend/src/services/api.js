@@ -120,6 +120,59 @@ export const weeklyReportService = {
     api.post(`/weekly-reports/${reportWeek}/export-docx`, {}, { responseType: 'blob' })
 };
 
+export const kanbanService = {
+  // Boards
+  getBoards:   ()             => api.get('/kanban/boards'),
+  createBoard: (data)         => api.post('/kanban/boards', data),
+  getBoard:    (boardId)      => api.get(`/kanban/boards/${boardId}`),
+  updateBoard: (boardId, data) => api.put(`/kanban/boards/${boardId}`, data),
+  deleteBoard: (boardId)      => api.delete(`/kanban/boards/${boardId}`),
+
+  // Columns
+  createColumn:   (boardId, data) => api.post(`/kanban/boards/${boardId}/columns`, data),
+  updateColumn:   (columnId, data) => api.put(`/kanban/columns/${columnId}`, data),
+  deleteColumn:   (columnId)      => api.delete(`/kanban/columns/${columnId}`),
+  reorderColumns: (columns)       => api.post('/kanban/columns/reorder', { columns }),
+
+  // Tickets
+  createTicket:  (boardId, data) => api.post(`/kanban/boards/${boardId}/tickets`, data),
+  getTicket:     (ticketId)      => api.get(`/kanban/tickets/${ticketId}`),
+  updateTicket:  (ticketId, data) => api.put(`/kanban/tickets/${ticketId}`, data),
+  archiveTicket: (ticketId)      => api.patch(`/kanban/tickets/${ticketId}/archive`),
+  moveTicket:    (ticketId, data) => api.patch(`/kanban/tickets/${ticketId}/move`, data),
+  getCalendarTickets: (params)   => api.get('/kanban/tickets/calendar', { params }),
+
+  // Assignees
+  addAssignee:    (ticketId, userId) => api.post(`/kanban/tickets/${ticketId}/assignees`, { user_id: userId }),
+  removeAssignee: (ticketId, userId) => api.delete(`/kanban/tickets/${ticketId}/assignees/${userId}`),
+
+  // Labels
+  getLabels:           (boardId)          => api.get(`/kanban/boards/${boardId}/labels`),
+  createLabel:         (boardId, data)    => api.post(`/kanban/boards/${boardId}/labels`, data),
+  updateLabel:         (labelId, data)    => api.put(`/kanban/labels/${labelId}`, data),
+  deleteLabel:         (labelId)          => api.delete(`/kanban/labels/${labelId}`),
+  addLabelToTicket:    (ticketId, labelId) => api.post(`/kanban/tickets/${ticketId}/labels`, { label_id: labelId }),
+  removeLabelFromTicket: (ticketId, labelId) => api.delete(`/kanban/tickets/${ticketId}/labels/${labelId}`),
+
+  // Tasks
+  createTask: (ticketId, title) => api.post(`/kanban/tickets/${ticketId}/tasks`, { title }),
+  updateTask: (taskId, data)    => api.put(`/kanban/tasks/${taskId}`, data),
+  deleteTask: (taskId)          => api.delete(`/kanban/tasks/${taskId}`),
+
+  // Attachments
+  addAttachment:    (ticketId, data)     => api.post(`/kanban/tickets/${ticketId}/attachments`, data),
+  deleteAttachment: (attachmentId)       => api.delete(`/kanban/attachments/${attachmentId}`),
+
+  // Comments
+  getComments:    (ticketId)       => api.get(`/kanban/tickets/${ticketId}/comments`),
+  createComment:  (ticketId, body) => api.post(`/kanban/tickets/${ticketId}/comments`, { body }),
+  updateComment:  (commentId, body) => api.put(`/kanban/comments/${commentId}`, { body }),
+  deleteComment:  (commentId)      => api.delete(`/kanban/comments/${commentId}`),
+
+  // Users (assignee picker)
+  getUsers: () => api.get('/kanban/users')
+};
+
 export const emailsCrmService = {
   getSmes: () => api.get('/emails-crm/smes'),
   getPointPeople: () => api.get('/emails-crm/point-people'),

@@ -60,7 +60,7 @@ export const Sidebar = ({
       id: 'kanban',
       label: 'KanBan',
       icon: KanbanIcon,
-      status: 'TBD',
+      status: 'active',
       visibility: 'all',
       section: 'MENU'
     },
@@ -76,7 +76,7 @@ export const Sidebar = ({
       id: 'tickets',
       label: 'Tickets',
       icon: Ticket01Icon,
-      status: 'TBD',
+      status: 'active',
       visibility: 'all',
       section: 'MENU'
     }

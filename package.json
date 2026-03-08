@@ -11,6 +11,8 @@
   },
   "engines": {
     "node": "18.x"
+  },
+  "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1"
   }
 }
-

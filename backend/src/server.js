@@ -9,6 +9,7 @@ import progressReportRoutes from './routes/progressReportRoutes.js';
 import sprintsRoutes from './routes/sprintsRoutes.js';
 import weeklyReportRoutes from './routes/weeklyReportRoutes.js';
 import emailsCrmRoutes from './routes/emailsCrmRoutes.js';
+import kanbanRoutes from './routes/kanbanRoutes.js';
 import { startWeeklyReportScheduler } from './utils/weeklyReportScheduler.js';
 
 // Load environment variables
@@ -51,6 +52,7 @@ app.use('/api/progress-reports', progressReportRoutes);
 app.use('/api/sprints', sprintsRoutes);
 app.use('/api/weekly-reports', weeklyReportRoutes);
 app.use('/api/emails-crm', emailsCrmRoutes);
+app.use('/api/kanban', kanbanRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
