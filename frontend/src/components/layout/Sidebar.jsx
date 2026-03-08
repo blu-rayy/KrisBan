@@ -117,16 +117,10 @@ export const Sidebar = ({
     <aside
       className={`bg-white border-r border-gray-200 h-[calc(100vh-80px)] shadow-sm flex flex-col fixed left-0 top-20 z-40 transition-[width,transform] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
     >
-      <div className="px-4 pt-4 pb-2 h-14 relative">
+      <div className="h-14 flex items-center" style={{ paddingLeft: '22px' }}>
         <button
           onClick={isMobile ? onCloseMobile : onToggleCollapse}
-          className={`inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition-all duration-300 ease-in-out absolute top-4 ${
-            isMobile
-              ? 'right-4'
-              : isCollapsed
-              ? 'left-1/2 -translate-x-1/2'
-              : 'left-4'
-          }`}
+          className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors duration-200"
           aria-label={isMobile ? 'Close sidebar' : 'Toggle sidebar'}
         >
           <HugeiconsIcon
@@ -154,7 +148,7 @@ export const Sidebar = ({
               }
             }}
             disabled={item.status === 'TBD'}
-            className={`w-full h-12 flex items-center px-4 rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full h-12 flex items-center rounded-lg text-left transition-colors duration-200 ${
               isActive
                 ? 'bg-gradient-hero text-white shadow-md'
                 : item.status === 'TBD'
@@ -163,7 +157,7 @@ export const Sidebar = ({
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
-            <span className={`inline-flex items-center justify-center ${iconColorClass}`}>
+            <span className={`w-12 flex-shrink-0 flex items-center justify-center ${iconColorClass}`}>
               <HugeiconsIcon icon={item.icon} size={20} color="currentColor" />
             </span>
             <div
@@ -199,14 +193,14 @@ export const Sidebar = ({
           <button
             key={item.id}
             onClick={item.action}
-            className={`w-full h-12 flex items-center px-4 rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full h-12 flex items-center rounded-lg text-left transition-colors duration-200 ${
               item.isDanger
                 ? 'hover:bg-red-50 text-red-600 hover:text-red-700'
                 : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
-            <span className={`inline-flex items-center justify-center ${iconColorClass}`}>
+            <span className={`w-12 flex-shrink-0 flex items-center justify-center ${iconColorClass}`}>
               <HugeiconsIcon icon={item.icon} size={20} color="currentColor" />
             </span>
             <span
