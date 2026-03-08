@@ -8,7 +8,8 @@ import { generateFormattedReportWithGemini } from '../../utils/geminiReportGener
 import { AuthContext } from '../../context/AuthContext';
 import { useInfiniteProgressReports } from '../../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon } from '@hugeicons/core-free-icons';
+import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon, CheckmarkCircle01Icon, Alert01Icon } from '@hugeicons/core-free-icons';
+import { CustomSelect } from '../shared/CustomSelect';
 
 const normalizeMemberName = (name) => {
   if (!name) return 'UNKNOWN';
@@ -660,237 +661,305 @@ export const ProgressReportsView = () => {
 
       {activeTab === 'generate-report' && user?.role === 'ADMIN' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-4">
-            {reportError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {reportError}
-              </div>
-            )}
-
-            {generationMessage && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
-                {generationMessage}
-              </div>
-            )}
-
-            {exportWarning && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">
-                {exportWarning}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Reporting Week</label>
-                <select
-                  value={selectedWeek}
-                  onChange={(event) => handleSelectWeek(event.target.value)}
-                  disabled={loadingWeekly}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value="">Select week</option>
-                  {weeklyReportsSorted.map((week) => (
-                    <option key={week.id || week.reportWeek} value={String(week.reportWeek)}>
-                      Week {week.reportWeek}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Signatory Date</label>
-                <input
-                  type="date"
-                  value={signatoryDate}
-                  onChange={(event) => setSignatoryDate(event.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
+          {/* Config Card */}
+          <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+            {/* Card Header */}
+            <div className="bg-gradient-hero px-6 py-4">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} color="currentColor" />
+                Report Configuration
+              </h3>
+              <p className="text-green-200 text-xs mt-0.5">Configure the reporting period then generate a draft</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date</label>
-                <input
-                  type="date"
-                  value={reportingStartDate}
-                  onChange={(event) => setReportingStartDate(event.target.value)}
-                  disabled={singleDayMode}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
-                />
-              </div>
+            <div className="p-6 space-y-5">
+              {/* Alerts */}
+              {reportError && (
+                <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                  <HugeiconsIcon icon={Alert01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
+                  <span>{reportError}</span>
+                </div>
+              )}
+              {generationMessage && (
+                <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm">
+                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
+                  <span>{generationMessage}</span>
+                </div>
+              )}
+              {exportWarning && (
+                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl text-sm">
+                  <HugeiconsIcon icon={Alert01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
+                  <span>{exportWarning}</span>
+                </div>
+              )}
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">End Date</label>
-                <input
-                  type="date"
-                  value={reportingEndDate}
-                  onChange={(event) => setReportingEndDate(event.target.value)}
-                  disabled={singleDayMode}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
-                />
-              </div>
-            </div>
-
-            <div className="text-sm text-gray-600">
-              <span className="font-semibold">Reporting Date:</span> {reportingDateLabel || '—'}
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={singleDayMode}
-                  onChange={(event) => {
-                    setSingleDayMode(event.target.checked);
-                    setGeneratedRows([]);
-                    setGenerationMessage('');
-                    setReportError('');
-                  }}
-                />
-                Generate single day only
-              </label>
-
-              {singleDayMode && (
-                <div className="max-w-sm">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Single Date</label>
-                  <input
-                    type="date"
-                    value={singleDate}
-                    onChange={(event) => setSingleDate(event.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              {/* Row 1: Reporting Week + Signatory Date */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Reporting Week</label>
+                  <CustomSelect
+                    value={selectedWeek}
+                    onChange={(val) => handleSelectWeek(val)}
+                    options={[
+                      { value: '', label: 'Select week...' },
+                      ...weeklyReportsSorted.map((week) => ({
+                        value: String(week.reportWeek),
+                        label: `Week ${week.reportWeek}`
+                      }))
+                    ]}
+                    placeholder="Select week..."
                   />
                 </div>
-              )}
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Signatory Date</label>
+                  <input
+                    type="date"
+                    value={signatoryDate}
+                    onChange={(e) => setSignatoryDate(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <button
-                onClick={handleGenerateReport}
-                disabled={!canGenerate}
-                className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-lg transition duration-300 inline-flex items-center gap-3 text-lg shadow-lg hover:shadow-xl hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                <HugeiconsIcon icon={DocumentAttachmentIcon} size={24} />
-                <span>{generatingReport ? 'Processing...' : 'Generate Draft'}</span>
-              </button>
+              {/* Row 2: Start + End Date */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Start Date</label>
+                  <input
+                    type="date"
+                    value={reportingStartDate}
+                    onChange={(e) => setReportingStartDate(e.target.value)}
+                    disabled={singleDayMode}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:text-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">End Date</label>
+                  <input
+                    type="date"
+                    value={reportingEndDate}
+                    onChange={(e) => setReportingEndDate(e.target.value)}
+                    disabled={singleDayMode}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:text-gray-400"
+                  />
+                </div>
+              </div>
 
-              {generatingReport && (
-                <div className="mt-4 space-y-2">
-                  <div className="w-full bg-gray-300 rounded-full h-3 overflow-hidden">
-                    <div
-                      className="h-3 bg-emerald-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-600 text-center">Generating draft rows...</p>
+              {/* Reporting date label */}
+              {reportingDateLabel && (
+                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-forest-green text-sm font-medium px-3 py-1.5 rounded-lg">
+                  <span className="w-1.5 h-1.5 rounded-full bg-forest-green"></span>
+                  Reporting Date: {reportingDateLabel}
                 </div>
               )}
+
+              {/* Single day toggle */}
+              <div className="flex flex-col gap-3">
+                <label className="inline-flex items-center gap-3 cursor-pointer select-none">
+                  <div
+                    onClick={() => {
+                      setSingleDayMode(v => !v);
+                      setGeneratedRows([]);
+                      setGenerationMessage('');
+                      setReportError('');
+                    }}
+                    className={`relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0 ${
+                      singleDayMode ? 'bg-forest-green' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                      singleDayMode ? 'translate-x-5' : 'translate-x-0'
+                    }`} />
+                  </div>
+                  <span className="text-sm text-dark-charcoal">Generate single day only</span>
+                </label>
+
+                {singleDayMode && (
+                  <div className="max-w-xs">
+                    <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Single Date</label>
+                    <input
+                      type="date"
+                      value={singleDate}
+                      onChange={(e) => setSingleDate(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Generate button + progress */}
+              <div className="pt-1">
+                <button
+                  onClick={handleGenerateReport}
+                  disabled={!canGenerate}
+                  className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-hero text-white font-semibold text-sm rounded-xl shadow-card-elevated hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} color="currentColor" />
+                  {generatingReport ? 'Processing...' : 'Generate Draft'}
+                </button>
+
+                {generatingReport && (
+                  <div className="mt-4 space-y-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="h-2 bg-gradient-action rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 text-center">Generating draft rows…</p>
+                  </div>
+                )}
+              </div>
             </div>
+          </div>
 
-            {generatedRows.length > 0 && (
-              <div className="pt-6 border-t border-gray-200 space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">Generated Rows (Editable)</h3>
-
+          {/* Generated rows */}
+          {generatedRows.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-hero px-6 py-4">
+                <h3 className="text-base font-semibold text-white">Generated Rows</h3>
+                <p className="text-green-200 text-xs mt-0.5">Review and edit before saving</p>
+              </div>
+              <div className="p-6 space-y-4">
                 {generatedRows.map((row) => (
-                  <div key={row.rowNumber} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
-                      <div className="font-semibold text-gray-700">Row {row.rowNumber}</div>
+                  <div key={row.rowNumber} className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-4 bg-surface-ground px-4 py-2.5 border-b border-gray-200">
+                      <span className="text-sm font-semibold text-dark-charcoal">Row {row.rowNumber}</span>
                       <input
                         type="date"
                         value={row.rowDate || ''}
-                        onChange={(event) => handleRowDateChange(row.rowNumber, event.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-2"
+                        onChange={(e) => handleRowDateChange(row.rowNumber, e.target.value)}
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
                       />
-                      <div className="text-sm text-gray-500">Entries: {row.entryCount || 0}</div>
+                      <span className="ml-auto text-xs text-gray-400">{row.entryCount || 0} entries</span>
                     </div>
-
                     <textarea
                       value={row.rowActivity || ''}
-                      onChange={(event) => handleRowActivityChange(row.rowNumber, event.target.value)}
+                      onChange={(e) => handleRowActivityChange(row.rowNumber, e.target.value)}
                       rows={6}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                      className="w-full px-4 py-3 font-mono text-sm text-dark-charcoal border-0 outline-none resize-y focus:ring-2 focus:ring-inset focus:ring-forest-green"
                     />
                   </div>
                 ))}
 
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-2">
                   <button
                     onClick={handleSaveWeeklyReport}
                     disabled={savingWeekly}
-                    className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-action text-white font-semibold text-sm rounded-xl hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {savingWeekly ? 'Saving...' : 'Save'}
+                    {savingWeekly ? 'Saving…' : 'Save Report'}
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Saved Weekly Reports */}
+          <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-hero px-6 py-4">
+              <h3 className="text-base font-semibold text-white">Saved Weekly Reports</h3>
+              <p className="text-green-200 text-xs mt-0.5">Previously generated and saved report drafts</p>
+            </div>
+
+            {weeklyReportsSorted.length === 0 ? (
+              <div className="px-6 py-8 text-center text-sm text-gray-400">No saved weekly reports yet.</div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {weeklyReportsSorted.map((week) => {
+                  const weekNumber = String(week.reportWeek);
+                  const isExpanded = Boolean(expandedWeeks[weekNumber]);
+                  const detail = weekDetailsByWeek[weekNumber];
+                  const loadingDetail = Boolean(loadingWeekDetailsByWeek[weekNumber]);
+
+                  return (
+                    <div key={week.id || weekNumber}>
+                      <button
+                        onClick={() => handleToggleExpandedWeek(weekNumber)}
+                        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-surface-ground transition"
+                      >
+                        <div>
+                          <p className="font-semibold text-dark-charcoal">Week {week.reportWeek}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{week.reportingDate || 'No reporting date'}</p>
+                        </div>
+                        <svg
+                          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="bg-surface-ground px-6 pb-6 pt-4 space-y-4 border-t border-gray-100">
+                          {loadingDetail ? (
+                            <p className="text-sm text-gray-400">Loading details…</p>
+                          ) : (
+                            <>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Reporting Date</p>
+                                  <p className="text-sm font-semibold text-dark-charcoal">{detail?.reportingDate || week.reportingDate || '—'}</p>
+                                </div>
+                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Signatory Date</p>
+                                  <p className="text-sm font-semibold text-dark-charcoal">{detail?.signatoryDate || week.signatoryDate || '—'}</p>
+                                </div>
+                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Status</p>
+                                  <p className="text-sm font-semibold text-forest-green">{detail?.status || week.status || '—'}</p>
+                                </div>
+                              </div>
+
+                              {(detail?.entries || []).length > 0 && (
+                                <div className="space-y-3">
+                                  {detail.entries.map((entry) => (
+                                    <div key={entry.id || `${weekNumber}-${entry.rowNumber}`} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gradient-hero">
+                                        <span className="text-xs font-bold text-white tracking-wide">Row {entry.rowNumber}</span>
+                                        <span className="text-xs text-green-200">{entry.rowDate || '—'}</span>
+                                      </div>
+                                      <div className="px-4 py-3 space-y-1">
+                                        {(entry.rowActivity || '').split('\n').map((line, i) => {
+                                          const memberMatch = line.match(/^([A-Z]+):\s*(.*)/);
+                                          if (memberMatch) {
+                                            const memberColors = {
+                                              KRISTIAN: 'text-forest-green',
+                                              ANGEL: 'text-blue-600',
+                                              MICHAEL: 'text-purple-600',
+                                              MARIANNE: 'text-rose-600'
+                                            };
+                                            const nameColor = memberColors[memberMatch[1]] || 'text-dark-charcoal';
+                                            return (
+                                              <p key={i} className="text-xs font-mono">
+                                                <span className={`font-bold ${nameColor}`}>{memberMatch[1]}:</span>
+                                                <span className="text-gray-700"> {memberMatch[2]}</span>
+                                              </p>
+                                            );
+                                          }
+                                          return line.trim()
+                                            ? <p key={i} className="text-xs text-gray-700 font-mono">{line}</p>
+                                            : <div key={i} className="h-2" />;
+                                        })}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900">Saved Weekly Reports</h3>
-
-            {weeklyReportsSorted.length === 0 && (
-              <p className="text-sm text-gray-500">No saved weekly reports yet.</p>
-            )}
-
-            {weeklyReportsSorted.map((week) => {
-              const weekNumber = String(week.reportWeek);
-              const isExpanded = Boolean(expandedWeeks[weekNumber]);
-              const detail = weekDetailsByWeek[weekNumber];
-              const loadingDetail = Boolean(loadingWeekDetailsByWeek[weekNumber]);
-
-              return (
-                <div key={week.id || weekNumber} className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => handleToggleExpandedWeek(weekNumber)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-left"
-                  >
-                    <div>
-                      <p className="font-semibold text-gray-900">Week {week.reportWeek}</p>
-                      <p className="text-sm text-gray-500">{week.reportingDate || 'No reporting date'}</p>
-                    </div>
-                    <span className="text-sm text-gray-500">{isExpanded ? '▲' : '▼'}</span>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="px-4 pb-4 border-t border-gray-100 text-sm text-gray-700 space-y-2">
-                      {loadingDetail && <p>Loading details...</p>}
-
-                      {!loadingDetail && (
-                        <>
-                          <p>
-                            <span className="font-semibold">Reporting Date:</span> {detail?.reportingDate || week.reportingDate || '—'}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Signatory Date:</span> {detail?.signatoryDate || week.signatoryDate || '—'}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Status:</span> {detail?.status || week.status || '—'}
-                          </p>
-
-                          {(detail?.entries || []).length > 0 && (
-                            <div className="pt-2 space-y-2">
-                              {detail.entries.map((entry) => (
-                                <div key={entry.id || `${weekNumber}-${entry.rowNumber}`} className="bg-gray-50 rounded p-2 border border-gray-200">
-                                  <p className="font-semibold">Row {entry.rowNumber} — {entry.rowDate || '—'}</p>
-                                  <p className="text-xs text-gray-600 whitespace-pre-wrap">{entry.rowActivity || '(empty)'}</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="text-center text-xs text-gray-400 px-4 py-3">
-            <p className="font-mono flex items-center justify-center gap-1">
-              <HugeiconsIcon icon={HelpCircleIcon} size={14} /> Generate is enabled only after required week/date fields are filled.
-            </p>
+          <div className="text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
+            <HugeiconsIcon icon={HelpCircleIcon} size={13} color="currentColor" />
+            Generate is enabled only after the week and date fields are filled.
           </div>
         </div>
       )}

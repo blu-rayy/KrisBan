@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from '../../context/AuthContext';
 import { SprintBadge } from '../sprints/SprintBadge';
 import { useSprints } from '../../hooks/useSprints';
+import { CustomSelect } from '../shared/CustomSelect';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -297,22 +298,17 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             Member <span className="text-red-500">*</span>
           </label>
           {userRole === 'ADMIN' && members.length > 1 ? (
-            <select
+            <CustomSelect
               id="memberId"
-              name="memberId"
-              value={formData.memberId}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
-                errors.memberId ? 'border-red-500' : 'border-gray-300'
-              }`}
-            >
-              <option value="">Select a member...</option>
-              {members.map(member => (
-                <option key={member.id} value={member.id}>
-                  {member.username || member.name || 'Unknown'}
-                </option>
-              ))}
-            </select>
+              value={String(formData.memberId)}
+              onChange={(val) => handleInputChange({ target: { name: 'memberId', value: val } })}
+              options={[
+                { value: '', label: 'Select a member...' },
+                ...members.map(member => ({ value: String(member.id), label: member.username || member.name || 'Unknown' }))
+              ]}
+              placeholder="Select a member..."
+              error={!!errors.memberId}
+            />
           ) : (
             <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-surface-ground text-dark-charcoal font-medium">
               {user?.username || 'Current User'}
@@ -332,21 +328,17 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             Sprint No. <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2 items-center">
-            <select
+            <CustomSelect
               id="sprintNo"
-              name="sprintNo"
               value={formData.sprintNo}
-              onChange={handleInputChange}
-              className={`flex-1 px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
-                errors.sprintNo ? 'border-red-500' : 'border-gray-300'
-              }`}
-            >
-              {sortedSprintLabels.map((label) => (
-                <option key={label} value={label}>
-                  {label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => handleInputChange({ target: { name: 'sprintNo', value: val } })}
+              options={sortedSprintLabels.map((label) => ({
+                value: label,
+                label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
+              }))}
+              error={!!errors.sprintNo}
+              className="flex-1"
+            />
             <button
               type="button"
               onClick={handleRefreshSprints}
@@ -398,21 +390,13 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
           <label htmlFor="category" className="block text-sm font-medium text-dark-charcoal mb-2">
             Category <span className="text-red-500">*</span>
           </label>
-          <select
+          <CustomSelect
             id="category"
-            name="category"
             value={formData.category}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 pr-16 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
-              errors.category ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            {CATEGORY_OPTIONS.map(category => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => handleInputChange({ target: { name: 'category', value: val } })}
+            options={CATEGORY_OPTIONS.map(cat => ({ value: cat, label: cat }))}
+            error={!!errors.category}
+          />
           {errors.category && <p className="mt-1 text-sm text-red-500">{errors.category}</p>}
         </div>
 

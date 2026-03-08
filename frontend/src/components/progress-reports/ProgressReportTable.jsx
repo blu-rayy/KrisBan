@@ -3,6 +3,7 @@ import { dashboardService } from '../../services/api';
 import { SprintBadge } from '../sprints/SprintBadge';
 import { getBadgeStyle } from '../../utils/badgeStyles';
 import { useSprints } from '../../hooks/useSprints';
+import { CustomSelect } from '../shared/CustomSelect';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -312,19 +313,15 @@ export const ProgressReportTable = ({
             <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-1">
               Person
             </label>
-            <select
+            <CustomSelect
               id="memberFilter"
               value={memberFilter}
-              onChange={(event) => setMemberFilter(event.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="all">All Members</option>
-              {uniqueMembers.map((memberName) => (
-                <option key={memberName} value={memberName}>
-                  {memberName}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setMemberFilter(val)}
+              options={[
+                { value: 'all', label: 'All Members' },
+                ...uniqueMembers.map((memberName) => ({ value: memberName, label: memberName }))
+              ]}
+            />
           </div>
           <p className="text-sm text-gray-600 md:text-right">Showing {filteredReports.length} entries</p>
         </div>
@@ -404,8 +401,8 @@ export const ProgressReportTable = ({
       {/* Edit Modal */}
       {editingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 scrollbar-hide">
-            <div className="sticky top-0 bg-gradient-hero px-6 py-4 flex justify-between items-center rounded-t-3xl">
+          <div className="bg-white rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="sticky top-0 bg-gradient-hero px-6 py-4 flex justify-between items-center rounded-t-3xl flex-shrink-0">
               <h3 className="text-lg font-semibold text-white">Edit Progress Report</h3>
               <button
                 onClick={handleEditCancel}
@@ -415,6 +412,7 @@ export const ProgressReportTable = ({
               </button>
             </div>
 
+            <div className="overflow-y-auto scrollbar-hide flex-1">
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               {editErrors.submit && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -426,7 +424,7 @@ export const ProgressReportTable = ({
                 {/* Date */}
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal mb-1">
-                    Date *
+                    Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -445,47 +443,40 @@ export const ProgressReportTable = ({
                 {/* Sprint */}
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal mb-1">
-                    Sprint *
+                    Sprint <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={editForm.sprintNo}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, sprintNo: e.target.value }));
+                    onChange={(val) => {
+                      setEditForm(prev => ({ ...prev, sprintNo: val }));
                       if (editErrors.sprintNo) setEditErrors(prev => ({ ...prev, sprintNo: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
-                      editErrors.sprintNo ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    {sprints.map(sprint => (
-                      <option key={sprint.id} value={sprint.sprintNumber}>
-                        {sprint.sprintNumber.startsWith('Sprint ') ? sprint.sprintNumber : `Sprint ${sprint.sprintNumber}`}
-                      </option>
-                    ))}
-                    <option value="Others">Others</option>
-                  </select>
+                    options={[
+                      ...sprints.map(sprint => ({
+                        value: sprint.sprintNumber,
+                        label: sprint.sprintNumber.startsWith('Sprint ') ? sprint.sprintNumber : `Sprint ${sprint.sprintNumber}`
+                      })),
+                      { value: 'Others', label: 'Others' }
+                    ]}
+                    error={!!editErrors.sprintNo}
+                  />
                   {editErrors.sprintNo && <p className="mt-1 text-xs text-red-500">{editErrors.sprintNo}</p>}
                 </div>
 
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal mb-1">
-                    Category *
+                    Category <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={editForm.category}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, category: e.target.value }));
+                    onChange={(val) => {
+                      setEditForm(prev => ({ ...prev, category: val }));
                       if (editErrors.category) setEditErrors(prev => ({ ...prev, category: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
-                      editErrors.category ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    {CATEGORY_OPTIONS.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    options={CATEGORY_OPTIONS.map(cat => ({ value: cat, label: cat }))}
+                    error={!!editErrors.category}
+                  />
                   {editErrors.category && <p className="mt-1 text-xs text-red-500">{editErrors.category}</p>}
                 </div>
 
@@ -506,7 +497,7 @@ export const ProgressReportTable = ({
                 {/* Task Done */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-dark-charcoal mb-1">
-                    Task Done *
+                    Task Done <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={editForm.taskDone}
@@ -600,6 +591,7 @@ export const ProgressReportTable = ({
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}

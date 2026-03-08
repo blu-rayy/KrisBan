@@ -150,7 +150,7 @@ export const Sidebar = ({
               }
             }}
             disabled={item.status === 'TBD'}
-            className={`w-full h-12 flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full h-12 flex items-center px-4 rounded-lg text-left transition-colors duration-200 ${
               isActive
                 ? 'bg-gradient-hero text-white shadow-md'
                 : item.status === 'TBD'
@@ -163,8 +163,8 @@ export const Sidebar = ({
               <HugeiconsIcon icon={item.icon} size={20} color="currentColor" />
             </span>
             <div
-              className={`min-w-0 overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-in-out ${
-                shouldShowText ? 'flex-1 max-w-[180px] opacity-100 ml-0' : 'max-w-0 opacity-0 ml-0'
+              className={`min-w-0 overflow-hidden transition-[max-width,opacity,margin-left] duration-300 ease-in-out ${
+                shouldShowText ? 'flex-1 max-w-[180px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'
               }`}
             >
               <span className="block font-medium text-sm truncate whitespace-nowrap">{item.label}</span>
@@ -178,15 +178,7 @@ export const Sidebar = ({
                 {item.badge}
               </span>
             )}
-            {item.status === 'TBD' && (
-              <span
-                className={`text-xs bg-gray-200 text-gray-600 rounded font-medium whitespace-nowrap overflow-hidden transition-[max-width,opacity,margin,padding] duration-300 ease-in-out ${
-                  shouldShowText ? 'max-w-16 opacity-100 ml-1 px-2 py-1' : 'max-w-0 opacity-0 ml-0 px-0 py-0'
-                }`}
-              >
-                TBD
-              </span>
-            )}
+
           </button>
             );
           })()
@@ -203,7 +195,7 @@ export const Sidebar = ({
           <button
             key={item.id}
             onClick={item.action}
-            className={`w-full h-12 flex items-center ${shouldShowText ? 'space-x-3 px-4' : 'justify-center px-2'} rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full h-12 flex items-center px-4 rounded-lg text-left transition-colors duration-200 ${
               item.isDanger
                 ? 'hover:bg-red-50 text-red-600 hover:text-red-700'
                 : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
