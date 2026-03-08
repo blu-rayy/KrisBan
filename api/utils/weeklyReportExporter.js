@@ -50,13 +50,19 @@ const removeEmptyRows = (docxBuffer, emptyMarkers = []) => {
 
   let xmlContent = documentXmlFile.asText();
 
-  emptyMarkers.forEach((marker) => {
+  // Split the document on row-closing tags. Each resulting segment (except the
+  // last) holds one row's opening tag + content without its </w:tr>. Filtering
+  // out segments that contain a marker and rejoining correctly removes exactly
+  // the rows that carry the marker — no cross-table regex hazards.
+  for (const marker of emptyMarkers) {
     const escapedMarker = marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const rowPattern = new RegExp(`<w:tr[\\s\\S]*?${escapedMarker}[\\s\\S]*?<\\/w:tr>`, 'g');
-    xmlContent = xmlContent.replace(rowPattern, '');
-    const markerPattern = new RegExp(escapedMarker, 'g');
-    xmlContent = xmlContent.replace(markerPattern, '');
-  });
+    const markerRe = new RegExp(escapedMarker);
+    const segments = xmlContent.split('</w:tr>');
+    const kept = segments.filter((seg) => !markerRe.test(seg));
+    xmlContent = kept.join('</w:tr>');
+    // Belt-and-suspenders: clear any stray marker text that survived
+    xmlContent = xmlContent.replace(new RegExp(escapedMarker, 'g'), '');
+  }
 
   zip.file(documentXmlPath, xmlContent);
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });

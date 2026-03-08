@@ -47,6 +47,7 @@ export const ProgressReportsView = () => {
   const [weekDetailsByWeek, setWeekDetailsByWeek] = useState({});
   const [loadingWeekDetailsByWeek, setLoadingWeekDetailsByWeek] = useState({});
   const [expandedWeeks, setExpandedWeeks] = useState({});
+  const [downloadingDocxWeek, setDownloadingDocxWeek] = useState(null);
 
   const [reportingStartDate, setReportingStartDate] = useState('');
   const [reportingEndDate, setReportingEndDate] = useState('');
@@ -470,48 +471,51 @@ export const ProgressReportsView = () => {
       await loadWeeklyReports(true);
 
       try {
-        const pdfResponse = await weeklyReportService.exportPdf(Number(selectedWeek));
-        const fileBlob = new Blob([pdfResponse.data], { type: 'application/pdf' });
-        const objectUrl = window.URL.createObjectURL(fileBlob);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = objectUrl;
-        downloadLink.download = `A Priori_W${selectedWeek}.pdf`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        window.URL.revokeObjectURL(objectUrl);
-        alert('Weekly report saved and PDF downloaded successfully!');
+        const docxResponse = await weeklyReportService.exportDocx(Number(selectedWeek));
+        const docxBlob = new Blob([docxResponse.data], {
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        });
+        const docxUrl = window.URL.createObjectURL(docxBlob);
+        const docxLink = document.createElement('a');
+        docxLink.href = docxUrl;
+        docxLink.download = `A Priori_W${selectedWeek}.docx`;
+        document.body.appendChild(docxLink);
+        docxLink.click();
+        document.body.removeChild(docxLink);
+        window.URL.revokeObjectURL(docxUrl);
+        alert('Weekly report saved and DOCX downloaded successfully!');
       } catch (exportErr) {
-        const exportMessage = await extractApiErrorMessage(
-          exportErr,
-          'PDF export failed, but your weekly report was saved.'
-        );
-
-        try {
-          const docxResponse = await weeklyReportService.exportDocx(Number(selectedWeek));
-          const docxBlob = new Blob([docxResponse.data], {
-            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          });
-          const docxUrl = window.URL.createObjectURL(docxBlob);
-          const docxLink = document.createElement('a');
-          docxLink.href = docxUrl;
-          docxLink.download = `A Priori_W${selectedWeek}.docx`;
-          document.body.appendChild(docxLink);
-          docxLink.click();
-          document.body.removeChild(docxLink);
-          window.URL.revokeObjectURL(docxUrl);
-
-          setExportWarning(`${exportMessage} Downloaded DOCX fallback instead.`);
-          alert('Weekly report saved. PDF unavailable, so DOCX was downloaded instead.');
-        } catch (_docxErr) {
-          setExportWarning(exportMessage);
-          alert('Weekly report saved successfully, but export failed.');
-        }
+        const exportMessage = await extractApiErrorMessage(exportErr, 'DOCX export failed, but your weekly report was saved.');
+        setExportWarning(exportMessage);
+        alert('Weekly report saved successfully, but DOCX export failed.');
       }
     } catch (err) {
       setReportError(err.response?.data?.message || 'Failed to save weekly report');
     } finally {
       setSavingWeekly(false);
+    }
+  };
+
+  const handleDownloadSavedDocx = async (weekNumber) => {
+    try {
+      setDownloadingDocxWeek(weekNumber);
+      const docxResponse = await weeklyReportService.exportDocx(Number(weekNumber));
+      const docxBlob = new Blob([docxResponse.data], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+      const docxUrl = window.URL.createObjectURL(docxBlob);
+      const docxLink = document.createElement('a');
+      docxLink.href = docxUrl;
+      docxLink.download = `A Priori_W${weekNumber}.docx`;
+      document.body.appendChild(docxLink);
+      docxLink.click();
+      document.body.removeChild(docxLink);
+      window.URL.revokeObjectURL(docxUrl);
+    } catch (err) {
+      const msg = await extractApiErrorMessage(err, 'Failed to download DOCX.');
+      alert(msg);
+    } finally {
+      setDownloadingDocxWeek(null);
     }
   };
 
@@ -946,6 +950,31 @@ export const ProgressReportsView = () => {
                                   ))}
                                 </div>
                               )}
+
+                              <div className="flex justify-end pt-1">
+                                <button
+                                  onClick={() => handleDownloadSavedDocx(weekNumber)}
+                                  disabled={downloadingDocxWeek === weekNumber}
+                                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                >
+                                  {downloadingDocxWeek === weekNumber ? (
+                                    <>
+                                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                      </svg>
+                                      Downloading…
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m-4-4l4 4 4-4" />
+                                      </svg>
+                                      Save DOCX
+                                    </>
+                                  )}
+                                </button>
+                              </div>
                             </>
                           )}
                         </div>

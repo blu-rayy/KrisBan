@@ -6,17 +6,11 @@
  */
 export const generateFormattedReportWithGemini = async (progressReports, date) => {
   try {
-    // Check if Gemini Nano is available
-    const aiModel = window.LanguageModel || window.ai?.languageModel;
-    
-    if (!aiModel) {
-      throw new Error("Gemini Nano not available. Enable in Chrome Canary at chrome://flags/#prompt-api");
-    }
+    const requiredMembers = ['KRISTIAN', 'ANGEL', 'MICHAEL', 'MARIANNE'];
 
     // Group reports by member
     const memberReports = {};
     const allTasks = [];
-    const requiredMembers = ['KRISTIAN', 'ANGEL', 'MICHAEL', 'MARIANNE'];
 
     // Process reports
     progressReports.forEach(report => {
@@ -103,9 +97,23 @@ export const generateFormattedReportWithGemini = async (progressReports, date) =
       return selectedSentences.slice(0, 3).join(' ');
     };
 
-    // If no accomplishments were provided, skip Gemini prompt and return deterministic fallback
+    // If no accomplishments were provided, return deterministic fallback
     if (allTasks.length === 0) {
       return `The team recorded no completed tasks for this date. No accomplishments were submitted for reporting.\n\nKRISTIAN: No task recorded for this date.\nANGEL: No task recorded for this date.\nMICHAEL: No task recorded for this date.\nMARIANNE: No task recorded for this date.`;
+    }
+
+    // Check if Gemini Nano is available; if not, build a non-AI fallback immediately
+    const aiModel = window.LanguageModel || window.ai?.languageModel;
+
+    if (!aiModel) {
+      const fallbackMemberLines = requiredMembers
+        .map((memberName) => {
+          const tasks = (memberReports[memberName] || []).filter((task) => String(task || '').trim());
+          const taskText = tasks.length ? truncateToWordLimit(tasks[0], 11) : 'No task recorded for this date.';
+          return `${memberName}: ${taskText}`;
+        })
+        .join('\n');
+      return `${buildFallbackSummary(allTasks)}\n\n${fallbackMemberLines}`;
     }
 
     const inputByMember = requiredMembers
