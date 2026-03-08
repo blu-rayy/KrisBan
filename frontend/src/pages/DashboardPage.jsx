@@ -11,6 +11,7 @@ import { KanbanView } from '../components/kanban/KanbanView';
 import { TicketsListView } from '../components/kanban/TicketsListView';
 import { ChangePasswordModal } from '../components/shared/ChangePasswordModal';
 import { ProfileDropdown } from '../components/layout/ProfileDropdown';
+import { SettingsView } from '../components/settings/SettingsView';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
@@ -188,6 +189,7 @@ export const DashboardPage = () => {
           {activeSection === 'kanban' && <KanbanView />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <TicketsListView />}
+          {activeSection === 'settings' && <SettingsView />}
         </main>
       </div>
 

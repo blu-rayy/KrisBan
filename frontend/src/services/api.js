@@ -73,7 +73,10 @@ export const authService = {
     api.get('/auth/me'),
 
   updateProfile: (profileData) =>
-    api.put('/auth/profile', profileData)
+    api.put('/auth/profile', profileData),
+
+  getUsers: () =>
+    api.get('/auth/users')
 };
 
 // Dashboard services

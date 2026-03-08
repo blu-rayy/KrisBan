@@ -273,3 +273,32 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+// @route   GET /api/auth/users
+// @desc    Get all team members
+// @access  Private
+export const getUsers = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, full_name, username, institute_email, role, profile_picture, is_active, created_at')
+      .order('full_name');
+
+    if (error) throw error;
+
+    const users = data.map(u => ({
+      id: u.id,
+      fullName: u.full_name,
+      username: u.username,
+      instituteEmail: u.institute_email,
+      role: u.role,
+      profilePicture: u.profile_picture,
+      isActive: u.is_active,
+      createdAt: u.created_at
+    }));
+
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
