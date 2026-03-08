@@ -483,136 +483,184 @@ export const SMEOutreachView = () => {
       )}
 
       {!isLoading && showSmeForm && (
-        <section className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">
-            {editingSmeId ? 'Edit SME' : 'Add SME'}
-          </h2>
-          <form className="grid grid-cols-1 gap-3 md:grid-cols-2" onSubmit={handleSaveSme}>
-            <input
-              type="text"
-              value={smeForm.name}
-              onChange={(event) => setSmeForm((current) => ({ ...current, name: event.target.value }))}
-              placeholder="SME Name"
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              value={smeForm.title}
-              onChange={(event) => setSmeForm((current) => ({ ...current, title: event.target.value }))}
-              placeholder="Title"
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              value={smeForm.organization}
-              onChange={(event) => setSmeForm((current) => ({ ...current, organization: event.target.value }))}
-              placeholder="Organization"
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-              required
-            />
-            <input
-              type="date"
-              value={smeForm.lastContactDate}
-              onChange={(event) => setSmeForm((current) => ({ ...current, lastContactDate: event.target.value }))}
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-            />
-            <select
-              value={smeForm.pointPersonUserId}
-              onChange={(event) => {
-                const selectedUser = pointPeople.find((person) => person.id === event.target.value);
-                setSmeForm((current) => ({
-                  ...current,
-                  pointPersonUserId: event.target.value,
-                  pointPersonNameSnapshot: selectedUser?.username || current.pointPersonNameSnapshot
-                }));
-              }}
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-            >
-              <option value="">Select point person...</option>
-              {pointPeople.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.username}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              value={smeForm.pointPersonNameSnapshot}
-              onChange={(event) =>
-                setSmeForm((current) => ({ ...current, pointPersonNameSnapshot: event.target.value }))
-              }
-              placeholder="Point Person Username (snapshot)"
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-              required
-            />
-            <select
-              value={smeForm.status}
-              onChange={(event) => setSmeForm((current) => ({ ...current, status: event.target.value }))}
-              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-            >
-              {SME_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-            <textarea
-              value={smeForm.notes}
-              onChange={(event) => setSmeForm((current) => ({ ...current, notes: event.target.value }))}
-              placeholder="Notes"
-              rows={3}
-              className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-            />
+        <section className="mb-6 rounded-xl border border-emerald-200 bg-white shadow-card-soft overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-hero px-6 py-4">
+            <h2 className="text-lg font-semibold text-white">
+              {editingSmeId ? 'Edit SME' : 'Add SME'}
+            </h2>
+            <p className="text-xs text-emerald-100 mt-0.5">
+              {editingSmeId ? 'Update the SME record details below.' : 'Fill in the details to add a new Subject Matter Expert.'}
+            </p>
+          </div>
 
-            <div className="md:col-span-2">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Profile &amp; Contact</p>
+          <form className="p-5 md:p-6 space-y-6" onSubmit={handleSaveSme}>
+            {/* Basic Info */}
+            <div>
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Basic Info</p>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <input
-                  type="url"
-                  value={smeForm.profilePicture}
-                  onChange={(event) => setSmeForm((current) => ({ ...current, profilePicture: event.target.value }))}
-                  placeholder="Profile Picture URL"
-                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-                <textarea
-                  value={smeForm.summary}
-                  onChange={(event) => setSmeForm((current) => ({ ...current, summary: event.target.value }))}
-                  placeholder="Brief summary / bio"
-                  rows={2}
-                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-                <input
-                  type="email"
-                  value={smeForm.email}
-                  onChange={(event) => setSmeForm((current) => ({ ...current, email: event.target.value }))}
-                  placeholder="Email address"
-                  className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-                <input
-                  type="tel"
-                  value={smeForm.phone}
-                  onChange={(event) => setSmeForm((current) => ({ ...current, phone: event.target.value }))}
-                  placeholder="Phone / mobile number"
-                  className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-                <input
-                  type="url"
-                  value={smeForm.linkedinUrl}
-                  onChange={(event) => setSmeForm((current) => ({ ...current, linkedinUrl: event.target.value }))}
-                  placeholder="LinkedIn profile URL"
-                  className="md:col-span-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">SME Name <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={smeForm.name}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, name: event.target.value }))}
+                    placeholder="e.g. Dr. Jane Smith"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Title <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={smeForm.title}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, title: event.target.value }))}
+                    placeholder="e.g. Senior Engineer"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Organization <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={smeForm.organization}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, organization: event.target.value }))}
+                    placeholder="e.g. Acme Corp"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Last Contact Date</label>
+                  <input
+                    type="date"
+                    value={smeForm.lastContactDate}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, lastContactDate: event.target.value }))}
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center gap-3">
+            {/* Status & Assignment */}
+            <div>
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Status &amp; Assignment</p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Point Person</label>
+                  <select
+                    value={smeForm.pointPersonUserId}
+                    onChange={(event) => {
+                      const selectedUser = pointPeople.find((person) => person.id === event.target.value);
+                      setSmeForm((current) => ({
+                        ...current,
+                        pointPersonUserId: event.target.value,
+                        pointPersonNameSnapshot: selectedUser?.username || current.pointPersonNameSnapshot
+                      }));
+                    }}
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  >
+                    <option value="">Select point person...</option>
+                    {pointPeople.map((person) => (
+                      <option key={person.id} value={person.id}>
+                        {person.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Status</label>
+                  <select
+                    value={smeForm.status}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, status: event.target.value }))}
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  >
+                    {SME_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Notes</label>
+                  <textarea
+                    value={smeForm.notes}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, notes: event.target.value }))}
+                    placeholder="Any relevant notes..."
+                    rows={3}
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Profile & Contact */}
+            <div>
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Profile &amp; Contact</p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Profile Picture URL</label>
+                  <input
+                    type="url"
+                    value={smeForm.profilePicture}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, profilePicture: event.target.value }))}
+                    placeholder="https://..."
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Brief Summary / Bio</label>
+                  <textarea
+                    value={smeForm.summary}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, summary: event.target.value }))}
+                    placeholder="Short background or bio..."
+                    rows={2}
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={smeForm.email}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="name@example.com"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Phone / Mobile Number</label>
+                  <input
+                    type="tel"
+                    value={smeForm.phone}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, phone: event.target.value }))}
+                    placeholder="+1 234 567 8900"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Social Media URL</label>
+                  <input
+                    type="url"
+                    value={smeForm.linkedinUrl}
+                    onChange={(event) => setSmeForm((current) => ({ ...current, linkedinUrl: event.target.value }))}
+                    placeholder="https://linkedin.com/in/..."
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
               <button
                 type="submit"
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-slate-50 hover:bg-emerald-700"
+                className="rounded-lg bg-gradient-action px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition"
               >
-                {editingSmeId ? 'Save SME' : 'Add SME'}
+                {editingSmeId ? 'Save Changes' : 'Add SME'}
               </button>
               <button
                 type="button"
@@ -621,7 +669,7 @@ export const SMEOutreachView = () => {
                   setEditingSmeId(null);
                   setSmeForm(emptySmeForm);
                 }}
-                className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+                className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>

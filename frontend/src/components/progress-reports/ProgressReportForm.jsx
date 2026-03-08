@@ -163,17 +163,14 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
   const filteredSuggestions = getAllTeamPlanSuggestions();
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const processImageFile = (file) => {
     if (!file) return;
 
-    // Check file size (less than 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Image size must be less than 5MB');
       return;
     }
 
-    // Check file type
     if (!file.type.startsWith('image/')) {
       setError('Please upload a valid image file');
       return;
@@ -182,12 +179,29 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
     setImageFile(file);
     setError('');
 
-    // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
       setImagePreview(e.target.result);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    processImageFile(file);
+  };
+
+  const handlePasteImage = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        processImageFile(file);
+        return;
+      }
+    }
   };
 
   const uploadImage = async (file) => {
@@ -285,7 +299,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             name="date"
             value={formData.date}
             onChange={handleInputChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
+            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
               errors.date ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -310,7 +324,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
               error={!!errors.memberId}
             />
           ) : (
-            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-surface-ground text-dark-charcoal font-medium">
+            <div className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-surface-ground text-dark-charcoal font-medium">
               {user?.username || 'Current User'}
             </div>
           )}
@@ -339,15 +353,6 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
               error={!!errors.sprintNo}
               className="flex-1"
             />
-            <button
-              type="button"
-              onClick={handleRefreshSprints}
-              disabled={refreshingSprints}
-              title="Refresh sprint list"
-              className="p-2 bg-transparent hover:bg-green-100 text-forest-green hover:text-emerald-deep rounded-lg transition disabled:opacity-50"
-            >
-              {refreshingSprints ? '⟳' : '↻'}
-            </button>
             <SprintBadge label={formData.sprintNo} />
           </div>
           {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
@@ -366,7 +371,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             onChange={handleInputChange}
             onFocus={() => formData.teamPlan && setShowSuggestions(true)}
             placeholder="Enter team plan details or select from suggestions"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-card-soft max-h-48 overflow-y-auto scrollbar-hide">
@@ -425,7 +430,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             Image <span className="text-red-500">*</span> (Max 5MB)
           </label>
           {errors.image && <p className="mb-2 text-sm text-red-500">{errors.image}</p>}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <input
               type="file"
               id="image"
@@ -434,8 +439,17 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
               disabled={uploadingImage}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-forest-green hover:file:bg-green-100 disabled:opacity-50 transition"
             />
+            {!imagePreview && (
+              <div
+                onPaste={handlePasteImage}
+                tabIndex={0}
+                className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-400 cursor-pointer hover:border-forest-green hover:text-forest-green focus:outline-none focus:border-forest-green transition select-none"
+              >
+                Click here and press Ctrl+V to paste a screenshot
+              </div>
+            )}
             {imagePreview && (
-              <div className="relative">
+              <div className="relative inline-block">
                 <img
                   src={imagePreview}
                   alt="Preview"
@@ -447,9 +461,12 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
                     setImageFile(null);
                     setImagePreview(null);
                   }}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs hover:bg-red-600 transition font-medium"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-md"
+                  aria-label="Remove image"
                 >
-                  Remove
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                 </button>
               </div>
             )}

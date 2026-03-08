@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { sprintService } from '../../services/sprintService';
 import { SprintBadge } from './SprintBadge';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons';
 
 export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole }) => {
   const [expandedSprints, setExpandedSprints] = useState({});
@@ -123,17 +125,21 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
               {userRole === 'ADMIN' && (
                 <div className="flex gap-2" onClick={e => e.stopPropagation()}>
                   <button
+                    type="button"
                     onClick={() => handleEditSprint(sprint)}
-                    className="px-3 py-1 text-sm bg-green-50 hover:bg-green-100 text-forest-green rounded-lg transition font-medium"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                    title="Edit"
                   >
-                    Edit
+                    <HugeiconsIcon icon={Edit02Icon} size={16} color="currentColor" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDeleteSprint(sprint.id)}
                     disabled={deletingId === sprint.id}
-                    className="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition disabled:opacity-50 font-medium"
+                    className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition disabled:opacity-50"
+                    title="Delete"
                   >
-                    {deletingId === sprint.id ? 'Deleting...' : 'Delete'}
+                    <HugeiconsIcon icon={Delete02Icon} size={16} color="currentColor" />
                   </button>
                 </div>
               )}
@@ -202,17 +208,21 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                           {userRole === 'ADMIN' && (
                             <div className="ml-2 flex gap-2">
                               <button
+                                type="button"
                                 onClick={() => handleEditTeamPlan(plan)}
-                                className="text-forest-green hover:text-emerald-deep text-sm font-medium transition"
+                                className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                                title="Edit"
                               >
-                                Edit
+                                <HugeiconsIcon icon={Edit02Icon} size={14} color="currentColor" />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => handleDeleteTeamPlan(plan.id, sprint.id)}
                                 disabled={deletingTeamPlanId === plan.id}
-                                className="text-red-600 hover:text-red-800 text-sm font-medium transition disabled:opacity-50"
+                                className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition disabled:opacity-50"
+                                title="Delete"
                               >
-                                {deletingTeamPlanId === plan.id ? 'Deleting...' : 'Delete'}
+                                <HugeiconsIcon icon={Delete02Icon} size={14} color="currentColor" />
                               </button>
                             </div>
                           )}

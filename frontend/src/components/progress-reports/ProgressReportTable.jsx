@@ -4,6 +4,8 @@ import { SprintBadge } from '../sprints/SprintBadge';
 import { getBadgeStyle } from '../../utils/badgeStyles';
 import { useSprints } from '../../hooks/useSprints';
 import { CustomSelect } from '../shared/CustomSelect';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -306,8 +308,8 @@ export const ProgressReportTable = ({
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-card-soft overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 bg-surface-ground">
+    <div className="bg-white rounded-2xl shadow-card-soft overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-surface-ground rounded-t-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div>
             <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-1">
@@ -331,13 +333,13 @@ export const ProgressReportTable = ({
         <table className="w-full min-w-[1200px]">
           <thead className="bg-gradient-hero border-b border-forest-green">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Date</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white rounded-tl-2xl">Date</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Member</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Sprint #</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Team Plan</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap w-56 min-w-[14rem]">Category</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">What I Did Today</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white">Actions</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-white rounded-tr-2xl">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -376,18 +378,24 @@ export const ProgressReportTable = ({
                   <div className="flex gap-2 justify-start">
                     {canEditReport(report) && (
                       <button
+                        type="button"
                         onClick={() => handleEditClick(report)}
-                        className="text-forest-green hover:text-emerald-deep font-medium px-3 py-1 rounded hover:bg-green-50 transition"
+                        className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                        aria-label="Edit entry"
+                        title="Edit"
                       >
-                        Edit
+                        <HugeiconsIcon icon={Edit02Icon} size={16} color="currentColor" />
                       </button>
                     )}
                     {canDeleteReport(report) && (
                       <button
+                        type="button"
                         onClick={() => handleDelete(report.id)}
-                        className="text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded hover:bg-red-50 transition"
+                        className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition"
+                        aria-label="Delete entry"
+                        title="Delete"
                       >
-                        Delete
+                        <HugeiconsIcon icon={Delete02Icon} size={16} color="currentColor" />
                       </button>
                     )}
                   </div>
