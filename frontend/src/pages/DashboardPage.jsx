@@ -17,7 +17,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
 import { fetchProgressReports } from '../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Menu01Icon } from '@hugeicons/core-free-icons';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
@@ -103,18 +102,11 @@ export const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-surface-ground flex flex-col">
       {/* Top Header - Donezo Style */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-6">
+      <header className="bg-white shadow-sm sticky top-0 z-40 h-20">
+        <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center">
+          <div className="flex items-center justify-between gap-6 w-full">
             {/* Left: Menu + Logo */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              <button
-                onClick={() => setIsMobileSidebarOpen((current) => !current)}
-                className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
-                aria-label={isMobileSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              >
-                <HugeiconsIcon icon={Menu01Icon} size={20} color="currentColor" />
-              </button>
               <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
               <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                 KrisBan

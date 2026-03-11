@@ -137,9 +137,10 @@ export const DashboardView = ({ dashboardData, userRole }) => {
         {/* Team Activity - White Card */}
         <div className="bg-white text-dark-charcoal rounded-[24px] p-6 shadow-card-soft hover:scale-105 transition-all duration-300">
           <h3 className="text-lg font-bold mb-4">Team Activity</h3>
-          <div className="space-y-4">
-            {progressReports.slice(0, 3).map((report, idx) => (
-              <div key={idx} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-b-0">
+          <div className="space-y-3">
+            {progressReports.slice(0, 3).map((report, idx, arr) => (
+              <React.Fragment key={idx}>
+              <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-gradient-hero text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
                   {report.memberProfilePicture ? (
                     <img
@@ -164,6 +165,10 @@ export const DashboardView = ({ dashboardData, userRole }) => {
                   </span>
                 </div>
               </div>
+              {idx < arr.length - 1 && (
+                <div className="h-px bg-gray-100 rounded-full" />
+              )}
+              </React.Fragment>
             ))}
             {progressReports.length === 0 && (
               <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
@@ -218,7 +223,8 @@ export const DashboardView = ({ dashboardData, userRole }) => {
       </div>
 
       {/* Optional: Quick Stats Footer */}
-      <div className="mt-12 pt-8 border-t border-gray-200">
+      <div className="mt-12 pt-8">
+        <div className="h-px bg-gray-100 rounded-full mb-8" />
         <p className="text-sm text-gray-600 text-center">
           Dashboard updated • Last sync:
           <span className="font-medium text-dark-charcoal ml-1">Just now</span>

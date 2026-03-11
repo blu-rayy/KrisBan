@@ -3,13 +3,13 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Cancel01Icon,
   ChartBarLineIcon,
+  Menu01Icon,
   DashboardSquare01Icon,
   DocumentAttachmentIcon,
   FlashIcon,
   HelpCircleIcon,
   KanbanIcon,
   Mail01Icon,
-  Menu01Icon,
   Settings01Icon,
   Ticket01Icon
 } from '@hugeicons/core-free-icons';
@@ -115,20 +115,23 @@ export const Sidebar = ({
   return (
     <>
     <aside
-      className={`bg-white border-r border-gray-200 h-[calc(100vh-80px)] shadow-sm flex flex-col fixed left-0 top-20 z-40 transition-[width,transform] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
+      className={`bg-white h-[calc(100vh-80px)] shadow-[2px_0_20px_rgba(0,0,0,0.06)] flex flex-col fixed left-0 top-20 z-40 transition-[width,transform] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
     >
-      <div className="h-14 flex items-center" style={{ paddingLeft: '22px' }}>
-        <button
-          onClick={isMobile ? onCloseMobile : onToggleCollapse}
-          className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors duration-200"
-          aria-label={isMobile ? 'Close sidebar' : 'Toggle sidebar'}
-        >
-          <HugeiconsIcon
-            icon={isMobile ? Cancel01Icon : Menu01Icon}
-            size={18}
-            color="currentColor"
-          />
-        </button>
+      {/* Sidebar toggle button */}
+      <div className="px-4 pt-4 pb-2">
+        <div className="w-12 flex items-center justify-center">
+          <button
+            onClick={isMobile ? onCloseMobile : onToggleCollapse}
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            aria-label={isMobile ? 'Close sidebar' : 'Toggle sidebar'}
+          >
+            <HugeiconsIcon
+              icon={isMobile ? Cancel01Icon : Menu01Icon}
+              size={20}
+              color="currentColor"
+            />
+          </button>
+        </div>
       </div>
 
       {/* Menu Items */}
@@ -184,7 +187,8 @@ export const Sidebar = ({
       </nav>
 
       {/* General Section - Bottom */}
-      <div className="border-t border-gray-200 p-4 space-y-2">
+      <div className="px-4 pb-4 space-y-2">
+        <div className="h-px bg-gray-100 rounded-full mb-2" />
         {/* General Items */}
         {generalItems.map(item => (
           (() => {
