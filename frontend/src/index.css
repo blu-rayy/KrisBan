@@ -249,3 +249,10 @@ body {
   }
 }
 
+/* View Transitions: circular wipe for dark/light mode toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+

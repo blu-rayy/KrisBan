@@ -9,6 +9,9 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
   const canvasRef = useRef(null);
   const playerRef = useRef(null);
   const isReadyRef = useRef(false);
+  // Always-current ref so the complete handler can read latest darkMode
+  const darkModeRef = useRef(darkMode);
+  useEffect(() => { darkModeRef.current = darkMode; }, [darkMode]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -25,8 +28,15 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
 
     dotLottie.addEventListener('load', () => {
       isReadyRef.current = true;
-      // Snap to correct state for current theme (no animation)
-      dotLottie.setFrame(darkMode ? MID_FRAME : 0);
+      dotLottie.setFrame(darkModeRef.current ? MID_FRAME : 15);
+    });
+
+    // After dark→light finishes (ends at frame 154), pre-seek to 20
+    // so the next light→dark click starts instantly with no seek delay
+    dotLottie.addEventListener('complete', () => {
+      if (!darkModeRef.current) {
+        dotLottie.setFrame(20);
+      }
     });
 
     return () => {
@@ -36,22 +46,52 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleClick = () => {
-    onToggle();
-
+  const handleClick = (e) => {
+    // Play Lottie animation
     const player = playerRef.current;
-    if (!player || !isReadyRef.current) return;
-
-    if (!darkMode) {
-      // Light → Dark: play first half (sun → moon)
-      player.setFrame(0);
-      player.setSegment(0, MID_FRAME);
-    } else {
-      // Dark → Light: play second half (moon → sun)
-      player.setFrame(MID_FRAME);
-      player.setSegment(MID_FRAME, END_FRAME);
+    if (player && isReadyRef.current) {
+      if (!darkMode) {
+        player.setFrame(20);
+        player.setSegment(20, MID_FRAME);
+      } else {
+        player.setFrame(MID_FRAME);
+        player.setSegment(MID_FRAME, END_FRAME);
+      }
+      player.play();
     }
-    player.play();
+
+    // Circular wipe via View Transitions API
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    if (!document.startViewTransition) {
+      onToggle();
+      return;
+    }
+
+    const transition = document.startViewTransition(() => onToggle());
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+      document.documentElement.animate(
+        { clipPath: !darkMode ? clipPath : [...clipPath].reverse() },
+        {
+          duration: 450,
+          easing: 'ease-in-out',
+          pseudoElement: !darkMode
+            ? '::view-transition-new(root)'
+            : '::view-transition-old(root)',
+        }
+      );
+    });
   };
 
   return (
