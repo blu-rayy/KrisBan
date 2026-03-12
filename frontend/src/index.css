@@ -14,7 +14,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa;
+  background-color: var(--surface-ground);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @layer base {
@@ -48,7 +50,12 @@ body {
   --dark-emerald: #022c22;
   --leaf-green: #10b981;
   --dark-charcoal: #1f2937;
-  
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --input-bg: #f8fafc;
+
   /* Gradients */
   --gradient-hero: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
   --gradient-dark: linear-gradient(135deg, #022c22 0%, #000000 100%);
@@ -58,6 +65,22 @@ body {
   --shadow-card-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
   --shadow-card-elevated: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
   --shadow-none: none;
+}
+
+/* Dark mode overrides */
+.dark {
+  --surface-main: #13201a;
+  --surface-ground: #080f0b;
+  --dark-charcoal: #e2f0e8;
+  --text-primary: #e2f0e8;
+  --text-secondary: #7da88d;
+  --border-color: #243b2c;
+  --card-bg: #13201a;
+  --input-bg: #1a2e23;
+
+  /* Shadows - more visible on dark bg */
+  --shadow-card-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+  --shadow-card-elevated: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
 }
 
 /* Bento Card Component Styles */

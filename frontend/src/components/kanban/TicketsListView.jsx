@@ -34,7 +34,7 @@ export const TicketsListView = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4 flex-wrap">
+      <div className="bg-white dark:bg-dm-card border-b border-gray-100 dark:border-dm-border px-6 py-3 flex items-center gap-4 flex-wrap">
         {/* Board selector */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
           {boards.map((b) => (
@@ -44,7 +44,7 @@ export const TicketsListView = () => {
               className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium transition-colors ${
                 b.id === activeBoardId
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-gray-600 dark:text-dm-muted hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               {b.name}
@@ -54,7 +54,7 @@ export const TicketsListView = () => {
 
         {/* Search */}
         <input
-          className="ml-auto w-56 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+          className="ml-auto w-56 px-3 py-2 border border-gray-200 dark:border-dm-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft"
           placeholder="Search tickets…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -64,20 +64,20 @@ export const TicketsListView = () => {
       {/* Table */}
       <div className="flex-1 overflow-auto p-6">
         {(loadingBoards || isLoading) && (
-          <div className="text-center text-gray-400 py-16">Loading…</div>
+          <div className="text-center text-gray-400 dark:text-dm-soft py-16">Loading…</div>
         )}
 
         {!isLoading && filtered.length === 0 && (
-          <div className="text-center text-gray-400 py-16">
+          <div className="text-center text-gray-400 dark:text-dm-soft py-16">
             {search ? 'No tickets match your search.' : 'No tickets in this board yet.'}
           </div>
         )}
 
         {!isLoading && filtered.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-dm-card rounded-2xl border border-gray-100 dark:border-dm-border shadow-sm overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <tr className="border-b border-gray-100 dark:border-dm-border text-xs font-semibold text-gray-400 dark:text-dm-soft uppercase tracking-wider">
                   <th className="text-left px-4 py-3">Title</th>
                   <th className="text-left px-4 py-3">Status</th>
                   <th className="text-left px-4 py-3">Assignees</th>
@@ -95,7 +95,7 @@ export const TicketsListView = () => {
                     <tr
                       key={ticket.id}
                       onClick={() => setSelectedTicketId(ticket.id)}
-                      className="border-b border-gray-50 hover:bg-blue-50/40 cursor-pointer transition-colors"
+                      className="border-b border-gray-50 dark:border-dm-border hover:bg-blue-50/40 dark:hover:bg-dm-elevated cursor-pointer transition-colors"
                     >
                       {/* Title */}
                       <td className="px-4 py-3">
@@ -103,7 +103,7 @@ export const TicketsListView = () => {
                           {ticket.cover_color && (
                             <span className="w-1.5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: ticket.cover_color }} />
                           )}
-                          <span className="font-medium text-gray-800">{ticket.title}</span>
+                          <span className="font-medium text-gray-800 dark:text-dm-text">{ticket.title}</span>
                         </div>
                       </td>
 
@@ -168,7 +168,7 @@ export const TicketsListView = () => {
                           <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
                             overdue  ? 'bg-red-100 text-red-600' :
                             dueToday ? 'bg-amber-100 text-amber-700' :
-                                       'bg-gray-100 text-gray-600'
+                                       'bg-gray-100 dark:bg-dm-elevated text-gray-600 dark:text-dm-muted'
                           }`}>
                             {format(dueDate, 'MMM d, yyyy')}
                           </span>
@@ -181,7 +181,7 @@ export const TicketsListView = () => {
                           <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
                             ticket.tasks_done === ticket.tasks_total
                               ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-600'
+                              : 'bg-gray-100 dark:bg-dm-elevated text-gray-600 dark:text-dm-muted'
                           }`}>
                             {ticket.tasks_done}/{ticket.tasks_total}
                           </span>

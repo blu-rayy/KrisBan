@@ -9,13 +9,13 @@ const COVER_COLORS = [
   '#6B7280', '#1E293B'
 ];
 
-const INPUT_CLS = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white';
+const INPUT_CLS = 'w-full px-3 py-2 border border-gray-200 dark:border-dm-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white dark:bg-dm-elevated dark:text-dm-text';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 const Section = ({ title, children }) => (
   <div className="space-y-2">
-    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{title}</h4>
+    <h4 className="text-xs font-semibold text-gray-400 dark:text-dm-soft uppercase tracking-wider">{title}</h4>
     {children}
   </div>
 );
@@ -193,27 +193,27 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-2xl h-full bg-white shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl h-full bg-white dark:bg-dm-card shadow-2xl flex flex-col overflow-hidden">
         {/* Cover */}
         {coverColor && <div className="h-3 flex-shrink-0" style={{ backgroundColor: coverColor }} />}
 
         {/* Scroll body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {isLoading ? (
-            <div className="text-center text-gray-400 py-20">Loading…</div>
+            <div className="text-center text-gray-400 dark:text-dm-soft py-20">Loading…</div>
           ) : (
             <>
               {/* Title */}
               <div className="flex items-start gap-3">
                 <textarea
                   ref={titleRef}
-                  className="flex-1 text-xl font-bold text-gray-900 resize-none border-0 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg px-1 min-h-[2.5rem]"
+                  className="flex-1 text-xl font-bold text-gray-900 dark:text-dm-text resize-none border-0 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-dm-card rounded-lg px-1 min-h-[2.5rem]"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={handleTitleBlur}
                   rows={1}
                 />
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none mt-1">✕</button>
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-700 dark:hover:text-dm-text text-xl leading-none mt-1">✕</button>
               </div>
 
               {/* Cover Colors */}
@@ -234,7 +234,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   {coverColor && (
                     <button
                       onClick={() => handleCoverColor('')}
-                      className="w-7 h-7 rounded-md bg-gray-100 text-gray-500 text-xs font-semibold hover:bg-gray-200"
+                      className="w-7 h-7 rounded-md bg-gray-100 dark:bg-dm-elevated text-gray-500 dark:text-dm-muted text-xs font-semibold hover:bg-gray-200 dark:hover:bg-dm-elevated/80"
                     >✕</button>
                   )}
                 </div>
@@ -256,9 +256,9 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   {(ticket?.assignees || []).map((a) => {
                     const u = a.users || a;
                     return (
-                      <div key={a.user_id} className="flex items-center gap-1.5 bg-gray-100 rounded-full pl-1 pr-2 py-0.5">
+                      <div key={a.user_id} className="flex items-center gap-1.5 bg-gray-100 dark:bg-dm-elevated rounded-full pl-1 pr-2 py-0.5">
                         <AvatarCircle user={u} size="sm" />
-                        <span className="text-xs text-gray-700">{u.full_name || u.username}</span>
+                        <span className="text-xs text-gray-700 dark:text-dm-text">{u.full_name || u.username}</span>
                         <button
                           onClick={() => toggleAssignee(a.user_id)}
                           className="text-gray-400 hover:text-red-500 leading-none"
@@ -272,12 +272,12 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   >+ Add</button>
                 </div>
                 {showUserPicker && (
-                  <div className="border border-gray-200 rounded-xl bg-white shadow-lg max-h-44 overflow-y-auto mt-1">
+                  <div className="border border-gray-200 dark:border-dm-border rounded-xl bg-white dark:bg-dm-card shadow-lg max-h-44 overflow-y-auto mt-1">
                     {allUsers.map((u) => (
                       <button
                         key={u.id}
                         onClick={() => toggleAssignee(u.id)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${assigneeIds.has(u.id) ? 'bg-blue-50' : ''}`}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-dm-elevated dark:text-dm-text ${assigneeIds.has(u.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                       >
                         <AvatarCircle user={u} size="sm" />
                         <span className="flex-1 text-left">{u.full_name || u.username}</span>
@@ -311,12 +311,12 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   >+ Label</button>
                 </div>
                 {showLabelPicker && (
-                  <div className="border border-gray-200 rounded-xl bg-white shadow-lg p-2 mt-1 space-y-1">
+                  <div className="border border-gray-200 dark:border-dm-border rounded-xl bg-white dark:bg-dm-card shadow-lg p-2 mt-1 space-y-1">
                     {boardLabels.map((lbl) => (
                       <button
                         key={lbl.id}
                         onClick={() => toggleLabel(lbl.id)}
-                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm hover:bg-gray-50 ${ticketLabelIds.has(lbl.id) ? 'bg-blue-50' : ''}`}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-dm-elevated dark:text-dm-text ${ticketLabelIds.has(lbl.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                       >
                         <span className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: lbl.color }} />
                         <span className="flex-1 text-left">{lbl.name}</span>
@@ -377,7 +377,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                           onChange={() => handleToggleTask(task)}
                           className="accent-blue-600 cursor-pointer flex-shrink-0"
                         />
-                        <span className={`flex-1 text-sm ${task.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                          <span className={`flex-1 text-sm ${task.done ? 'line-through text-gray-400' : 'text-gray-700 dark:text-dm-text'}`}>
                           {task.title}
                         </span>
                         <button
@@ -408,7 +408,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                 {attachments.length > 0 && (
                   <div className="space-y-1.5">
                     {attachments.map((att) => (
-                      <div key={att.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg group">
+                      <div key={att.id} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-dm-elevated rounded-lg group">
                         <span className="text-lg">{att.is_link ? '🔗' : '📎'}</span>
                         <a
                           href={att.url}
@@ -465,8 +465,8 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                           <AvatarCircle user={u} size="sm" />
                           <div className="flex-1 space-y-0.5">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-xs font-semibold text-gray-700">{u.full_name || u.username}</span>
-                              <span className="text-[10px] text-gray-400">
+                              <span className="text-xs font-semibold text-gray-700 dark:text-dm-text">{u.full_name || u.username}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-dm-soft">
                                 {new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
@@ -484,7 +484,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{c.body}</p>
+                              <p className="text-sm text-gray-700 dark:text-dm-muted whitespace-pre-wrap">{c.body}</p>
                             )}
                             {isMine && editingCommentId !== c.id && (
                               <div className="flex gap-2 mt-0.5">
@@ -522,8 +522,8 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
 
         {/* Footer */}
         {ticket && (
-          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
-            <span className="text-xs text-gray-400">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 dark:border-dm-border flex justify-between items-center bg-gray-50 dark:bg-dm-elevated">
+            <span className="text-xs text-gray-400 dark:text-dm-soft">
               {saving ? 'Saving…' : 'Changes saved automatically'}
             </span>
             <button

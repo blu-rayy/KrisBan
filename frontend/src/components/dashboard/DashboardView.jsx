@@ -49,12 +49,12 @@ export const DashboardView = ({ dashboardData, userRole }) => {
   const pendingProjects = summary.pendingProjects || 0;
 
   return (
-    <div className="min-h-full bg-surface-ground p-4 sm:p-6 lg:p-8">
+    <div className="min-h-full bg-surface-ground dark:bg-dm-ground p-4 sm:p-6 lg:p-8 transition-colors duration-300">
       {/* Page Header with Action Buttons */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8 sm:mb-12">
         <div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal mb-2">Dashboard</h2>
-          <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text mb-2">Dashboard</h2>
+          <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">
             Plan, prioritize, and accomplish your tasks with ease.
           </p>
         </div>
@@ -135,8 +135,8 @@ export const DashboardView = ({ dashboardData, userRole }) => {
         </div>
 
         {/* Team Activity - White Card */}
-        <div className="bg-white text-dark-charcoal rounded-[24px] p-6 shadow-card-soft hover:scale-105 transition-all duration-300">
-          <h3 className="text-lg font-bold mb-4">Team Activity</h3>
+        <div className="bg-white dark:bg-dm-card text-dark-charcoal dark:text-dm-text rounded-[24px] p-6 shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] hover:scale-105 transition-all duration-300">
+          <h3 className="text-lg font-bold dark:text-dm-text mb-4">Team Activity</h3>
           <div className="space-y-3">
             {progressReports.slice(0, 3).map((report, idx, arr) => (
               <React.Fragment key={idx}>
@@ -154,19 +154,19 @@ export const DashboardView = ({ dashboardData, userRole }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-semibold text-sm">{report.memberName}</p>
+                    <p className="font-semibold text-sm dark:text-dm-text">{report.memberName}</p>
                     <span className="text-[11px] text-gray-400 whitespace-nowrap">
                       {formatShortDate(report.createdAt || report.date)}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600 truncate">{report.teamPlan || '-'}</p>
+                  <p className="text-xs text-gray-600 dark:text-dm-muted truncate">{report.teamPlan || '-'}</p>
                   <span className={`inline-block mt-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyle('category', report.category)}`}>
                     {report.category}
                   </span>
                 </div>
               </div>
               {idx < arr.length - 1 && (
-                <div className="h-px bg-gray-100 rounded-full" />
+                <div className="h-px bg-gray-100 dark:bg-dm-border rounded-full" />
               )}
               </React.Fragment>
             ))}
@@ -177,8 +177,8 @@ export const DashboardView = ({ dashboardData, userRole }) => {
         </div>
 
         {/* Project Progress - White Card with Donut */}
-        <div className="bg-white text-dark-charcoal rounded-[24px] p-6 shadow-card-soft hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center">
-          <h3 className="text-lg font-bold mb-6">Project Progress</h3>
+        <div className="bg-white dark:bg-dm-card text-dark-charcoal dark:text-dm-text rounded-[24px] p-6 shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center">
+          <h3 className="text-lg font-bold dark:text-dm-text mb-6">Project Progress</h3>
           <div className="relative w-32 h-32 mb-6">
             {/* Simple donut chart */}
             <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -224,10 +224,10 @@ export const DashboardView = ({ dashboardData, userRole }) => {
 
       {/* Optional: Quick Stats Footer */}
       <div className="mt-12 pt-8">
-        <div className="h-px bg-gray-100 rounded-full mb-8" />
-        <p className="text-sm text-gray-600 text-center">
+        <div className="h-px bg-gray-100 dark:bg-dm-border rounded-full mb-8" />
+        <p className="text-sm text-gray-600 dark:text-dm-muted text-center">
           Dashboard updated • Last sync:
-          <span className="font-medium text-dark-charcoal ml-1">Just now</span>
+          <span className="font-medium text-dark-charcoal dark:text-dm-text ml-1">Just now</span>
         </p>
       </div>
     </div>

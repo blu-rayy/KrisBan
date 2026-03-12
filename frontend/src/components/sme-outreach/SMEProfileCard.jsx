@@ -21,11 +21,11 @@ const PointPersonAvatar = ({ name, profilePicture }) => (
         className="h-6 w-6 rounded-full border border-slate-200 object-cover"
       />
     ) : (
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-200 text-[10px] font-semibold text-slate-600">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 dark:border-dm-border bg-slate-200 dark:bg-dm-elevated text-[10px] font-semibold text-slate-600 dark:text-dm-muted">
         {getInitials(name)}
       </span>
     )}
-    <span className="text-sm text-slate-700">{name || 'N/A'}</span>
+      <span className="text-sm text-slate-700 dark:text-dm-text">{name || 'N/A'}</span>
   </div>
 );
 
@@ -35,7 +35,7 @@ export const SMEProfileCard = ({ sme }) => {
   const hasContactDetails = sme.email || sme.phone || sme.linkedinUrl;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+    <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card p-4 md:p-5">
       {/* Avatar + identity */}
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
@@ -53,13 +53,13 @@ export const SMEProfileCard = ({ sme }) => {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-slate-800 leading-tight">{sme.name}</h3>
-          <p className="text-sm text-slate-600">{sme.title}</p>
-          <p className="text-sm text-slate-500">{sme.organization}</p>
+          <h3 className="text-base font-semibold text-slate-800 dark:text-dm-text leading-tight">{sme.name}</h3>
+          <p className="text-sm text-slate-600 dark:text-dm-muted">{sme.title}</p>
+          <p className="text-sm text-slate-500 dark:text-dm-soft">{sme.organization}</p>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-slate-500">Point Person:</span>
+              <span className="text-xs text-slate-500 dark:text-dm-soft">Point Person:</span>
               <PointPersonAvatar
                 name={sme.pointPerson}
                 profilePicture={sme.pointPersonProfilePicture}
@@ -73,20 +73,20 @@ export const SMEProfileCard = ({ sme }) => {
       {/* Summary / bio */}
       {sme.summary && (
         <div className="mt-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">About</p>
-          <p className="text-sm text-slate-700 leading-relaxed">{sme.summary}</p>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-dm-soft">About</p>
+          <p className="text-sm text-slate-700 dark:text-dm-muted leading-relaxed">{sme.summary}</p>
         </div>
       )}
 
       {/* Contact details */}
       {hasContactDetails && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Contact</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-dm-soft">Contact</p>
           <div className="space-y-1.5">
             {sme.email && (
               <a
                 href={`mailto:${sme.email}`}
-                className="flex items-center gap-2 text-sm text-slate-700 hover:text-emerald-700 transition-colors"
+                className="flex items-center gap-2 text-sm text-slate-700 dark:text-dm-text hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
               >
                 <HugeiconsIcon icon={Mail01Icon} size={15} color="currentColor" className="flex-shrink-0" />
                 <span className="truncate">{sme.email}</span>
@@ -95,7 +95,7 @@ export const SMEProfileCard = ({ sme }) => {
             {sme.phone && (
               <a
                 href={`tel:${sme.phone}`}
-                className="flex items-center gap-2 text-sm text-slate-700 hover:text-emerald-700 transition-colors"
+                className="flex items-center gap-2 text-sm text-slate-700 dark:text-dm-text hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
               >
                 <HugeiconsIcon icon={SmartPhone01Icon} size={15} color="currentColor" className="flex-shrink-0" />
                 <span>{sme.phone}</span>
@@ -106,7 +106,7 @@ export const SMEProfileCard = ({ sme }) => {
                 href={sme.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-slate-700 hover:text-emerald-700 transition-colors"
+                className="flex items-center gap-2 text-sm text-slate-700 dark:text-dm-text hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
               >
                 <HugeiconsIcon icon={Linkedin01Icon} size={15} color="currentColor" className="flex-shrink-0" />
                 <span className="truncate">{sme.linkedinUrl}</span>
@@ -118,15 +118,15 @@ export const SMEProfileCard = ({ sme }) => {
 
       {/* Notes */}
       {sme.notes && (
-        <div className="mt-4 rounded-lg bg-slate-50 border border-slate-100 px-3 py-2.5">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Notes</p>
-          <p className="text-sm text-slate-700 leading-relaxed">{sme.notes}</p>
+        <div className="mt-4 rounded-lg bg-slate-50 dark:bg-dm-elevated border border-slate-100 dark:border-dm-border px-3 py-2.5">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-dm-soft">Notes</p>
+          <p className="text-sm text-slate-700 dark:text-dm-muted leading-relaxed">{sme.notes}</p>
         </div>
       )}
 
       {sme.lastContactDate && (
-        <p className="mt-3 text-xs text-slate-400">
-          Last contacted: <span className="font-medium text-slate-500">{sme.lastContactDate}</span>
+        <p className="mt-3 text-xs text-slate-400 dark:text-dm-soft">
+          Last contacted: <span className="font-medium text-slate-500 dark:text-dm-muted">{sme.lastContactDate}</span>
         </p>
       )}
     </div>

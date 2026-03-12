@@ -1,9 +1,9 @@
 const STATUS_STYLES = {
-  Draft: 'bg-slate-100 text-slate-700 border-slate-200',
-  Sent: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  Waiting: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Responded: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  'No Reply': 'bg-slate-200 text-slate-700 border-slate-300'
+  Draft: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+  Sent: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800',
+  Waiting: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800',
+  Responded: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
+  'No Reply': 'bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
 };
 
 export const SMEStatusBadge = ({ status }) => {

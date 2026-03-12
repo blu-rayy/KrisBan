@@ -57,8 +57,8 @@ const MessageEditor = ({ messages, onChange }) => {
           key={msg._key}
           className={`flex gap-2 items-start rounded-lg border p-2 ${
             msg.direction === 'sent'
-              ? 'border-emerald-200 bg-emerald-50'
-              : 'border-slate-200 bg-white'
+              ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800/50 dark:bg-emerald-900/20'
+              : 'border-slate-200 dark:border-dm-border bg-white dark:bg-dm-elevated'
           }`}
         >
           <button
@@ -80,7 +80,7 @@ const MessageEditor = ({ messages, onChange }) => {
             value={msg.content}
             onChange={(e) => update(idx, 'content', e.target.value)}
             placeholder={msg.direction === 'sent' ? 'What we sent...' : 'Their reply...'}
-            className="flex-1 rounded border border-slate-300 bg-transparent px-2 py-1 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none resize-none"
+            className="flex-1 rounded border border-slate-300 dark:border-dm-border bg-transparent px-2 py-1 text-xs text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none resize-none"
           />
           {messages.length > 1 && (
             <button
@@ -138,12 +138,12 @@ const LogEntry = ({ log, sme, onUpdate, onDelete }) => {
 
   if (isEditing) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 space-y-2">
+      <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 p-3 space-y-2">
         <input
           type="date"
           value={editDate}
           onChange={(e) => setEditDate(e.target.value)}
-          className="w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none"
+          className="w-full rounded border border-slate-300 dark:border-dm-border bg-white dark:bg-dm-elevated px-2 py-1.5 text-xs text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
         />
         <MessageEditor messages={editMessages} onChange={setEditMessages} />
         <div className="flex gap-2">
@@ -157,7 +157,7 @@ const LogEntry = ({ log, sme, onUpdate, onDelete }) => {
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="rounded border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+            className="rounded border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-3 py-1 text-xs font-semibold text-slate-700 dark:text-dm-text hover:bg-slate-200 dark:hover:bg-dm-elevated/80"
           >
             Cancel
           </button>
@@ -171,18 +171,18 @@ const LogEntry = ({ log, sme, onUpdate, onDelete }) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 py-1">
-        <div className="flex-1 h-px bg-slate-200" />
-        <span className="shrink-0 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-dm-border" />
+        <span className="shrink-0 text-[10px] font-semibold text-slate-400 dark:text-dm-soft uppercase tracking-wide">
           {formattedDate}
         </span>
-        <div className="flex-1 h-px bg-slate-200" />
+        <div className="flex-1 h-px bg-slate-200 dark:bg-dm-border" />
       </div>
 
       {messages.map((msg, idx) =>
         msg.direction === 'sent' ? (
           <div key={idx} className="flex items-end justify-end gap-2">
             <div className="max-w-[80%] space-y-0.5">
-              <p className="text-right text-[10px] font-semibold text-slate-400 pr-1">
+              <p className="text-right text-[10px] font-semibold text-slate-400 dark:text-dm-soft pr-1">
                 {sme?.pointPerson || 'Us'}
               </p>
               <div className="rounded-2xl rounded-br-sm bg-emerald-600 px-3 py-2 text-xs text-white shadow-sm">
@@ -195,8 +195,8 @@ const LogEntry = ({ log, sme, onUpdate, onDelete }) => {
           <div key={idx} className="flex items-end gap-2">
             <ChatAvatar name={sme?.name} profilePicture={sme?.profilePicture} />
             <div className="max-w-[80%] space-y-0.5">
-              <p className="text-[10px] font-semibold text-slate-400 pl-1">{sme?.name || 'SME'}</p>
-              <div className="rounded-2xl rounded-bl-sm bg-white border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-sm">
+              <p className="text-[10px] font-semibold text-slate-400 dark:text-dm-soft pl-1">{sme?.name || 'SME'}</p>
+              <div className="rounded-2xl rounded-bl-sm bg-white dark:bg-dm-elevated border border-slate-200 dark:border-dm-border px-3 py-2 text-xs text-slate-800 dark:text-dm-text shadow-sm">
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
             </div>
@@ -267,25 +267,25 @@ export const OutreachHub = ({
   const hasContent = logForm.messages.some((m) => m.content.trim());
 
   return (
-    <aside className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
-      <h2 className="mb-3 text-lg font-semibold text-slate-800">Outreach Hub</h2>
+    <aside className="rounded-xl border border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-card p-4 md:p-5">
+      <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-dm-text">Outreach Hub</h2>
 
       <SMEProfileCard sme={selectedSme} />
 
-      <div className="my-5 border-t border-slate-200" />
+      <div className="my-5 border-t border-slate-200 dark:border-dm-border" />
 
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400">Outreach Tools</p>
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-dm-soft">Outreach Tools</p>
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="template-select" className="mb-2 block text-sm font-medium text-slate-800">
+          <label htmlFor="template-select" className="mb-2 block text-sm font-medium text-slate-800 dark:text-dm-text">
             Email Template
           </label>
           <select
             id="template-select"
             value={selectedTemplateId}
             onChange={(event) => onTemplateSelect(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
           >
             <option value="">Select template...</option>
             {templates.map((template) => (
@@ -297,14 +297,14 @@ export const OutreachHub = ({
         </div>
 
         <div>
-          <label htmlFor="status-select" className="mb-2 block text-sm font-medium text-slate-800">
+          <label htmlFor="status-select" className="mb-2 block text-sm font-medium text-slate-800 dark:text-dm-text">
             Quick Status Update
           </label>
           <select
             id="status-select"
             value={selectedSme.status}
             onChange={(event) => onStatusChange(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
           >
             {SME_STATUSES.map((status) => (
               <option key={status} value={status}>
@@ -315,7 +315,7 @@ export const OutreachHub = ({
         </div>
 
         <div>
-          <label htmlFor="parsed-template" className="mb-2 block text-sm font-medium text-slate-800">
+          <label htmlFor="parsed-template" className="mb-2 block text-sm font-medium text-slate-800 dark:text-dm-text">
             Draft Message
           </label>
           <textarea
@@ -324,7 +324,7 @@ export const OutreachHub = ({
             value={draftMessage}
             onChange={(event) => onDraftChange(event.target.value)}
             placeholder="Choose a template to generate draft outreach content, or type your message..."
-            className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
           />
         </div>
 
@@ -340,7 +340,7 @@ export const OutreachHub = ({
           <button
             type="button"
             onClick={handleUseDraft}
-            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-lg border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-4 py-2 text-sm font-semibold text-slate-700 dark:text-dm-text transition-colors hover:bg-slate-200 dark:hover:bg-dm-elevated/80 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!draftMessage.trim()}
             title="Pre-fill draft as the sent message in a new log entry"
           >
@@ -349,13 +349,13 @@ export const OutreachHub = ({
         </div>
       </div>
 
-      <div className="my-5 border-t border-slate-200" />
+      <div className="my-5 border-t border-slate-200 dark:border-dm-border" />
 
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-dm-soft">
           Conversation Log
           {smeLogs && smeLogs.length > 0 && (
-            <span className="ml-2 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+            <span className="ml-2 rounded-full bg-slate-200 dark:bg-dm-elevated px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-dm-muted">
               {smeLogs.length}
             </span>
           )}
@@ -373,12 +373,12 @@ export const OutreachHub = ({
       </div>
 
       {showLogForm && (
-        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+        <div className="mb-4 rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-elevated p-3 space-y-2">
           <input
             type="date"
             value={logForm.logDate}
             onChange={(e) => setLogForm((f) => ({ ...f, logDate: e.target.value }))}
-            className="w-full rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none"
+            className="w-full rounded border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-card px-2 py-1.5 text-xs text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
           />
           <MessageEditor
             messages={logForm.messages}
@@ -396,7 +396,7 @@ export const OutreachHub = ({
       )}
 
       {smeLogs && smeLogs.length > 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white px-3 py-4 space-y-4">
+        <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-elevated px-3 py-4 space-y-4">
           {smeLogs.map((log) => (
             <LogEntry
               key={log.id}
@@ -408,7 +408,7 @@ export const OutreachHub = ({
           ))}
         </div>
       ) : (
-        <p className="text-xs text-slate-400 italic">No conversation entries yet.</p>
+        <p className="text-xs text-slate-400 dark:text-dm-soft italic">No conversation entries yet.</p>
       )}
     </aside>
   );

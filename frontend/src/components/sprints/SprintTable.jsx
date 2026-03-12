@@ -85,14 +85,14 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
   };
 
   if (loading && sprints.length === 0) {
-    return <div className="text-center py-8 text-gray-600">Loading sprints...</div>;
+    return <div className="text-center py-8 text-gray-600 dark:text-dm-muted">Loading sprints...</div>;
   }
 
   if (sprints.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-card-soft">
-        <p className="text-dark-charcoal text-lg font-medium">No sprints created yet</p>
-        <p className="text-gray-500 text-sm">Create your first sprint to get started</p>
+      <div className="text-center py-12 bg-white dark:bg-dm-card rounded-xl border-2 border-dashed border-gray-200 dark:border-dm-border shadow-card-soft">
+        <p className="text-dark-charcoal dark:text-dm-text text-lg font-medium">No sprints created yet</p>
+        <p className="text-gray-500 dark:text-dm-soft text-sm">Create your first sprint to get started</p>
       </div>
     );
   }
@@ -100,26 +100,26 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
   return (
     <div className="space-y-4">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
       {sprints.map((sprint, index) => (
-        <div key={sprint.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-card-soft hover:shadow-card-elevated transition duration-200">
+        <div key={sprint.id} className="bg-white dark:bg-dm-card rounded-xl border border-gray-100 dark:border-dm-border overflow-hidden shadow-card-soft hover:shadow-card-elevated transition duration-200">
           {/* Sprint Header */}
-          <div className="p-6 sm:p-4 flex items-center justify-between hover:bg-surface-ground transition cursor-pointer duration-200" onClick={() => toggleExpanded(sprint.id)}>
+          <div className="p-6 sm:p-4 flex items-center justify-between hover:bg-surface-ground dark:hover:bg-dm-elevated transition cursor-pointer duration-200" onClick={() => toggleExpanded(sprint.id)}>
             <div className="flex items-center gap-4">
               <SprintBadge label={sprint.sprintNumber} colorName={sprint.color} index={index} />
               <div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dm-muted">
                   {sprint.teamPlans.length} team plan{sprint.teamPlans.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-gray-400">
+              <span className="text-gray-400 dark:text-dm-soft">
                 {expandedSprints[sprint.id] ? '▼' : '▶'}
               </span>
               {userRole === 'ADMIN' && (
@@ -127,7 +127,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                   <button
                     type="button"
                     onClick={() => handleEditSprint(sprint)}
-                    className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated p-1.5 text-slate-700 dark:text-dm-muted hover:bg-slate-200 dark:hover:bg-dm-elevated transition"
                     title="Edit"
                   >
                     <HugeiconsIcon icon={Edit02Icon} size={16} color="currentColor" />
@@ -136,7 +136,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                     type="button"
                     onClick={() => handleDeleteSprint(sprint.id)}
                     disabled={deletingId === sprint.id}
-                    className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition disabled:opacity-50"
                     title="Delete"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={16} color="currentColor" />
@@ -148,13 +148,13 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
 
           {/* Sprint Edit Modal */}
           {editingSprintId === sprint.id && (
-            <div className="border-t border-gray-100 bg-surface-ground p-6 sm:p-4 space-y-3">
+            <div className="border-t border-gray-100 dark:border-dm-border bg-surface-ground dark:bg-dm-elevated p-6 sm:p-4 space-y-3">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={editSprintNumber}
                   onChange={(e) => setEditSprintNumber(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green transition"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-dm-border dark:bg-dm-card dark:text-dm-text rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green transition"
                   placeholder="Sprint number"
                 />
                 <button
@@ -175,18 +175,18 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
 
           {/* Sprint Details (Expanded) */}
           {expandedSprints[sprint.id] && editingSprintId !== sprint.id && (
-            <div className="border-t border-gray-100 bg-surface-ground p-6 sm:p-4 space-y-3">
+            <div className="border-t border-gray-100 dark:border-dm-border bg-surface-ground dark:bg-dm-elevated p-6 sm:p-4 space-y-3">
               {sprint.teamPlans.length > 0 ? (
                 <div className="space-y-2">
                   {sprint.teamPlans.map((plan) => (
                     <div key={plan.id}>
                       {editingTeamPlanId === plan.id ? (
-                        <div className="flex gap-2 bg-white p-4 sm:p-3 rounded-lg border border-gray-200">
+                        <div className="flex gap-2 bg-white dark:bg-dm-card p-4 sm:p-3 rounded-lg border border-gray-200 dark:border-dm-border">
                           <input
                             type="text"
                             value={editTeamPlan}
                             onChange={(e) => setEditTeamPlan(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green transition"
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green transition"
                             autoFocus
                           />
                           <button
@@ -203,14 +203,14 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                           </button>
                         </div>
                       ) : (
-                        <div className="flex justify-between items-center bg-white p-4 sm:p-3 rounded-lg border border-gray-200">
-                          <span className="text-dark-charcoal flex-1">{plan.team_plan}</span>
+                        <div className="flex justify-between items-center bg-white dark:bg-dm-card p-4 sm:p-3 rounded-lg border border-gray-200 dark:border-dm-border">
+                          <span className="text-dark-charcoal dark:text-dm-text flex-1">{plan.team_plan}</span>
                           {userRole === 'ADMIN' && (
                             <div className="ml-2 flex gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleEditTeamPlan(plan)}
-                                className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                                className="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated p-1.5 text-slate-700 dark:text-dm-muted hover:bg-slate-200 dark:hover:bg-dm-elevated transition"
                                 title="Edit"
                               >
                                 <HugeiconsIcon icon={Edit02Icon} size={14} color="currentColor" />
@@ -219,7 +219,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                                 type="button"
                                 onClick={() => handleDeleteTeamPlan(plan.id, sprint.id)}
                                 disabled={deletingTeamPlanId === plan.id}
-                                className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition disabled:opacity-50"
+                                className="inline-flex items-center justify-center rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition disabled:opacity-50"
                                 title="Delete"
                               >
                                 <HugeiconsIcon icon={Delete02Icon} size={14} color="currentColor" />
@@ -232,7 +232,7 @@ export const SprintTable = ({ sprints = [], loading = false, onRefresh, userRole
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 italic text-sm">No team plans associated yet</p>
+                <p className="text-gray-500 dark:text-dm-soft italic text-sm">No team plans associated yet</p>
               )}
             </div>
           )}

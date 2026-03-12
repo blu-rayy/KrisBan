@@ -55,20 +55,20 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
         {showMenu && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-            <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[180px]">
-              <div className="px-4 py-2 text-xs font-semibold text-[#5e6c84] text-center border-b border-gray-100 mb-1">List actions</div>
+            <div className="absolute right-0 top-8 z-20 bg-white dark:bg-dm-card rounded-lg shadow-xl border border-gray-200 dark:border-dm-border py-1 min-w-[180px]">
+              <div className="px-4 py-2 text-xs font-semibold text-[#5e6c84] dark:text-dm-soft text-center border-b border-gray-100 dark:border-dm-border mb-1">List actions</div>
               <button
                 onClick={() => { setShowMenu(false); onAddTicket(column.id); }}
-                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] hover:bg-[#f4f5f7]"
+                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] dark:text-dm-text hover:bg-[#f4f5f7] dark:hover:bg-dm-elevated"
               >Add card</button>
               <button
                 onClick={() => { setShowMenu(false); setEditing(true); }}
-                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] hover:bg-[#f4f5f7]"
+                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] dark:text-dm-text hover:bg-[#f4f5f7] dark:hover:bg-dm-elevated"
               >Rename list</button>
-              <hr className="my-1 border-gray-100" />
+              <hr className="my-1 border-gray-100 dark:border-dm-border" />
               <button
                 onClick={() => { setShowMenu(false); onDelete(column.id); }}
-                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
+                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
               >Delete this list</button>
             </div>
           </>
@@ -204,7 +204,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                   <div
                     ref={colProvided.innerRef}
                     {...colProvided.draggableProps}
-                    className={`flex-shrink-0 w-[272px] rounded-[12px] flex flex-col bg-[#ebecf0] ${
+                    className={`flex-shrink-0 w-[272px] rounded-[12px] flex flex-col bg-[#ebecf0] dark:bg-dm-elevated ${
                       colSnapshot.isDragging ? 'shadow-2xl opacity-90 rotate-1' : ''
                     }`}
                     style={{ maxHeight: 'calc(100vh - 180px)' }}
@@ -227,7 +227,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                           ref={tickProvided.innerRef}
                           {...tickProvided.droppableProps}
                           className={`flex-1 overflow-y-auto overflow-x-hidden px-2 space-y-2 transition-colors ${
-                            tickSnapshot.isDraggingOver ? 'bg-[#dde0e4] rounded-[4px]' : ''
+                            tickSnapshot.isDraggingOver ? 'bg-[#dde0e4] dark:bg-dm-card rounded-[4px]' : ''
                           }`}
                           style={{ minHeight: 4 }}
                         >
@@ -288,7 +288,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                   Add another list
                 </button>
               ) : (
-                <div className="bg-[#ebecf0] rounded-[12px] p-2 space-y-2">
+                <div className="bg-[#ebecf0] dark:bg-dm-elevated rounded-[12px] p-2 space-y-2">
                   <input
                     autoFocus
                     className="w-full px-3 py-2 bg-white rounded text-sm text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"

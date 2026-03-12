@@ -21,7 +21,7 @@ export const StatCard = ({
   const baseStyles = 'rounded-[24px] transition-all duration-300 hover:scale-105 cursor-pointer';
   
   const variantStyles = {
-    white: 'bg-white text-dark-charcoal shadow-card-soft',
+    white: 'bg-white dark:bg-dm-card text-dark-charcoal dark:text-dm-text shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)]',
     hero: 'bg-gradient-hero text-white shadow-none',
     dark: 'bg-gradient-dark text-white shadow-none'
   };
@@ -67,18 +67,18 @@ export const StatCard = ({
       </div>
 
       {/* Title */}
-      <p className={`text-sm font-medium mb-2 ${variant === 'white' ? 'text-gray-600' : 'text-opacity-90'}`}>
+      <p className={`text-sm font-medium mb-2 ${variant === 'white' ? 'text-gray-600 dark:text-dm-muted' : 'text-opacity-90'}`}>
         {title}
       </p>
 
       {/* Value */}
-      <h3 className={`text-3xl font-bold mb-2 text-left leading-relaxed ${variant === 'white' ? 'text-dark-charcoal' : 'text-white'}`}>
+      <h3 className={`text-3xl font-bold mb-2 text-left leading-relaxed ${variant === 'white' ? 'text-dark-charcoal dark:text-dm-text' : 'text-white'}`}>
         {value}
       </h3>
 
       {/* Subtitle */}
       {subtitle && (
-        <p className={`text-xs ${variant === 'white' ? 'text-gray-500' : 'text-opacity-75'}`}>
+        <p className={`text-xs ${variant === 'white' ? 'text-gray-500 dark:text-dm-soft' : 'text-opacity-75'}`}>
           {subtitle}
         </p>
       )}

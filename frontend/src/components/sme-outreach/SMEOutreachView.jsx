@@ -435,13 +435,13 @@ export const SMEOutreachView = () => {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <header className="mb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal">Emails CRM</h1>
-        <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">Emails CRM</h1>
+        <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">
           Track SME outreach, draft template-based messages, and update communication status.
         </p>
       </header>
 
-      <div className="mb-6 border-b border-slate-200">
+      <div className="mb-6 border-b border-slate-200 dark:border-dm-border">
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           <button
             type="button"
@@ -449,7 +449,7 @@ export const SMEOutreachView = () => {
             className={`inline-flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
               activeTab === 'outreach'
                 ? 'border-emerald-600 text-emerald-700'
-                : 'border-transparent text-slate-700 hover:text-slate-800'
+                : 'border-transparent text-slate-700 dark:text-dm-muted hover:text-slate-800 dark:hover:text-dm-text'
             }`}
           >
             <HugeiconsIcon icon={BubbleChatIcon} size={18} color="currentColor" />
@@ -461,7 +461,7 @@ export const SMEOutreachView = () => {
             className={`inline-flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
               activeTab === 'templates'
                 ? 'border-emerald-600 text-emerald-700'
-                : 'border-transparent text-slate-700 hover:text-slate-800'
+                : 'border-transparent text-slate-700 dark:text-dm-muted hover:text-slate-800 dark:hover:text-dm-text'
             }`}
           >
             <HugeiconsIcon icon={DocumentAttachmentIcon} size={18} color="currentColor" />
@@ -471,19 +471,19 @@ export const SMEOutreachView = () => {
       </div>
 
       {errorMessage && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-4 py-3 text-sm text-red-700 dark:text-red-300">
           {errorMessage}
         </div>
       )}
 
       {isLoading && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
+        <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated p-6 text-slate-700 dark:text-dm-muted">
           Loading Emails CRM data...
         </div>
       )}
 
       {!isLoading && showSmeForm && (
-        <section className="mb-6 rounded-xl border border-emerald-200 bg-white shadow-card-soft overflow-hidden">
+        <section className="mb-6 rounded-xl border border-emerald-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-hero px-6 py-4">
             <h2 className="text-lg font-semibold text-white">
@@ -500,45 +500,45 @@ export const SMEOutreachView = () => {
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Basic Info</p>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">SME Name <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">SME Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={smeForm.name}
                     onChange={(event) => setSmeForm((current) => ({ ...current, name: event.target.value }))}
                     placeholder="e.g. Dr. Jane Smith"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Title <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Title <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={smeForm.title}
                     onChange={(event) => setSmeForm((current) => ({ ...current, title: event.target.value }))}
                     placeholder="e.g. Senior Engineer"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Organization <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Organization <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={smeForm.organization}
                     onChange={(event) => setSmeForm((current) => ({ ...current, organization: event.target.value }))}
                     placeholder="e.g. Acme Corp"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Last Contact Date</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Last Contact Date</label>
                   <input
                     type="date"
                     value={smeForm.lastContactDate}
                     onChange={(event) => setSmeForm((current) => ({ ...current, lastContactDate: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   />
                 </div>
               </div>
@@ -549,7 +549,7 @@ export const SMEOutreachView = () => {
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Status &amp; Assignment</p>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Point Person</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Point Person</label>
                   <select
                     value={smeForm.pointPersonUserId}
                     onChange={(event) => {
@@ -560,7 +560,7 @@ export const SMEOutreachView = () => {
                         pointPersonNameSnapshot: selectedUser?.username || current.pointPersonNameSnapshot
                       }));
                     }}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   >
                     <option value="">Select point person...</option>
                     {pointPeople.map((person) => (
@@ -571,11 +571,11 @@ export const SMEOutreachView = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Status</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Status</label>
                   <select
                     value={smeForm.status}
                     onChange={(event) => setSmeForm((current) => ({ ...current, status: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   >
                     {SME_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -585,13 +585,13 @@ export const SMEOutreachView = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Notes</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Notes</label>
                   <textarea
                     value={smeForm.notes}
                     onChange={(event) => setSmeForm((current) => ({ ...current, notes: event.target.value }))}
                     placeholder="Any relevant notes..."
                     rows={3}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
                   />
                 </div>
               </div>
@@ -602,60 +602,60 @@ export const SMEOutreachView = () => {
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Profile &amp; Contact</p>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Profile Picture URL</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Profile Picture URL</label>
                   <input
                     type="url"
                     value={smeForm.profilePicture}
                     onChange={(event) => setSmeForm((current) => ({ ...current, profilePicture: event.target.value }))}
                     placeholder="https://..."
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Brief Summary / Bio</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Brief Summary / Bio</label>
                   <textarea
                     value={smeForm.summary}
                     onChange={(event) => setSmeForm((current) => ({ ...current, summary: event.target.value }))}
                     placeholder="Short background or bio..."
                     rows={2}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition resize-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Email Address</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Email Address</label>
                   <input
                     type="email"
                     value={smeForm.email}
                     onChange={(event) => setSmeForm((current) => ({ ...current, email: event.target.value }))}
                     placeholder="name@example.com"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Phone / Mobile Number</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Phone / Mobile Number</label>
                   <input
                     type="tel"
                     value={smeForm.phone}
                     onChange={(event) => setSmeForm((current) => ({ ...current, phone: event.target.value }))}
                     placeholder="+1 234 567 8900"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Social Media URL</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-text mb-1">Social Media URL</label>
                   <input
                     type="url"
                     value={smeForm.linkedinUrl}
                     onChange={(event) => setSmeForm((current) => ({ ...current, linkedinUrl: event.target.value }))}
                     placeholder="https://linkedin.com/in/..."
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                    className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
                   />
                 </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-dm-border">
               <button
                 type="submit"
                 className="rounded-lg bg-gradient-action px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition"
@@ -669,7 +669,7 @@ export const SMEOutreachView = () => {
                   setEditingSmeId(null);
                   setSmeForm(emptySmeForm);
                 }}
-                className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                className="rounded-lg border border-slate-300 dark:border-dm-border bg-white dark:bg-dm-elevated px-5 py-2 text-sm font-semibold text-slate-700 dark:text-dm-text hover:bg-slate-50 dark:hover:bg-dm-elevated/80 transition"
               >
                 Cancel
               </button>
@@ -727,7 +727,7 @@ export const SMEOutreachView = () => {
       )}
 
       {!isLoading && activeTab === 'outreach' && selectedSme && (
-        <div className="hidden lg:flex fixed inset-0 z-50 items-center justify-center bg-slate-800/40 p-6">
+        <div className="hidden lg:flex fixed inset-0 z-50 items-center justify-center bg-slate-800/40 dark:bg-black/60 p-6">
           <button
             type="button"
             className="absolute inset-0"
@@ -739,7 +739,7 @@ export const SMEOutreachView = () => {
             <button
               type="button"
               onClick={closeOutreachModal}
-              className="absolute right-3 top-3 rounded-md border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+              className="absolute right-3 top-3 rounded-md border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-dm-text hover:bg-slate-200 dark:hover:bg-dm-elevated/80"
             >
               Close
             </button>

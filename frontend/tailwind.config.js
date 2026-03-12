@@ -1,5 +1,6 @@
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -16,7 +17,18 @@ export default {
         'forest-green': '#15803d',
         'emerald-deep': '#064e3b',
         'dark-emerald': '#022c22',
-        'leaf-green': '#10b981'
+        'leaf-green': '#10b981',
+        // Dark Mode Palette - Emerald Forest Night
+        dm: {
+          ground:   '#080f0b',  // deepest bg
+          surface:  '#0e1812',  // sidebar / header
+          card:     '#13201a',  // card bg
+          elevated: '#1a2e23',  // elevated card / modal
+          border:   '#243b2c',  // borders & dividers
+          text:     '#e2f0e8',  // primary text
+          muted:    '#7da88d',  // secondary / label text
+          soft:     '#4a7060',  // placeholder / disabled text
+        }
       },
       backgroundImage: {
         // Gradient Accents - The "Premium" Look
@@ -32,7 +44,7 @@ export default {
         // Soft, diffused shadow for white cards
         'card-soft': '0 10px 30px -10px rgba(0, 0, 0, 0.05)',
         // Subtle shadow for interactive elements
-        'card-elevated': '0 4px 12px -2px rgba(0, 0, 0, 0.08)'
+        'card-elevated': '0 4x 12px -2px rgba(0, 0, 0, 0.08)'
       }
     }
   },

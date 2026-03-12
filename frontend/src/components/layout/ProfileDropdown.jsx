@@ -66,14 +66,14 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 z-40"
+        className="fixed inset-0 z-30"
         onClick={onClose}
       />
       
       {/* Dropdown Menu */}
-      <div className="absolute top-16 right-0 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+      <div className="absolute top-16 right-0 w-80 bg-white dark:bg-dm-card rounded-lg shadow-lg border border-gray-200 dark:border-dm-border z-50 transition-colors duration-300">
         {/* Header with Profile */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 dark:border-dm-border">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-16 h-16 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden">
@@ -93,25 +93,25 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
               </button>
             </div>
             <div>
-              <p className="font-semibold text-dark-charcoal">{user?.username}</p>
-              <p className="text-xs text-gray-500">{user?.role}</p>
+              <p className="font-semibold text-dark-charcoal dark:text-dm-text">{user?.username}</p>
+              <p className="text-xs text-gray-500 dark:text-dm-muted">{user?.role}</p>
             </div>
           </div>
         </div>
 
         {/* User Info */}
-        <div className="p-6 space-y-4 border-b border-gray-100">
+        <div className="p-6 space-y-4 border-b border-gray-100 dark:border-dm-border">
           <div>
             <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Full Name</p>
-            <p className="text-sm text-dark-charcoal mt-1">{user?.fullName || 'Not set'}</p>
+            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.fullName || 'Not set'}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Institute Email</p>
-            <p className="text-sm text-dark-charcoal mt-1">{user?.instituteEmail || 'Not set'}</p>
+            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.instituteEmail || 'Not set'}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Personal Email</p>
-            <p className="text-sm text-dark-charcoal mt-1">{user?.personalEmail || 'Not set'}</p>
+            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.personalEmail || 'Not set'}</p>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
         <div className="p-6">
           <button 
             onClick={logout}
-            className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-lg transition flex items-center gap-3"
+            className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition flex items-center gap-3"
           >
             <HugeiconsIcon icon={Logout03Icon} size={18} color="currentColor" />
             <span>Logout</span>

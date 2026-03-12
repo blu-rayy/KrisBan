@@ -115,14 +115,14 @@ export const Sidebar = ({
   return (
     <>
     <aside
-      className={`bg-white h-[calc(100vh-80px)] shadow-[2px_0_20px_rgba(0,0,0,0.06)] flex flex-col fixed left-0 top-20 z-40 transition-[width,transform] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
+      className={`bg-white dark:bg-dm-surface h-[calc(100vh-80px)] shadow-[2px_0_20px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_20px_rgba(0,0,0,0.4)] flex flex-col fixed left-0 top-20 z-40 transition-[width,transform,background-color] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
     >
       {/* Sidebar toggle button */}
       <div className="px-4 pt-4 pb-2">
         <div className="w-12 flex items-center justify-center">
           <button
             onClick={isMobile ? onCloseMobile : onToggleCollapse}
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-dm-muted hover:bg-gray-100 dark:hover:bg-dm-elevated transition-colors duration-200"
             aria-label={isMobile ? 'Close sidebar' : 'Toggle sidebar'}
           >
             <HugeiconsIcon
@@ -155,8 +155,8 @@ export const Sidebar = ({
               isActive
                 ? 'bg-gradient-hero text-white shadow-md'
                 : item.status === 'TBD'
-                ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
+                ? 'bg-gray-50 dark:bg-dm-elevated text-gray-400 dark:text-dm-soft cursor-not-allowed'
+                : 'hover:bg-gray-100 dark:hover:bg-dm-elevated text-gray-700 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
@@ -188,7 +188,7 @@ export const Sidebar = ({
 
       {/* General Section - Bottom */}
       <div className="px-4 pb-4 space-y-2">
-        <div className="h-px bg-gray-100 rounded-full mb-2" />
+        <div className="h-px bg-gray-100 dark:bg-dm-border rounded-full mb-2" />
         {/* General Items */}
         {generalItems.map(item => (
           (() => {
@@ -199,8 +199,8 @@ export const Sidebar = ({
             onClick={item.action}
             className={`w-full h-12 flex items-center rounded-lg text-left transition-colors duration-200 ${
               item.isDanger
-                ? 'hover:bg-red-50 text-red-600 hover:text-red-700'
-                : 'hover:bg-gray-100 text-gray-700 hover:text-dark-charcoal'
+                ? 'hover:bg-red-50 dark:hover:bg-red-950 text-red-600 hover:text-red-700'
+                : 'hover:bg-gray-100 dark:hover:bg-dm-elevated text-gray-700 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
             }`}
             title={!shouldShowText ? item.label : undefined}
           >
@@ -229,7 +229,7 @@ export const Sidebar = ({
           aria-label="Close help"
           onClick={() => setShowHelp(false)}
         />
-        <div className="relative z-10 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        <div className="relative z-10 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-dm-card shadow-2xl [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {/* Header */}
           <div className="bg-gradient-hero px-6 py-5 rounded-t-2xl">
             <div className="flex items-center justify-between">
@@ -257,11 +257,11 @@ export const Sidebar = ({
             {/* Quick Start */}
             <section>
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Quick Start</p>
-              <ol className="space-y-2 text-sm text-slate-700 list-decimal list-inside">
-                <li>Go to <span className="font-medium text-slate-900">Progress Reports</span> and fill in your sprint entry for the day.</li>
-                <li>To attach a screenshot, click the paste zone and press <kbd className="px-1.5 py-0.5 rounded border border-slate-300 bg-slate-100 text-xs font-mono">Ctrl+V</kbd>.</li>
-                <li>Head to the <span className="font-medium text-slate-900">Generate Report</span> tab, pick a date range, and click <span className="font-medium text-slate-900">Generate Draft</span>.</li>
-                <li>In <span className="font-medium text-slate-900">Emails CRM</span>, add an SME, select a template, and copy the generated draft.</li>
+              <ol className="space-y-2 text-sm text-slate-700 dark:text-dm-muted list-decimal list-inside">
+                <li>Go to <span className="font-medium text-slate-900 dark:text-dm-text">Progress Reports</span> and fill in your sprint entry for the day.</li>
+                <li>To attach a screenshot, click the paste zone and press <kbd className="px-1.5 py-0.5 rounded border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated text-xs font-mono">Ctrl+V</kbd>.</li>
+                <li>Head to the <span className="font-medium text-slate-900 dark:text-dm-text">Generate Report</span> tab, pick a date range, and click <span className="font-medium text-slate-900 dark:text-dm-text">Generate Draft</span>.</li>
+                <li>In <span className="font-medium text-slate-900 dark:text-dm-text">Emails CRM</span>, add an SME, select a template, and copy the generated draft.</li>
                 <li>Log the conversation result back on the SME&apos;s outreach panel.</li>
               </ol>
             </section>
@@ -276,9 +276,9 @@ export const Sidebar = ({
                   { q: 'What does "Generate Draft" produce?', a: 'It compiles all progress entries within the selected date range into a formatted weekly report draft you can copy or export.' },
                   { q: 'How do I assign a sprint to an entry?', a: 'The sprint is set automatically based on the entry date. The active sprint badge appears below the date field.' }
                 ].map(({ q, a }) => (
-                  <div key={q} className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-                    <p className="text-sm font-semibold text-slate-800 mb-1">{q}</p>
-                    <p className="text-sm text-slate-600">{a}</p>
+                  <div key={q} className="rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-dm-text mb-1">{q}</p>
+                    <p className="text-sm text-slate-600 dark:text-dm-muted">{a}</p>
                   </div>
                 ))}
               </div>
@@ -288,10 +288,10 @@ export const Sidebar = ({
             <section>
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-100 pb-1">Email Template Variables</p>
               <p className="text-xs text-slate-500 mb-3">Use these placeholders in your email templates. They are replaced automatically when a draft is generated.</p>
-              <div className="overflow-hidden rounded-xl border border-slate-200">
+              <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-dm-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-100 text-slate-600 text-xs uppercase tracking-wide">
+                    <tr className="bg-slate-100 dark:bg-dm-elevated text-slate-600 dark:text-dm-muted text-xs uppercase tracking-wide">
                       <th className="px-4 py-2.5 text-left font-semibold">Variable</th>
                       <th className="px-4 py-2.5 text-left font-semibold">Replaced With</th>
                     </tr>
@@ -304,11 +304,11 @@ export const Sidebar = ({
                       { variable: '[SENDER_NAME]', description: "Point person's name" },
                       { variable: '[LAST_CONTACT_DATE]', description: 'Last recorded contact date' }
                     ].map(({ variable, description }) => (
-                      <tr key={variable} className="bg-white">
+                      <tr key={variable} className="bg-white dark:bg-dm-card">
                         <td className="px-4 py-2.5">
-                          <code className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-xs font-mono">{variable}</code>
+                          <code className="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-xs font-mono">{variable}</code>
                         </td>
-                        <td className="px-4 py-2.5 text-slate-600">{description}</td>
+                        <td className="px-4 py-2.5 text-slate-600 dark:text-dm-muted">{description}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -327,9 +327,9 @@ export const Sidebar = ({
                   { status: 'Responded', color: 'bg-emerald-50 text-emerald-700', desc: 'SME has replied to outreach.' },
                   { status: 'No Reply', color: 'bg-red-50 text-red-600', desc: 'No response received after outreach.' }
                 ].map(({ status, color, desc }) => (
-                  <div key={status} className="flex items-start gap-3 rounded-lg border border-slate-100 bg-white px-4 py-3">
+                  <div key={status} className="flex items-start gap-3 rounded-lg border border-slate-100 dark:border-dm-border bg-white dark:bg-dm-card px-4 py-3">
                     <span className={`mt-0.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${color}`}>{status}</span>
-                    <p className="text-sm text-slate-600">{desc}</p>
+                    <p className="text-sm text-slate-600 dark:text-dm-muted">{desc}</p>
                   </div>
                 ))}
               </div>

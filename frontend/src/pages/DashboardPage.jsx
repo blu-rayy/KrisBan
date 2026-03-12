@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Sidebar } from '../components/layout/Sidebar';
 import { DashboardView } from '../components/dashboard/DashboardView';
 import { ProgressReportsView } from '../components/progress-reports/ProgressReportsView';
@@ -16,10 +17,11 @@ import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
 import { fetchProgressReports } from '../services/api';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { DarkModeToggle } from '../components/layout/DarkModeToggle';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
+  const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const mobileBreakpoint = 1024;
@@ -100,25 +102,31 @@ export const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-surface-ground flex flex-col">
-      {/* Top Header - Donezo Style */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 h-20">
+    <div className="min-h-screen bg-surface-ground dark:bg-dm-ground flex flex-col transition-colors duration-300">
+      {/* Top Header */}
+      <header className="bg-white dark:bg-dm-surface shadow-sm sticky top-0 z-40 h-20 transition-colors duration-300">
         <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center">
           <div className="flex items-center justify-between gap-6 w-full">
-            {/* Left: Menu + Logo */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Left: Logo */}
+            <button
+              onClick={() => setActiveSection('dashboard')}
+              className="flex items-center gap-3 flex-shrink-0 cursor-pointer"
+            >
               <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
               <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                 KrisBan
               </h1>
-            </div>
+            </button>
 
-            {/* Right: Icons and User Profile */}
-            <div className="flex items-center gap-4 relative">
-              {/* User Avatar - Click for profile/settings */}
+            {/* Right: Dark mode toggle + User Profile */}
+            <div className="flex items-center gap-3 relative">
+              {/* Dark mode toggle */}
+              <DarkModeToggle darkMode={darkMode} onToggle={toggleDarkMode} />
+
+              {/* User Avatar */}
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-4 border-l border-gray-200 hover:opacity-80 transition cursor-pointer"
+                className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-4 border-l border-gray-200 dark:border-dm-border hover:opacity-80 transition cursor-pointer"
               >
                 <div className="w-10 h-10 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
                   {user?.profilePicture ? (
@@ -128,8 +136,8 @@ export const DashboardPage = () => {
                   )}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-sm font-medium text-dark-charcoal">{user?.username}</p>
-                  <p className="text-xs text-gray-500">{user?.instituteEmail}</p>
+                  <p className="text-sm font-medium text-dark-charcoal dark:text-dm-text">{user?.username}</p>
+                  <p className="text-xs text-gray-500 dark:text-dm-muted">{user?.instituteEmail}</p>
                 </div>
               </button>
 
@@ -165,10 +173,10 @@ export const DashboardPage = () => {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
-        {/* Content Area - Add margin for fixed sidebar */}
+        {/* Content Area */}
         <main className={`flex-1 overflow-auto scrollbar-hide transition-[margin-left] duration-300 ease-in-out ${isMobile ? 'ml-0' : isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
           {isError && error && (
-            <div className="m-8 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="m-8 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
               {error.message || 'Failed to load dashboard'}
             </div>
           )}

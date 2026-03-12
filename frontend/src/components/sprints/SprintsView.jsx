@@ -50,12 +50,12 @@ export const SprintsView = ({ userRole }) => {
   };
 
   return (
-    <div className="p-6 sm:p-6 lg:p-8 space-y-6">
+    <div className="p-6 sm:p-6 lg:p-8 space-y-6 dark:bg-dm-ground min-h-full">
       {/* Header - Forest Gradient Theme */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal">Sprints</h1>
-          <p className="text-gray-600 text-sm sm:text-base lg:text-lg">Manage sprints and their associated team plans</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">Sprints</h1>
+          <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">Manage sprints and their associated team plans</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -67,7 +67,7 @@ export const SprintsView = ({ userRole }) => {
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-[24px] shadow-card-soft">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-[24px] shadow-card-soft">
           {errorMessage}
         </div>
       )}

@@ -16,19 +16,19 @@ const FUN_COLORS = [
 
 // Predefined Tailwind class combinations for each color (following 100/800 rule)
 const COLOR_CLASSES = {
-  pink: 'bg-pink-100 text-pink-800 border-pink-200',
-  purple: 'bg-purple-100 text-purple-800 border-purple-200',
-  fuchsia: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200',
-  violet: 'bg-violet-100 text-violet-800 border-violet-200',
-  indigo: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-  cyan: 'bg-cyan-100 text-cyan-800 border-cyan-200',
-  teal: 'bg-teal-100 text-teal-800 border-teal-200',
-  emerald: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  lime: 'bg-lime-100 text-lime-800 border-lime-200',
-  amber: 'bg-amber-100 text-amber-800 border-amber-200',
-  orange: 'bg-orange-100 text-orange-800 border-orange-200',
-  rose: 'bg-rose-100 text-rose-800 border-rose-200',
-  gray: 'bg-gray-100 text-gray-800 border-gray-200'
+  pink: 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/40 dark:text-pink-300 dark:border-pink-800',
+  purple: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800',
+  fuchsia: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 dark:border-fuchsia-800',
+  violet: 'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/40 dark:text-violet-300 dark:border-violet-800',
+  indigo: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800',
+  cyan: 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-300 dark:border-cyan-800',
+  teal: 'bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/40 dark:text-teal-300 dark:border-teal-800',
+  emerald: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-800',
+  lime: 'bg-lime-100 text-lime-800 border-lime-200 dark:bg-lime-900/40 dark:text-lime-300 dark:border-lime-800',
+  amber: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800',
+  orange: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:border-orange-800',
+  rose: 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:border-rose-800',
+  gray: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-dm-elevated dark:text-dm-muted dark:border-dm-border'
 };
 
 // Deterministic color picker using improved string hashing

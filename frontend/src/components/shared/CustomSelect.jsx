@@ -33,19 +33,19 @@ export const CustomSelect = ({ id, value, onChange, options = [], placeholder, e
         type="button"
         id={id}
         onClick={() => setOpen(o => !o)}
-        className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg border bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-forest-green focus:ring-offset-0 ${
+        className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg border bg-white dark:bg-dm-elevated transition-colors focus:outline-none focus:ring-2 focus:ring-forest-green focus:ring-offset-0 ${
           error
             ? 'border-red-500'
             : open
             ? 'border-forest-green'
-            : 'border-gray-300 hover:border-gray-400'
+            : 'border-gray-300 dark:border-dm-border hover:border-gray-400 dark:hover:border-dm-muted'
         }`}
       >
-        <span className={displayLabel ? 'text-dark-charcoal' : 'text-gray-400'}>
+        <span className={displayLabel ? 'text-dark-charcoal dark:text-dm-text' : 'text-gray-400 dark:text-dm-soft'}>
           {displayLabel || placeholder || ''}
         </span>
         <svg
-          className={`w-4 h-4 text-gray-400 flex-shrink-0 ml-2 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-gray-400 dark:text-dm-soft flex-shrink-0 ml-2 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -56,7 +56,7 @@ export const CustomSelect = ({ id, value, onChange, options = [], placeholder, e
       </button>
 
       {open && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dm-card border border-gray-200 dark:border-dm-border rounded-xl shadow-lg overflow-hidden">
           <div className="max-h-56 overflow-y-auto scrollbar-hide">
             {options.map((option) => (
               <button
@@ -68,8 +68,8 @@ export const CustomSelect = ({ id, value, onChange, options = [], placeholder, e
                 }}
                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                   String(option.value) === String(value)
-                    ? 'bg-green-50 text-forest-green font-semibold'
-                    : 'text-dark-charcoal hover:bg-gray-50'
+                    ? 'bg-green-50 dark:bg-emerald-900/30 text-forest-green dark:text-emerald-300 font-semibold'
+                    : 'text-dark-charcoal dark:text-dm-text hover:bg-gray-50 dark:hover:bg-dm-elevated'
                 }`}
               >
                 {option.label}

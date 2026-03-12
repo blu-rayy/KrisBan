@@ -44,20 +44,20 @@ export const CalendarView = ({ tickets = [], boardId, onTicketClick }) => {
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-dm-card rounded-2xl border border-gray-100 dark:border-dm-border shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500">‹</button>
-        <h3 className="text-base font-semibold text-gray-800">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dm-border">
+        <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-dm-elevated text-gray-500 dark:text-dm-muted">‹</button>
+        <h3 className="text-base font-semibold text-gray-800 dark:text-dm-text">
           {format(new Date(year, month - 1, 1), 'MMMM yyyy')}
         </h3>
-        <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500">›</button>
+        <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-dm-elevated text-gray-500 dark:text-dm-muted">›</button>
       </div>
 
       {/* Day names */}
-      <div className="grid grid-cols-7 border-b border-gray-100">
+      <div className="grid grid-cols-7 border-b border-gray-100 dark:border-dm-border">
         {DAY_NAMES.map((d) => (
-          <div key={d} className="py-2 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <div key={d} className="py-2 text-center text-xs font-semibold text-gray-400 dark:text-dm-soft uppercase tracking-wider">
             {d}
           </div>
         ))}
@@ -74,14 +74,14 @@ export const CalendarView = ({ tickets = [], boardId, onTicketClick }) => {
           return (
             <div
               key={i}
-              className={`min-h-[100px] p-2 border-b border-r border-gray-100 ${!inMonth ? 'bg-gray-50/50' : ''}`}
+              className={`min-h-[100px] p-2 border-b border-r border-gray-100 dark:border-dm-border ${!inMonth ? 'bg-gray-50/50 dark:bg-dm-elevated/30' : ''}`}
             >
               <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
                 today
                   ? 'bg-blue-600 text-white'
                   : inMonth
-                  ? 'text-gray-700'
-                  : 'text-gray-300'
+                  ? 'text-gray-700 dark:text-dm-text'
+                  : 'text-gray-300 dark:text-dm-soft'
               }`}>
                 {day.getDate()}
               </div>
@@ -102,7 +102,7 @@ export const CalendarView = ({ tickets = [], boardId, onTicketClick }) => {
                   );
                 })}
                 {dayTickets.length > 3 && (
-                  <span className="text-[9px] text-gray-400">+{dayTickets.length - 3} more</span>
+                  <span className="text-[9px] text-gray-400 dark:text-dm-soft">+{dayTickets.length - 3} more</span>
                 )}
               </div>
             </div>

@@ -234,16 +234,16 @@ export const ProgressReportTable = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8 text-center">
-        <p className="text-gray-600">Loading progress reports...</p>
+      <div className="bg-white dark:bg-dm-card rounded-lg shadow-md p-8 text-center">
+        <p className="text-gray-600 dark:text-dm-muted">Loading progress reports...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+      <div className="bg-white dark:bg-dm-card rounded-lg shadow-md p-8">
+        <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
           {error}
         </div>
       </div>
@@ -252,9 +252,9 @@ export const ProgressReportTable = ({
 
   if (!reports || reports.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8 text-center">
-        <p className="text-gray-600 mb-2">No progress reports yet.</p>
-        <p className="text-gray-500 text-sm">Create your first entry above to get started!</p>
+      <div className="bg-white dark:bg-dm-card rounded-lg shadow-md p-8 text-center">
+        <p className="text-gray-600 dark:text-dm-muted mb-2">No progress reports yet.</p>
+        <p className="text-gray-500 dark:text-dm-soft text-sm">Create your first entry above to get started!</p>
       </div>
     );
   }
@@ -292,9 +292,9 @@ export const ProgressReportTable = ({
 
   if (filteredReports.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-card-soft p-8 text-center border border-gray-100">
-        <p className="text-gray-600 mb-2">You haven't created any progress reports yet.</p>
-        <p className="text-gray-500 text-sm">Create your first entry above to get started! Your entries will appear here.</p>
+      <div className="bg-white dark:bg-dm-card rounded-lg shadow-card-soft p-8 text-center border border-gray-100 dark:border-dm-border">
+        <p className="text-gray-600 dark:text-dm-muted mb-2">You haven't created any progress reports yet.</p>
+        <p className="text-gray-500 dark:text-dm-soft text-sm">Create your first entry above to get started! Your entries will appear here.</p>
       </div>
     );
   }
@@ -308,11 +308,11 @@ export const ProgressReportTable = ({
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow-card-soft overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 bg-surface-ground rounded-t-2xl">
+    <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 dark:border-dm-border bg-surface-ground dark:bg-dm-elevated rounded-t-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div>
-            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-1">
+            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal dark:text-dm-text mb-1">
               Person
             </label>
             <CustomSelect
@@ -325,13 +325,13 @@ export const ProgressReportTable = ({
               ]}
             />
           </div>
-          <p className="text-sm text-gray-600 md:text-right">Showing {filteredReports.length} entries</p>
+          <p className="text-sm text-gray-600 dark:text-dm-muted md:text-right">Showing {filteredReports.length} entries</p>
         </div>
       </div>
 
       <div className="overflow-x-auto scrollbar-hide">
-        <table className="w-full min-w-[1200px]">
-          <thead className="bg-gradient-hero border-b border-forest-green">
+        <table className="w-full min-w-[1200px] dark:bg-dm-card">
+          <thead className="bg-gradient-hero">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white rounded-tl-2xl">Date</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-white">Member</th>
@@ -342,13 +342,13 @@ export const ProgressReportTable = ({
               <th className="px-6 py-4 text-left text-sm font-semibold text-white rounded-tr-2xl">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-dm-border dark:bg-dm-card">
             {filteredReports.map(report => (
               <tr
                 key={report.id}
-                className="hover:bg-surface-ground transition duration-200"
+                className="hover:bg-surface-ground dark:hover:bg-dm-elevated transition duration-200"
               >
-                <td className="px-6 py-4 text-sm text-gray-900">
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-dm-text">
                   {new Date(report.date).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 text-sm">
@@ -359,7 +359,7 @@ export const ProgressReportTable = ({
                 <td className="px-6 py-4 text-sm">
                   <SprintBadge label={report.sprintNo} index={getSprintIndex(report.sprintNo)} />
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-sm text-gray-600 dark:text-dm-muted">
                   {report.teamPlan || '-'}
                 </td>
                 <td className="px-6 py-4 text-sm whitespace-nowrap w-56 min-w-[14rem]">
@@ -367,7 +367,7 @@ export const ProgressReportTable = ({
                     {report.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900 max-w-2xs">
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-dm-text max-w-2xs">
                   <div className="truncate" title={report.taskDone}>
                     {report.taskDone && report.taskDone.length > 30 
                       ? `${report.taskDone.substring(0, 30)}...` 
@@ -380,7 +380,7 @@ export const ProgressReportTable = ({
                       <button
                         type="button"
                         onClick={() => handleEditClick(report)}
-                        className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 hover:bg-slate-200 transition"
+                        className="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated p-1.5 text-slate-700 dark:text-dm-muted hover:bg-slate-200 dark:hover:bg-dm-elevated transition"
                         aria-label="Edit entry"
                         title="Edit"
                       >
@@ -391,7 +391,7 @@ export const ProgressReportTable = ({
                       <button
                         type="button"
                         onClick={() => handleDelete(report.id)}
-                        className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100 transition"
+                        className="inline-flex items-center justify-center rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition"
                         aria-label="Delete entry"
                         title="Delete"
                       >
@@ -409,7 +409,7 @@ export const ProgressReportTable = ({
       {/* Edit Modal */}
       {editingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white dark:bg-dm-card rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="sticky top-0 bg-gradient-hero px-6 py-4 flex justify-between items-center rounded-t-3xl flex-shrink-0">
               <h3 className="text-lg font-semibold text-white">Edit Progress Report</h3>
               <button
@@ -423,7 +423,7 @@ export const ProgressReportTable = ({
             <div className="overflow-y-auto scrollbar-hide flex-1">
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               {editErrors.submit && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
                   {editErrors.submit}
                 </div>
               )}
@@ -431,7 +431,7 @@ export const ProgressReportTable = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -441,8 +441,8 @@ export const ProgressReportTable = ({
                       setEditForm(prev => ({ ...prev, date: e.target.value }));
                       if (editErrors.date) setEditErrors(prev => ({ ...prev, date: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
-                      editErrors.date ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition dark:bg-dm-elevated dark:text-dm-text ${
+                      editErrors.date ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
                     }`}
                   />
                   {editErrors.date && <p className="mt-1 text-xs text-red-500">{editErrors.date}</p>}
@@ -450,7 +450,7 @@ export const ProgressReportTable = ({
 
                 {/* Sprint */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Sprint <span className="text-red-500">*</span>
                   </label>
                   <CustomSelect
@@ -473,7 +473,7 @@ export const ProgressReportTable = ({
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Category <span className="text-red-500">*</span>
                   </label>
                   <CustomSelect
@@ -490,7 +490,7 @@ export const ProgressReportTable = ({
 
                 {/* Team Plan */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Team Plan
                   </label>
                   <input
@@ -498,13 +498,13 @@ export const ProgressReportTable = ({
                     value={editForm.teamPlan}
                     onChange={(e) => setEditForm(prev => ({ ...prev, teamPlan: e.target.value }))}
                     placeholder="Enter team plan"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
                   />
                 </div>
 
                 {/* Task Done */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Task Done <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -514,8 +514,8 @@ export const ProgressReportTable = ({
                       if (editErrors.taskDone) setEditErrors(prev => ({ ...prev, taskDone: '' }));
                     }}
                     rows="3"
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none text-sm transition ${
-                      editErrors.taskDone ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none text-sm transition dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft ${
+                      editErrors.taskDone ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
                     }`}
                   />
                   {editErrors.taskDone && <p className="mt-1 text-xs text-red-500">{editErrors.taskDone}</p>}
@@ -523,18 +523,18 @@ export const ProgressReportTable = ({
 
                 {/* Image */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Image (optional, max 5MB)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleEditImageChange}
-                    className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-green-50 file:text-forest-green hover:file:bg-green-100 transition"
+                    className="block w-full text-xs text-gray-500 dark:text-dm-soft file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-green-50 dark:file:bg-emerald-900/30 file:text-forest-green dark:file:text-emerald-300 hover:file:bg-green-100 dark:hover:file:bg-emerald-900/50 transition"
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {loadingEditImage && (
-                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                      <div className="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-dm-muted">
                       <svg className="animate-spin h-4 w-4 text-forest-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -548,7 +548,7 @@ export const ProgressReportTable = ({
                         <img
                           src={editImagePreview}
                           alt="Preview"
-                          className="h-32 w-auto rounded-lg border border-gray-300 cursor-zoom-in hover:opacity-90 transition"
+                          className="h-32 w-auto rounded-lg border border-gray-300 dark:border-dm-border cursor-zoom-in hover:opacity-90 transition"
                           title="Click to view full size"
                           onClick={() => setImageLightbox(editImagePreview)}
                         />
@@ -582,11 +582,11 @@ export const ProgressReportTable = ({
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-dm-border">
                 <button
                   type="button"
                   onClick={handleEditCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal hover:bg-gray-50 font-medium text-sm transition"
+                  className="px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg text-dark-charcoal dark:text-dm-text hover:bg-gray-50 dark:hover:bg-dm-elevated font-medium text-sm transition"
                 >
                   Cancel
                 </button>
@@ -649,13 +649,13 @@ export const ProgressReportTable = ({
       {/* Confirmation Dialog for Image Deletion */}
       {confirmDeleteImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-card-elevated p-6 max-w-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-dark-charcoal mb-2">Remove Image?</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
+          <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-elevated p-6 max-w-sm border border-gray-100 dark:border-dm-border">
+            <h3 className="text-lg font-semibold text-dark-charcoal dark:text-dm-text mb-2">Remove Image?</h3>
+            <p className="text-gray-600 dark:text-dm-muted mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDeleteImage(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal font-medium hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg text-dark-charcoal dark:text-dm-text font-medium hover:bg-gray-50 dark:hover:bg-dm-elevated transition"
               >
                 Cancel
               </button>

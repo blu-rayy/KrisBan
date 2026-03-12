@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { PrivateRoute } from './components/shared/PrivateRoute';
 import { LoginPage } from './pages/LoginPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
@@ -9,6 +10,7 @@ import './index.css';
 
 function App() {
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -27,6 +29,7 @@ function App() {
         <Analytics />
       </AuthProvider>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

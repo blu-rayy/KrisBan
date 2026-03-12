@@ -225,16 +225,16 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-card-soft p-6 space-y-4 border border-gray-100">
+      <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-soft p-6 space-y-4 border border-gray-100 dark:border-dm-border">
         <div>
-          <h3 className="text-sm font-semibold text-dark-charcoal mb-3">Date Range</h3>
+          <h3 className="text-sm font-semibold text-dark-charcoal dark:text-dm-text mb-3">Date Range</h3>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setDateFilter('all')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === 'all'
                   ? 'bg-gradient-action text-white'
-                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               All Time
@@ -244,7 +244,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '1week'
                   ? 'bg-gradient-action text-white'
-                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               Last Week
@@ -254,7 +254,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '2weeks'
                   ? 'bg-gradient-action text-white'
-                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               Last 2 Weeks
@@ -264,7 +264,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '3weeks'
                   ? 'bg-gradient-action text-white'
-                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               Last 3 Weeks
@@ -274,7 +274,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                 dateFilter === '1month'
                   ? 'bg-gradient-action text-white'
-                  : 'bg-gray-100 text-dark-charcoal hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text hover:bg-gray-200 dark:hover:bg-dm-elevated/80'
               }`}
             >
               Last Month
@@ -285,7 +285,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Member Filter */}
           <div>
-            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
+            <label htmlFor="memberFilter" className="block text-sm font-semibold text-dark-charcoal dark:text-dm-text mb-2">
               Person
             </label>
             <CustomSelect
@@ -301,7 +301,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
           {/* Sprint Filter */}
           <div>
-            <label htmlFor="sprintFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
+            <label htmlFor="sprintFilter" className="block text-sm font-semibold text-dark-charcoal dark:text-dm-text mb-2">
               Sprint Number
             </label>
             <CustomSelect
@@ -317,7 +317,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
           {/* Category Filter */}
           <div>
-            <label htmlFor="categoryFilter" className="block text-sm font-semibold text-dark-charcoal mb-2">
+            <label htmlFor="categoryFilter" className="block text-sm font-semibold text-dark-charcoal dark:text-dm-text mb-2">
               Category
             </label>
             <CustomSelect
@@ -332,67 +332,67 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
           </div>
         </div>
 
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600 dark:text-dm-muted">
           Showing {filteredReports.length} of {reports.length} entries
         </div>
       </div>
 
       {/* Table */}
       {filteredReports.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-card-soft p-8 text-center border border-gray-100">
+        <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-soft p-8 text-center border border-gray-100 dark:border-dm-border">
           {reports.length === 0 ? (
             <>
-              <p className="text-gray-600 mb-2">No progress reports yet.</p>
-              <p className="text-gray-500 text-sm">Check back later for team progress entries!</p>
+              <p className="text-gray-600 dark:text-dm-muted mb-2">No progress reports yet.</p>
+              <p className="text-gray-500 dark:text-dm-soft text-sm">Check back later for team progress entries!</p>
             </>
           ) : (
             <>
-              <p className="text-gray-600 mb-2">No progress reports match your filters.</p>
-              <p className="text-gray-500 text-sm">Try adjusting your filter criteria.</p>
+              <p className="text-gray-600 dark:text-dm-muted mb-2">No progress reports match your filters.</p>
+              <p className="text-gray-500 dark:text-dm-soft text-sm">Try adjusting your filter criteria.</p>
             </>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-card-soft overflow-hidden border border-gray-100">
+        <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-soft overflow-hidden border border-gray-100 dark:border-dm-border">
           <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full min-w-[1200px] border-collapse">
               <thead>
                 <tr className="bg-gradient-hero h-14">
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Member</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Sprint #</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">Team Plan</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white whitespace-nowrap w-56 min-w-[14rem]">Category</th>
-                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white">What I Did Today</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent">Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent">Member</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent">Sprint #</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent">Team Plan</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent whitespace-nowrap w-56 min-w-[14rem]">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-bold text-white border-b-2 border-white dark:border-transparent">What I Did Today</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReports.map((report, index) => (
-                  <tr key={report.id} className="border-b border-gray-100 hover:bg-surface-ground transition duration-200">
-                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100 whitespace-nowrap">
+                  <tr key={report.id} className="border-b border-gray-100 dark:border-dm-border hover:bg-surface-ground dark:hover:bg-dm-elevated transition duration-200">
+                    <td className="px-6 py-4 text-sm text-dark-charcoal dark:text-dm-text border border-gray-100 dark:border-dm-border whitespace-nowrap">
                       {new Date(report.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-100">
+                    <td className="px-6 py-4 text-sm border border-gray-100 dark:border-dm-border">
                       <span
                         className={`px-3 py-1 rounded-full font-medium text-sm inline-block ${getBadgeStyle('member', report.memberName)}`}
                       >
                         {report.memberName}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-100">
+                    <td className="px-6 py-4 text-sm border border-gray-100 dark:border-dm-border">
                       <SprintBadge label={report.sprintNo} index={getSprintIndex(report.sprintNo)} />
                     </td>
-                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100">
+                    <td className="px-6 py-4 text-sm text-dark-charcoal dark:text-dm-text border border-gray-100 dark:border-dm-border">
                       {report.teamPlan || '-'}
                     </td>
-                    <td className="px-6 py-4 text-sm border border-gray-100 whitespace-nowrap w-56 min-w-[14rem]">
+                    <td className="px-6 py-4 text-sm border border-gray-100 dark:border-dm-border whitespace-nowrap w-56 min-w-[14rem]">
                       <span
                         className={`px-3 py-1 rounded-full font-medium text-sm inline-flex whitespace-nowrap ${getBadgeStyle('category', report.category)}`}
                       >
                         {report.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-dark-charcoal border border-gray-100" title={report.taskDone}>
+                    <td className="px-6 py-4 text-sm text-dark-charcoal dark:text-dm-text border border-gray-100 dark:border-dm-border" title={report.taskDone}>
                       {report.taskDone.substring(0, 50)}{report.taskDone.length > 50 ? '...' : ''}
                     </td>
                   </tr>
@@ -406,7 +406,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       {/* Edit Modal */}
       {editingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white dark:bg-dm-card rounded-3xl shadow-card-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="sticky top-0 bg-gradient-to-r from-dark-emerald to-forest-green px-6 py-4 flex justify-between items-center rounded-t-3xl flex-shrink-0">
               <h3 className="text-lg font-semibold text-white">Edit Progress Report</h3>
               <button
@@ -420,7 +420,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
             <div className="overflow-y-auto scrollbar-hide flex-1">
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               {editErrors.submit && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
                   {editErrors.submit}
                 </div>
               )}
@@ -428,7 +428,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Date <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Date <span className="text-red-500">*</span></label>
                   <input
                     type="date"
                     value={editForm.date}
@@ -436,8 +436,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                       setEditForm(prev => ({ ...prev, date: e.target.value }));
                       if (editErrors.date) setEditErrors(prev => ({ ...prev, date: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition ${
-                      editErrors.date ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition dark:bg-dm-elevated dark:text-dm-text ${
+                      editErrors.date ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
                     }`}
                   />
                   {editErrors.date && <p className="mt-1 text-xs text-red-500">{editErrors.date}</p>}
@@ -445,7 +445,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Sprint */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Sprint <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Sprint <span className="text-red-500">*</span></label>
                   <CustomSelect
                     value={editForm.sprintNo}
                     onChange={(val) => {
@@ -464,7 +464,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Category <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Category <span className="text-red-500">*</span></label>
                   <CustomSelect
                     value={editForm.category}
                     onChange={(val) => {
@@ -483,19 +483,19 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Team Plan */}
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Team Plan</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Team Plan</label>
                   <input
                     type="text"
                     value={editForm.teamPlan}
                     onChange={(e) => setEditForm(prev => ({ ...prev, teamPlan: e.target.value }))}
                     placeholder="Enter team plan"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dm-border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition dark:bg-dm-elevated dark:text-dm-text"
                   />
                 </div>
 
                 {/* Task Done */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Task Done <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Task Done <span className="text-red-500">*</span></label>
                   <textarea
                     value={editForm.taskDone}
                     onChange={(e) => {
@@ -503,8 +503,8 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                       if (editErrors.taskDone) setEditErrors(prev => ({ ...prev, taskDone: '' }));
                     }}
                     rows="3"
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none text-sm transition ${
-                      editErrors.taskDone ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none text-sm transition dark:bg-dm-elevated dark:text-dm-text ${
+                      editErrors.taskDone ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
                     }`}
                     placeholder="Describe what you did today"
                   />
@@ -513,12 +513,12 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
 
                 {/* Image Upload */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1">Progress Screenshot</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">Progress Screenshot</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleEditImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dm-border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition dark:bg-dm-elevated dark:text-dm-soft"
                   />
                   {editErrors.image && <p className="mt-1 text-xs text-red-500">{editErrors.image}</p>}
                   {editImagePreview && (
@@ -527,7 +527,7 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
                         <img
                           src={editImagePreview}
                           alt="Preview"
-                          className="h-32 w-auto rounded-lg border border-gray-300"
+                          className="h-32 w-auto rounded-lg border border-gray-300 dark:border-dm-border"
                         />
                         <button
                           type="button"
@@ -546,11 +546,11 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
               </div>
 
               {/* Form Actions */}
-              <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
+              <div className="flex gap-3 justify-end pt-4 border-t border-gray-100 dark:border-dm-border">
                 <button
                   type="button"
                   onClick={handleEditCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal font-medium hover:bg-gray-50 transition"
+                  className="px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg text-dark-charcoal dark:text-dm-text font-medium hover:bg-gray-50 dark:hover:bg-dm-elevated transition"
                 >
                   Cancel
                 </button>
@@ -571,13 +571,13 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
       {/* Confirmation Dialog for Image Deletion */}
       {confirmDeleteImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-card-elevated p-6 max-w-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-dark-charcoal mb-2">Remove Image?</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
+          <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-elevated p-6 max-w-sm border border-gray-100 dark:border-dm-border">
+            <h3 className="text-lg font-semibold text-dark-charcoal dark:text-dm-text mb-2">Remove Image?</h3>
+            <p className="text-gray-600 dark:text-dm-muted mb-6">Are you sure you want to delete this image? This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDeleteImage(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal font-medium hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg text-dark-charcoal dark:text-dm-text font-medium hover:bg-gray-50 dark:hover:bg-dm-elevated transition"
               >
                 Cancel
               </button>

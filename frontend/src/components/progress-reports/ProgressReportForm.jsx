@@ -278,11 +278,11 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-card-soft p-6 mb-8 border border-gray-100">
-      <h2 className="text-2xl font-bold text-dark-charcoal mb-6">Add Progress Report Entry</h2>
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-dm-card rounded-xl shadow-card-soft p-6 mb-8 border border-gray-100 dark:border-dm-border">
+      <h2 className="text-2xl font-bold text-dark-charcoal dark:text-dm-text mb-6">Add Progress Report Entry</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
@@ -290,7 +290,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Date */}
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="date" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Date <span className="text-red-500">*</span>
           </label>
           <input
@@ -299,8 +299,8 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             name="date"
             value={formData.date}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition ${
-              errors.date ? 'border-red-500' : 'border-gray-300'
+            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition dark:bg-dm-elevated dark:text-dm-text ${
+              errors.date ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
             }`}
           />
           {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
@@ -308,7 +308,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Member */}
         <div>
-          <label htmlFor="memberId" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="memberId" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Member <span className="text-red-500">*</span>
           </label>
           {userRole === 'ADMIN' && members.length > 1 ? (
@@ -324,11 +324,11 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
               error={!!errors.memberId}
             />
           ) : (
-            <div className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-surface-ground text-dark-charcoal font-medium">
+            <div className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border rounded-lg bg-surface-ground dark:bg-dm-elevated text-dark-charcoal dark:text-dm-text font-medium">
               {user?.username || 'Current User'}
             </div>
           )}
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-dm-soft">
             {userRole === 'ADMIN' && members.length > 1
               ? 'Select which team member to create an entry for'
               : 'Entry will be created for your account only'}
@@ -338,7 +338,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Sprint No. */}
         <div>
-          <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Sprint No. <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2 items-center">
@@ -360,7 +360,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Team Plan */}
         <div className="relative">
-          <label htmlFor="teamPlan" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="teamPlan" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Team Plan
           </label>
           <input
@@ -371,17 +371,17 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             onChange={handleInputChange}
             onFocus={() => formData.teamPlan && setShowSuggestions(true)}
             placeholder="Enter team plan details or select from suggestions"
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-card-soft max-h-48 overflow-y-auto scrollbar-hide">
-              <div className="p-2 text-xs text-gray-600 bg-surface-ground font-semibold">Suggestions for this sprint</div>
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-dm-card border border-gray-200 dark:border-dm-border rounded-lg shadow-card-soft max-h-48 overflow-y-auto scrollbar-hide">
+              <div className="p-2 text-xs text-gray-600 dark:text-dm-muted bg-surface-ground dark:bg-dm-elevated font-semibold">Suggestions for this sprint</div>
               {filteredSuggestions.map((suggestion, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleTeamPlanSuggestionClick(suggestion)}
-                  className="w-full text-left px-4 py-2 hover:bg-green-50 text-sm text-dark-charcoal border-b border-gray-100 last:border-b-0 transition"
+                  className="w-full text-left px-4 py-2 hover:bg-green-50 dark:hover:bg-dm-elevated text-sm text-dark-charcoal dark:text-dm-text border-b border-gray-100 dark:border-dm-border last:border-b-0 transition"
                 >
                   {suggestion}
                 </button>
@@ -392,7 +392,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="category" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Category <span className="text-red-500">*</span>
           </label>
           <CustomSelect
@@ -407,7 +407,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Task Done */}
         <div className="md:col-span-2">
-          <label htmlFor="taskDone" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="taskDone" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Task Done <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -417,8 +417,8 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             onChange={handleInputChange}
             placeholder="Describe the task completed"
             rows="4"
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none transition ${
-              errors.taskDone ? 'border-red-500' : 'border-gray-300'
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none resize-none transition dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft ${
+              errors.taskDone ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
             }`}
           />
           {errors.taskDone && <p className="mt-1 text-sm text-red-500">{errors.taskDone}</p>}
@@ -426,7 +426,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
         {/* Image Upload */}
         <div className="md:col-span-2">
-          <label htmlFor="image" className="block text-sm font-medium text-dark-charcoal mb-2">
+          <label htmlFor="image" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Image <span className="text-red-500">*</span> (Max 5MB)
           </label>
           {errors.image && <p className="mb-2 text-sm text-red-500">{errors.image}</p>}
@@ -437,13 +437,13 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
               accept="image/*"
               onChange={handleImageChange}
               disabled={uploadingImage}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-forest-green hover:file:bg-green-100 disabled:opacity-50 transition"
+              className="block w-full text-sm text-gray-500 dark:text-dm-soft file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 dark:file:bg-emerald-900/30 file:text-forest-green dark:file:text-emerald-300 hover:file:bg-green-100 dark:hover:file:bg-emerald-900/50 disabled:opacity-50 transition"
             />
             {!imagePreview && (
               <div
                 onPaste={handlePasteImage}
                 tabIndex={0}
-                className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-400 cursor-pointer hover:border-forest-green hover:text-forest-green focus:outline-none focus:border-forest-green transition select-none"
+                className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 dark:border-dm-border rounded-lg text-sm text-gray-400 dark:text-dm-soft cursor-pointer hover:border-forest-green hover:text-forest-green focus:outline-none focus:border-forest-green transition select-none"
               >
                 Click here and press Ctrl+V to paste a screenshot
               </div>
@@ -453,7 +453,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="h-40 w-auto rounded-lg border border-gray-300"
+                  className="h-40 w-auto rounded-lg border border-gray-300 dark:border-dm-border"
                 />
                 <button
                   type="button"
@@ -491,7 +491,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             setImagePreview(null);
             setErrors({});
           }}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-dark-charcoal hover:bg-gray-50 font-medium transition"
+          className="px-6 py-2 border border-gray-300 dark:border-dm-border rounded-lg text-dark-charcoal dark:text-dm-text hover:bg-gray-50 dark:hover:bg-dm-elevated font-medium transition"
         >
           Clear
         </button>

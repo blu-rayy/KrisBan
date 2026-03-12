@@ -59,8 +59,8 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-card-soft p-8 w-full border border-gray-100">
-      <h2 className="text-2xl font-bold text-dark-charcoal mb-6">
+    <div className="bg-white dark:bg-dm-card rounded-xl shadow-card-soft p-8 w-full border border-gray-100 dark:border-dm-border">
+      <h2 className="text-2xl font-bold text-dark-charcoal dark:text-dm-text mb-6">
         {sprint ? 'Edit Sprint' : 'Create New Sprint'}
       </h2>
 
@@ -69,7 +69,7 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
         <div className="grid grid-cols-2 gap-6">
           {/* Sprint Number */}
           <div>
-            <label className="block text-sm font-medium text-dark-charcoal mb-2">
+            <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
               Sprint Number *
             </label>
             <input
@@ -78,8 +78,8 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
               value={formData.sprintNumber}
               onChange={handleInputChange}
               placeholder="e.g., Sprint 1, Sprint 2.5"
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green outline-none transition ${
-                errors.sprintNumber ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green outline-none transition dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft ${
+                errors.sprintNumber ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
               }`}
             />
             {errors.sprintNumber && (
@@ -89,7 +89,7 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
 
           {/* Color Picker */}
           <div>
-            <label className="block text-sm font-medium text-dark-charcoal mb-2">
+            <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
               Sprint Color
             </label>
             <div className="flex items-center gap-3">
@@ -98,9 +98,9 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
                 name="color"
                 value={formData.color || '#15803d'}
                 onChange={handleInputChange}
-                className="w-14 h-10 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-forest-green transition"
+                className="w-14 h-10 border-2 border-gray-300 dark:border-dm-border rounded-lg cursor-pointer hover:border-forest-green transition"
               />
-              <span className="text-sm text-gray-600 whitespace-nowrap">
+              <span className="text-sm text-gray-600 dark:text-dm-muted whitespace-nowrap">
                 {formData.color ? formData.color : 'Random color'}
               </span>
             </div>
@@ -109,7 +109,7 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
 
         {/* Team Plans */}
         <div>
-          <label className="block text-sm font-medium text-dark-charcoal mb-3">
+          <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-3">
             Associated Team Plans
           </label>
 
@@ -126,8 +126,8 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
               }}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTeamPlan()}
               placeholder="Enter team plan details"
-              className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green outline-none transition ${
-                errors.teamPlan ? 'border-red-500' : 'border-gray-300'
+              className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green outline-none transition dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft ${
+                errors.teamPlan ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
               }`}
             />
             <button
@@ -148,9 +148,9 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
               {selectedTeamPlans.map((plan, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center bg-surface-ground p-3 rounded-lg border border-gray-200"
+                  className="flex justify-between items-center bg-surface-ground dark:bg-dm-elevated p-3 rounded-lg border border-gray-200 dark:border-dm-border"
                 >
-                  <span className="text-dark-charcoal">{plan.team_plan}</span>
+                  <span className="text-dark-charcoal dark:text-dm-text">{plan.team_plan}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveTeamPlan(index)}
@@ -162,16 +162,16 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 italic">No team plans added yet</p>
+            <p className="text-sm text-gray-500 dark:text-dm-soft italic">No team plans added yet</p>
           )}
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-100 dark:border-dm-border">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-dark-charcoal rounded-lg font-medium hover:bg-gray-50 transition"
+            className="px-4 py-2 border border-gray-300 dark:border-dm-border text-dark-charcoal dark:text-dm-text rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-dm-elevated transition"
           >
             Cancel
           </button>

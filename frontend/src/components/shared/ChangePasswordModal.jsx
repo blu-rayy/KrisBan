@@ -39,17 +39,17 @@ export const ChangePasswordModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-surface-main rounded-xl shadow-card-elevated p-8 w-full max-w-md border border-gray-200">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+      <div className="bg-surface-main dark:bg-dm-card rounded-xl shadow-card-elevated p-8 w-full max-w-md border border-gray-200 dark:border-dm-border">
         <h2 className="text-2xl font-bold text-forest-green mb-6 break-words">
           Change Password
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-dm-muted mb-6">
           Please set a new password to continue.
         </p>
 
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6 font-medium">
+          <div className="bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 font-medium">
             {error}
           </div>
         )}
@@ -57,20 +57,20 @@ export const ChangePasswordModal = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* New Password */}
           <div>
-            <label className="block text-dark-charcoal font-semibold mb-2">Enter New Password</label>
+            <label className="block text-dark-charcoal dark:text-dm-text font-semibold mb-2">Enter New Password</label>
             <div className="relative">
               <input
                 type={showNewPassword ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white pr-10"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft pr-10"
                 placeholder="••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-forest-green transition"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-dm-soft hover:text-forest-green transition"
               >
                 {showNewPassword ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -87,20 +87,20 @@ export const ChangePasswordModal = () => {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-dark-charcoal font-semibold mb-2">Re-enter New Password</label>
+            <label className="block text-dark-charcoal dark:text-dm-text font-semibold mb-2">Re-enter New Password</label>
             <div className="relative">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white pr-10"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green focus:border-transparent transition bg-white dark:bg-dm-elevated dark:text-dm-text dark:placeholder-dm-soft pr-10"
                 placeholder="••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-forest-green transition"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-dm-soft hover:text-forest-green transition"
               >
                 {showConfirmPassword ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@ export const ChangePasswordModal = () => {
           </button>
         </form>
 
-        <p className="text-xs text-gray-500 text-center mt-4">
+        <p className="text-xs text-gray-500 dark:text-dm-soft text-center mt-4">
           You cannot close this dialog until your password is changed.
         </p>
       </div>

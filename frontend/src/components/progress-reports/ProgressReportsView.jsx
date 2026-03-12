@@ -548,19 +548,19 @@ export const ProgressReportsView = () => {
         };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8 dark:bg-dm-ground min-h-full">
       <div>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal">{pageHeading.title}</h2>
-        <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{pageHeading.description}</p>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">{pageHeading.title}</h2>
+        <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">{pageHeading.description}</p>
       </div>
 
-      <div className="flex gap-4 border-b border-gray-200">
+      <div className="flex gap-4 border-b border-gray-200 dark:border-dm-border">
         <button
           onClick={() => setActiveTab('view')}
           className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
             activeTab === 'view'
               ? 'border-forest-green text-forest-green'
-              : 'border-transparent text-gray-600 hover:text-dark-charcoal'
+              : 'border-transparent text-gray-600 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
           }`}
         >
           <span className="inline-flex items-center gap-2">
@@ -574,7 +574,7 @@ export const ProgressReportsView = () => {
           className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
             activeTab === 'sprint-tracker'
               ? 'border-forest-green text-forest-green'
-              : 'border-transparent text-gray-600 hover:text-dark-charcoal'
+              : 'border-transparent text-gray-600 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
           }`}
         >
           <span className="inline-flex items-center gap-2">
@@ -589,7 +589,7 @@ export const ProgressReportsView = () => {
             className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
               activeTab === 'generate-report'
                 ? 'border-forest-green text-forest-green'
-                : 'border-transparent text-gray-600 hover:text-dark-charcoal'
+                : 'border-transparent text-gray-600 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
             }`}
           >
             <span className="inline-flex items-center gap-2">
@@ -617,7 +617,7 @@ export const ProgressReportsView = () => {
               <button
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
-                className="px-5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-5 py-2 rounded-lg border border-gray-300 dark:border-dm-border text-sm font-medium text-gray-700 dark:text-dm-muted hover:bg-gray-50 dark:hover:bg-dm-elevated disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isFetchingNextPage ? 'Loading...' : 'Load More'}
               </button>
@@ -637,7 +637,7 @@ export const ProgressReportsView = () => {
           />
 
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Entries</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-dm-text mb-4">Recent Entries</h3>
             <ProgressReportTable
               reports={progressReports}
               loading={reportsLoading}
@@ -653,7 +653,7 @@ export const ProgressReportsView = () => {
                 <button
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
-                  className="px-5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="px-5 py-2 rounded-lg border border-gray-300 dark:border-dm-border text-sm font-medium text-gray-700 dark:text-dm-muted hover:bg-gray-50 dark:hover:bg-dm-elevated disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isFetchingNextPage ? 'Loading...' : 'Load More'}
                 </button>
@@ -666,7 +666,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'generate-report' && user?.role === 'ADMIN' && (
         <div className="space-y-6">
           {/* Config Card */}
-          <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+          <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft border border-gray-100 dark:border-dm-border overflow-hidden">
             {/* Card Header */}
             <div className="bg-gradient-hero px-6 py-4">
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
@@ -679,19 +679,19 @@ export const ProgressReportsView = () => {
             <div className="p-6 space-y-5">
               {/* Alerts */}
               {reportError && (
-                <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                <div className="flex items-start gap-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
                   <HugeiconsIcon icon={Alert01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
                   <span>{reportError}</span>
                 </div>
               )}
               {generationMessage && (
-                <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm">
+                <div className="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl text-sm">
                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
                   <span>{generationMessage}</span>
                 </div>
               )}
               {exportWarning && (
-                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl text-sm">
+                <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
                   <HugeiconsIcon icon={Alert01Icon} size={16} color="currentColor" className="mt-0.5 flex-shrink-0" />
                   <span>{exportWarning}</span>
                 </div>
@@ -700,7 +700,7 @@ export const ProgressReportsView = () => {
               {/* Row 1: Reporting Week + Signatory Date */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Reporting Week</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">Reporting Week</label>
                   <CustomSelect
                     value={selectedWeek}
                     onChange={(val) => handleSelectWeek(val)}
@@ -715,12 +715,12 @@ export const ProgressReportsView = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Signatory Date</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">Signatory Date</label>
                   <input
                     type="date"
                     value={signatoryDate}
                     onChange={(e) => setSignatoryDate(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
                   />
                 </div>
               </div>
@@ -728,23 +728,23 @@ export const ProgressReportsView = () => {
               {/* Row 2: Start + End Date */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">Start Date</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">Start Date</label>
                   <input
                     type="date"
                     value={reportingStartDate}
                     onChange={(e) => setReportingStartDate(e.target.value)}
                     disabled={singleDayMode}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:text-gray-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 dark:disabled:bg-dm-elevated disabled:text-gray-400 dark:disabled:text-dm-soft dark:disabled:opacity-60"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-dark-charcoal mb-1.5">End Date</label>
+                  <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">End Date</label>
                   <input
                     type="date"
                     value={reportingEndDate}
                     onChange={(e) => setReportingEndDate(e.target.value)}
                     disabled={singleDayMode}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:text-gray-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 dark:disabled:bg-dm-elevated disabled:text-gray-400 dark:disabled:text-dm-soft dark:disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -770,13 +770,13 @@ export const ProgressReportsView = () => {
 
                 {generatingReport && (
                   <div className="mt-4 space-y-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-gray-200 dark:bg-dm-elevated rounded-full h-2 overflow-hidden">
                       <div
                         className="h-2 bg-gradient-action rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, (elapsedTime / estimatedDuration) * 100)}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 text-center">Generating draft rows…</p>
+                    <p className="text-xs text-gray-500 dark:text-dm-soft text-center">Generating draft rows…</p>
                   </div>
                 )}
               </div>
@@ -785,29 +785,29 @@ export const ProgressReportsView = () => {
 
           {/* Generated rows */}
           {generatedRows.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+            <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft border border-gray-100 dark:border-dm-border overflow-hidden">
               <div className="bg-gradient-hero px-6 py-4">
                 <h3 className="text-base font-semibold text-white">Generated Rows</h3>
                 <p className="text-green-200 text-xs mt-0.5">Review and edit before saving</p>
               </div>
               <div className="p-6 space-y-4">
                 {generatedRows.map((row) => (
-                  <div key={row.rowNumber} className="border border-gray-200 rounded-xl overflow-hidden">
-                    <div className="flex items-center gap-4 bg-surface-ground px-4 py-2.5 border-b border-gray-200">
-                      <span className="text-sm font-semibold text-dark-charcoal">Row {row.rowNumber}</span>
+                  <div key={row.rowNumber} className="border border-gray-200 dark:border-dm-border rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-4 bg-surface-ground dark:bg-dm-elevated px-4 py-2.5 border-b border-gray-200 dark:border-dm-border">
+                      <span className="text-sm font-semibold text-dark-charcoal dark:text-dm-text">Row {row.rowNumber}</span>
                       <input
                         type="date"
                         value={row.rowDate || ''}
                         onChange={(e) => handleRowDateChange(row.rowNumber, e.target.value)}
-                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
+                        className="px-3 py-1.5 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-card dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
                       />
-                      <span className="ml-auto text-xs text-gray-400">{row.entryCount || 0} entries</span>
+                      <span className="ml-auto text-xs text-gray-400 dark:text-dm-soft">{row.entryCount || 0} entries</span>
                     </div>
                     <textarea
                       value={row.rowActivity || ''}
                       onChange={(e) => handleRowActivityChange(row.rowNumber, e.target.value)}
                       rows={6}
-                      className="w-full px-4 py-3 font-mono text-sm text-dark-charcoal border-0 outline-none resize-y focus:ring-2 focus:ring-inset focus:ring-forest-green"
+                      className="w-full px-4 py-3 font-mono text-sm text-dark-charcoal dark:text-dm-text dark:bg-dm-card border-0 outline-none resize-y focus:ring-2 focus:ring-inset focus:ring-forest-green"
                     />
                   </div>
                 ))}
@@ -826,16 +826,16 @@ export const ProgressReportsView = () => {
           )}
 
           {/* Saved Weekly Reports */}
-          <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+          <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft border border-gray-100 dark:border-dm-border overflow-hidden">
             <div className="bg-gradient-hero px-6 py-4">
               <h3 className="text-base font-semibold text-white">Saved Weekly Reports</h3>
               <p className="text-green-200 text-xs mt-0.5">Previously generated and saved report drafts</p>
             </div>
 
             {weeklyReportsSorted.length === 0 ? (
-              <div className="px-6 py-8 text-center text-sm text-gray-400">No saved weekly reports yet.</div>
+              <div className="px-6 py-8 text-center text-sm text-gray-400 dark:text-dm-soft">No saved weekly reports yet.</div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-dm-border">
                 {weeklyReportsSorted.map((week) => {
                   const weekNumber = String(week.reportWeek);
                   const isExpanded = Boolean(expandedWeeks[weekNumber]);
@@ -846,14 +846,14 @@ export const ProgressReportsView = () => {
                     <div key={week.id || weekNumber}>
                       <button
                         onClick={() => handleToggleExpandedWeek(weekNumber)}
-                        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-surface-ground transition"
+                        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-surface-ground dark:hover:bg-dm-elevated transition"
                       >
                         <div>
-                          <p className="font-semibold text-dark-charcoal">Week {week.reportWeek}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{week.reportingDate || 'No reporting date'}</p>
+                          <p className="font-semibold text-dark-charcoal dark:text-dm-text">Week {week.reportWeek}</p>
+                          <p className="text-xs text-gray-500 dark:text-dm-soft mt-0.5">{week.reportingDate || 'No reporting date'}</p>
                         </div>
                         <svg
-                          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`w-4 h-4 text-gray-400 dark:text-dm-soft transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -861,22 +861,22 @@ export const ProgressReportsView = () => {
                       </button>
 
                       {isExpanded && (
-                        <div className="bg-surface-ground px-6 pb-6 pt-4 space-y-4 border-t border-gray-100">
+                        <div className="bg-surface-ground dark:bg-dm-elevated px-6 pb-6 pt-4 space-y-4 border-t border-gray-100 dark:border-dm-border">
                           {loadingDetail ? (
-                            <p className="text-sm text-gray-400">Loading details…</p>
+                            <p className="text-sm text-gray-400 dark:text-dm-soft">Loading details…</p>
                           ) : (
                             <>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Reporting Date</p>
-                                  <p className="text-sm font-semibold text-dark-charcoal">{detail?.reportingDate || week.reportingDate || '—'}</p>
+                                <div className="bg-white dark:bg-dm-card rounded-xl border border-gray-200 dark:border-dm-border px-4 py-3">
+                                  <p className="text-xs text-gray-400 dark:text-dm-soft mb-0.5 uppercase tracking-wide">Reporting Date</p>
+                                  <p className="text-sm font-semibold text-dark-charcoal dark:text-dm-text">{detail?.reportingDate || week.reportingDate || '—'}</p>
                                 </div>
-                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Signatory Date</p>
-                                  <p className="text-sm font-semibold text-dark-charcoal">{detail?.signatoryDate || week.signatoryDate || '—'}</p>
+                                <div className="bg-white dark:bg-dm-card rounded-xl border border-gray-200 dark:border-dm-border px-4 py-3">
+                                  <p className="text-xs text-gray-400 dark:text-dm-soft mb-0.5 uppercase tracking-wide">Signatory Date</p>
+                                  <p className="text-sm font-semibold text-dark-charcoal dark:text-dm-text">{detail?.signatoryDate || week.signatoryDate || '—'}</p>
                                 </div>
-                                <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-                                  <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Status</p>
+                                <div className="bg-white dark:bg-dm-card rounded-xl border border-gray-200 dark:border-dm-border px-4 py-3">
+                                  <p className="text-xs text-gray-400 dark:text-dm-soft mb-0.5 uppercase tracking-wide">Status</p>
                                   <p className="text-sm font-semibold text-forest-green">{detail?.status || week.status || '—'}</p>
                                 </div>
                               </div>
@@ -884,8 +884,8 @@ export const ProgressReportsView = () => {
                               {(detail?.entries || []).length > 0 && (
                                 <div className="space-y-3">
                                   {detail.entries.map((entry) => (
-                                    <div key={entry.id || `${weekNumber}-${entry.rowNumber}`} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gradient-hero">
+                                    <div key={entry.id || `${weekNumber}-${entry.rowNumber}`} className="bg-white dark:bg-dm-card rounded-xl border border-gray-200 dark:border-dm-border overflow-hidden">
+                                      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 dark:border-dm-border bg-gradient-hero">
                                         <span className="text-xs font-bold text-white tracking-wide">Row {entry.rowNumber}</span>
                                         <span className="text-xs text-green-200">{entry.rowDate || '—'}</span>
                                       </div>
@@ -903,12 +903,12 @@ export const ProgressReportsView = () => {
                                             return (
                                               <p key={i} className="text-xs font-mono">
                                                 <span className={`font-bold ${nameColor}`}>{memberMatch[1]}:</span>
-                                                <span className="text-gray-700"> {memberMatch[2]}</span>
+                                                <span className="text-gray-700 dark:text-dm-muted"> {memberMatch[2]}</span>
                                               </p>
                                             );
                                           }
                                           return line.trim()
-                                            ? <p key={i} className="text-xs text-gray-700 font-mono">{line}</p>
+                                            ? <p key={i} className="text-xs text-gray-700 dark:text-dm-muted font-mono">{line}</p>
                                             : <div key={i} className="h-2" />;
                                         })}
                                       </div>
@@ -952,7 +952,7 @@ export const ProgressReportsView = () => {
             )}
           </div>
 
-          <div className="text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
+          <div className="text-center text-xs text-gray-400 dark:text-dm-soft flex items-center justify-center gap-1.5">
             <HugeiconsIcon icon={HelpCircleIcon} size={13} color="currentColor" />
             Generate is enabled only after the week and date fields are filled.
           </div>

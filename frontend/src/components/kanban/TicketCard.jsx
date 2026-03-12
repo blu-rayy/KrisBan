@@ -50,7 +50,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
       {...draggableProps}
       {...dragHandleProps}
       onClick={onOpen}
-      className="bg-white rounded-[3px] shadow-sm cursor-pointer hover:brightness-95 transition-all group select-none"
+      className="bg-white dark:bg-dm-card rounded-[3px] shadow-sm cursor-pointer hover:brightness-95 transition-all group select-none"
       style={{ boxShadow: '0 1px 0 rgba(9,30,66,.25)' }}
     >
       {/* Cover strip — Trello-style tall cover */}
@@ -80,7 +80,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
         )}
 
         {/* Title */}
-        <p className="text-[13px] text-[#172b4d] leading-snug font-normal mb-1">{ticket.title}</p>
+        <p className="text-[13px] text-[#172b4d] dark:text-dm-text leading-snug font-normal mb-1">{ticket.title}</p>
 
         {/* Footer row — Trello icon strip */}
         {showFooter && (
@@ -92,7 +92,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
                   className={`inline-flex items-center gap-0.5 text-[11px] font-medium rounded px-1 py-0.5 ${
                     overdue  ? 'bg-red-500 text-white' :
                     dueToday ? 'bg-amber-400 text-white' :
-                               'text-[#5e6c84] bg-transparent'
+                               'text-[#5e6c84] dark:text-dm-soft bg-transparent'
                   }`}
                 >
                   <ClockIcon />
