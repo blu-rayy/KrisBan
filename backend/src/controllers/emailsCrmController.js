@@ -52,18 +52,18 @@ const validateTemplatePayload = (payload, { partial = false } = {}) => {
   return null;
 };
 
-export const getSmes = async (_req, res) => {
+export const getSmes = async (req, res) => {
   try {
-    const smes = await EmailsCrm.listSmes();
+    const smes = await EmailsCrm.listSmes(req.user?.team_id);
     res.status(200).json({ success: true, data: smes });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch SMEs' });
   }
 };
 
-export const getPointPeople = async (_req, res) => {
+export const getPointPeople = async (req, res) => {
   try {
-    const pointPeople = await EmailsCrm.listPointPeople();
+    const pointPeople = await EmailsCrm.listPointPeople(req.user?.team_id);
     res.status(200).json({ success: true, data: pointPeople });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch point people' });
@@ -77,7 +77,7 @@ export const createSme = async (req, res) => {
       return res.status(400).json({ success: false, message: validationError });
     }
 
-    const sme = await EmailsCrm.createSme(req.body, req.user?.id || null);
+    const sme = await EmailsCrm.createSme(req.body, req.user?.id || null, req.user?.team_id || null);
     res.status(201).json({ success: true, message: 'SME created successfully', data: sme });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to create SME' });
@@ -107,9 +107,9 @@ export const deleteSme = async (req, res) => {
   }
 };
 
-export const getTemplates = async (_req, res) => {
+export const getTemplates = async (req, res) => {
   try {
-    const templates = await EmailsCrm.listTemplates();
+    const templates = await EmailsCrm.listTemplates(req.user?.team_id);
     res.status(200).json({ success: true, data: templates });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch templates' });
@@ -123,7 +123,7 @@ export const createTemplate = async (req, res) => {
       return res.status(400).json({ success: false, message: validationError });
     }
 
-    const template = await EmailsCrm.createTemplate(req.body, req.user?.id || null);
+    const template = await EmailsCrm.createTemplate(req.body, req.user?.id || null, req.user?.team_id || null);
     res.status(201).json({ success: true, message: 'Template created successfully', data: template });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to create template' });

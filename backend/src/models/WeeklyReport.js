@@ -27,12 +27,15 @@ class WeeklyReport {
       : [];
   }
 
-  static async findByWeek(reportWeek) {
-    const { data, error } = await supabase
+  static async findByWeek(reportWeek, teamId = null) {
+    let query = supabase
       .from(WEEKLY_REPORTS_TABLE)
       .select('*, weekly_report_entries(*)')
-      .eq('report_week', Number(reportWeek))
-      .maybeSingle();
+      .eq('report_week', Number(reportWeek));
+
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       throw new Error(`Failed to fetch weekly report: ${error.message}`);
@@ -41,11 +44,15 @@ class WeeklyReport {
     return data ? new WeeklyReport(data) : null;
   }
 
-  static async list() {
-    const { data, error } = await supabase
+  static async list(teamId = null) {
+    let query = supabase
       .from(WEEKLY_REPORTS_TABLE)
       .select('*')
       .order('report_week', { ascending: true });
+
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(`Failed to list weekly reports: ${error.message}`);
@@ -54,7 +61,7 @@ class WeeklyReport {
     return data.map((item) => new WeeklyReport(item));
   }
 
-  static async createWeek(reportWeek, createdBy = null) {
+  static async createWeek(reportWeek, createdBy = null, teamId = null) {
     const weekMeta = getWeekMetadata(reportWeek);
 
     const { data: createdWeek, error: createWeekError } = await supabase
@@ -67,7 +74,8 @@ class WeeklyReport {
           reporting_date: weekMeta.reportingDate,
           signatory_date: weekMeta.signatoryDateISO,
           status: 'PENDING',
-          created_by: createdBy
+          created_by: createdBy,
+          team_id: teamId || null
         }
       ])
       .select('*')
@@ -96,19 +104,19 @@ class WeeklyReport {
       throw new Error(`Failed to create weekly report entries: ${createEntriesError.message}`);
     }
 
-    return WeeklyReport.findByWeek(weekMeta.reportWeek);
+    return WeeklyReport.findByWeek(weekMeta.reportWeek, teamId);
   }
 
-  static async ensureWeek(reportWeek, createdBy = null) {
-    const existingWeek = await WeeklyReport.findByWeek(reportWeek);
+  static async ensureWeek(reportWeek, createdBy = null, teamId = null) {
+    const existingWeek = await WeeklyReport.findByWeek(reportWeek, teamId);
     if (existingWeek) {
       return existingWeek;
     }
 
-    return WeeklyReport.createWeek(reportWeek, createdBy);
+    return WeeklyReport.createWeek(reportWeek, createdBy, teamId);
   }
 
-  static async ensureWeeksThroughCurrentDate(createdBy = null, date = new Date()) {
+  static async ensureWeeksThroughCurrentDate(createdBy = null, date = new Date(), teamId = null) {
     const currentWeek = getCurrentWeekNumber(date);
     if (currentWeek <= 0) {
       return [];
@@ -116,24 +124,24 @@ class WeeklyReport {
 
     const weeks = [];
     for (let weekNumber = 1; weekNumber <= currentWeek; weekNumber += 1) {
-      const week = await WeeklyReport.ensureWeek(weekNumber, createdBy);
+      const week = await WeeklyReport.ensureWeek(weekNumber, createdBy, teamId);
       weeks.push(week);
     }
 
     return weeks;
   }
 
-  static async ensureNextWeekFromSunday(createdBy = null, date = new Date()) {
+  static async ensureNextWeekFromSunday(createdBy = null, date = new Date(), teamId = null) {
     const nextWeekNumber = getNextWeekNumberFromSunday(date);
 
     if (nextWeekNumber <= 0) {
       return null;
     }
 
-    return WeeklyReport.ensureWeek(nextWeekNumber, createdBy);
+    return WeeklyReport.ensureWeek(nextWeekNumber, createdBy, teamId);
   }
 
-  static async updateWeekMetadata(reportWeek, metadata = {}) {
+  static async updateWeekMetadata(reportWeek, metadata = {}, teamId = null) {
     const updatePayload = {};
 
     if (metadata.weekStartDate) updatePayload.week_start_date = metadata.weekStartDate;
@@ -143,23 +151,27 @@ class WeeklyReport {
     if (metadata.status) updatePayload.status = metadata.status;
 
     if (Object.keys(updatePayload).length === 0) {
-      return WeeklyReport.findByWeek(reportWeek);
+      return WeeklyReport.findByWeek(reportWeek, teamId);
     }
 
-    const { error } = await supabase
+    let query = supabase
       .from(WEEKLY_REPORTS_TABLE)
       .update(updatePayload)
       .eq('report_week', Number(reportWeek));
+
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { error } = await query;
 
     if (error) {
       throw new Error(`Failed to update weekly report metadata: ${error.message}`);
     }
 
-    return WeeklyReport.findByWeek(reportWeek);
+    return WeeklyReport.findByWeek(reportWeek, teamId);
   }
 
-  static async saveEntries(reportWeek, entries = [], status = 'GENERATED') {
-    const week = await WeeklyReport.ensureWeek(reportWeek);
+  static async saveEntries(reportWeek, entries = [], status = 'GENERATED', teamId = null) {
+    const week = await WeeklyReport.ensureWeek(reportWeek, null, teamId);
     const sanitizedEntries = entries
       .map((entry) => ({
         weekly_report_id: week.id,
@@ -180,8 +192,8 @@ class WeeklyReport {
       }
     }
 
-    await WeeklyReport.updateWeekMetadata(reportWeek, { status });
-    return WeeklyReport.findByWeek(reportWeek);
+    await WeeklyReport.updateWeekMetadata(reportWeek, { status }, teamId);
+    return WeeklyReport.findByWeek(reportWeek, teamId);
   }
 
   toResponse() {

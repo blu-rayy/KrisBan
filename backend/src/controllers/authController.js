@@ -3,9 +3,9 @@ import { supabase } from '../config/database.js';
 import jwt from 'jsonwebtoken';
 
 // Generate JWT Token
-const generateToken = (id, role) => {
+const generateToken = (id, role, teamId) => {
   return jwt.sign(
-    { id, role },
+    { id, role, team_id: teamId ?? null },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRE }
   );
@@ -121,7 +121,7 @@ export const login = async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user.id, user.role);
+    const token = generateToken(user.id, user.role, user.teamId);
 
     res.status(200).json({
       success: true,
@@ -184,7 +184,7 @@ export const changePassword = async (req, res) => {
     );
 
     // Generate token
-    const token = generateToken(updatedUser.id, updatedUser.role);
+    const token = generateToken(updatedUser.id, updatedUser.role, updatedUser.teamId);
 
     res.status(200).json({
       success: true,
@@ -278,10 +278,16 @@ export const updateProfile = async (req, res) => {
 // @access  Private
 export const getUsers = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('users')
       .select('id, full_name, username, institute_email, role, profile_picture, is_active, created_at')
       .order('full_name');
+
+    if (req.user.team_id) {
+      query = query.eq('team_id', req.user.team_id);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 

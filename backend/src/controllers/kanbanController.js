@@ -24,6 +24,7 @@ export const getBoards = async (req, res) => {
   const { data, error } = await supabase
     .from('kanban_boards')
     .select('*')
+    .eq('team_id', req.user.team_id)
     .order('created_at');
   if (error) return res.status(500).json({ success: false, message: error.message });
   return res.json({ success: true, data });
@@ -35,7 +36,7 @@ export const createBoard = async (req, res) => {
 
   const { data: board, error } = await supabase
     .from('kanban_boards')
-    .insert({ name: name.trim(), description: description || null, created_by: req.user.id })
+    .insert({ name: name.trim(), description: description || null, created_by: req.user.id, team_id: req.user.team_id })
     .select()
     .single();
   if (error) return res.status(500).json({ success: false, message: error.message });
@@ -57,6 +58,7 @@ export const getBoardWithColumns = async (req, res) => {
     .from('kanban_boards')
     .select('*')
     .eq('id', boardId)
+    .eq('team_id', req.user.team_id)
     .single();
   if (boardErr) return res.status(404).json({ success: false, message: 'Board not found' });
 
@@ -97,6 +99,7 @@ export const updateBoard = async (req, res) => {
     .from('kanban_boards')
     .update(updates)
     .eq('id', boardId)
+    .eq('team_id', req.user.team_id)
     .select()
     .single();
   if (error) return res.status(500).json({ success: false, message: error.message });
@@ -105,7 +108,7 @@ export const updateBoard = async (req, res) => {
 
 export const deleteBoard = async (req, res) => {
   const { boardId } = req.params;
-  const { error } = await supabase.from('kanban_boards').delete().eq('id', boardId);
+  const { error } = await supabase.from('kanban_boards').delete().eq('id', boardId).eq('team_id', req.user.team_id);
   if (error) return res.status(500).json({ success: false, message: error.message });
   return res.json({ success: true, message: 'Board deleted' });
 };
@@ -276,17 +279,31 @@ export const moveTicket = async (req, res) => {
 export const getCalendarTickets = async (req, res) => {
   const { boardId, year, month } = req.query;
 
+  // Scope to boards belonging to user's team
+  let boardQuery = supabase
+    .from('kanban_boards')
+    .select('id')
+    .eq('team_id', req.user.team_id);
+  if (boardId) boardQuery = boardQuery.eq('id', boardId);
+
+  const { data: teamBoards } = await boardQuery;
+  const teamBoardIds = (teamBoards || []).map((b) => b.id);
+
+  if (teamBoardIds.length === 0) {
+    return res.json({ success: true, data: [] });
+  }
+
   let query = supabase
     .from('kanban_tickets')
     .select(`
       id, title, due_date, cover_color, column_id, board_id,
       labels:kanban_ticket_labels(label_id, kanban_labels(id, name, color))
     `)
+    .in('board_id', teamBoardIds)
     .eq('archived', false)
     .not('due_date', 'is', null)
     .order('due_date');
 
-  if (boardId) query = query.eq('board_id', boardId);
   if (year && month) {
     const y = String(year).padStart(4, '0');
     const m = String(month).padStart(2, '0');
@@ -533,6 +550,7 @@ export const getUsers = async (req, res) => {
   const { data, error } = await supabase
     .from('users')
     .select('id, full_name, username, profile_picture')
+    .eq('team_id', req.user.team_id)
     .order('full_name');
   if (error) return res.status(500).json({ success: false, message: error.message });
   return res.json({ success: true, data });

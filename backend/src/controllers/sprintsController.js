@@ -68,6 +68,7 @@ export const getSprints = async (req, res) => {
     const { data: sprints, error } = await supabase
       .from('sprints')
       .select('*')
+      .eq('team_id', req.user.team_id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -182,10 +183,11 @@ export const createSprint = async (req, res) => {
       });
     }
 
-    // Check if sprint already exists
+    // Check if sprint already exists (within this team)
     const { data: existingSprints } = await supabase
       .from('sprints')
-      .select('*');
+      .select('*')
+      .eq('team_id', req.user.team_id);
 
     const exists = (existingSprints || []).some(s => s.sprint_number === sprintNumber);
     if (exists) {
@@ -205,7 +207,8 @@ export const createSprint = async (req, res) => {
       .insert([{
         sprint_number: sprintNumber,
         color: finalColor,
-        created_by: userId
+        created_by: userId,
+        team_id: req.user.team_id
       }])
       .select()
       .single();
@@ -279,6 +282,7 @@ export const getSprintById = async (req, res) => {
       .from('sprints')
       .select('*')
       .eq('id', id)
+      .eq('team_id', req.user.team_id)
       .single();
 
     if (error || !sprint) {
@@ -341,6 +345,7 @@ export const updateSprint = async (req, res) => {
       .from('sprints')
       .update(updateData)
       .eq('id', id)
+      .eq('team_id', req.user.team_id)
       .select()
       .single();
 
@@ -383,7 +388,8 @@ export const deleteSprint = async (req, res) => {
     const { error } = await supabase
       .from('sprints')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('team_id', req.user.team_id);
 
     if (error) {
       throw error;
@@ -422,6 +428,7 @@ export const addTeamPlan = async (req, res) => {
       .from('sprints')
       .select('id, sprint_number')
       .eq('id', id)
+      .eq('team_id', req.user.team_id)
       .single();
 
     if (fetchError || !sprint) {
@@ -504,6 +511,7 @@ export const removeTeamPlan = async (req, res) => {
       .from('sprints')
       .select('id, sprint_number')
       .eq('id', id)
+      .eq('team_id', req.user.team_id)
       .single();
 
     if (fetchError || !sprint) {

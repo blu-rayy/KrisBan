@@ -152,7 +152,8 @@ export const createProgressReport = async (req, res) => {
       category,
       task_done: taskDone,
       image_url: imageUrl,
-      created_by: userId
+      created_by: userId,
+      team_id: req.user.team_id
     });
 
     // Automatically create team plan if it doesn't exist
@@ -224,7 +225,8 @@ export const getProgressReports = async (req, res) => {
     // Use a simple query first, then enrich
     let query = supabase
       .from('progress_reports')
-      .select(baseColumns.join(','));
+      .select(baseColumns.join(','))
+      .eq('team_id', req.user.team_id);
 
     if (date) query = query.eq('date', date);
     if (memberId) query = query.eq('member_id', memberId);
@@ -317,6 +319,7 @@ export const getLastWeekProgressStats = async (req, res) => {
     const { data: reports, error } = await supabase
       .from('progress_reports')
       .select('date')
+      .eq('team_id', req.user.team_id)
       .gte('date', startDate)
       .lte('date', endDate);
 

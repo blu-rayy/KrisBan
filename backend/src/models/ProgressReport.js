@@ -33,6 +33,7 @@ class ProgressReport {
             task_done: data.task_done,
             image_url: data.image_url || null,
             created_by: data.created_by,
+            team_id: data.team_id || null,
           }
         ])
         .select('*')

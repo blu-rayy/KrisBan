@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import connectDB from './config/database.js';
+import connectDB, { supabase } from './config/database.js';
 import User from './models/User.js';
 import Board from './models/Board.js';
 
@@ -21,9 +21,30 @@ const seedDatabase = async () => {
     await User.deleteMany({});
     await Board.deleteMany({});
 
-    console.log('Creating test users...');
+    // Clear teams (delete all)
+    await supabase.from('teams').delete().neq('id', 0);
 
-    // Create Kristian (Admin)
+    console.log('Creating teams...');
+
+    const { data: aPrioriTeam, error: t1Error } = await supabase
+      .from('teams')
+      .insert([{ name: 'A Priori' }])
+      .select()
+      .single();
+    if (t1Error) throw t1Error;
+    console.log('✅ Team "A Priori" created (id:', aPrioriTeam.id, ')');
+
+    const { data: legacyPlusPlusTeam, error: t2Error } = await supabase
+      .from('teams')
+      .insert([{ name: 'Legacy++' }])
+      .select()
+      .single();
+    if (t2Error) throw t2Error;
+    console.log('✅ Team "Legacy++" created (id:', legacyPlusPlusTeam.id, ')');
+
+    console.log('Creating users...');
+
+    // Create Kristian (Admin — A Priori)
     const kristian = await User.create({
       studentNumber: '202300001',
       password: 'password123',
@@ -33,12 +54,13 @@ const seedDatabase = async () => {
       personalEmail: 'admin.user@example.com',
       birthday: '2000-01-01',
       role: 'ADMIN',
-      isFirstLogin: false
+      isFirstLogin: false,
+      teamId: aPrioriTeam.id
     });
 
-    console.log('✅ Kristian (Admin) created:', kristian.studentNumber);
+    console.log('✅ Kristian (Admin, A Priori) created:', kristian.studentNumber);
 
-    // Create Angel
+    // Create Angel (A Priori)
     const angel = await User.create({
       studentNumber: '202300002',
       password: 'password123',
@@ -48,12 +70,13 @@ const seedDatabase = async () => {
       personalEmail: 'member.one@example.com',
       birthday: '2000-01-02',
       role: 'USER',
-      isFirstLogin: false
+      isFirstLogin: false,
+      teamId: aPrioriTeam.id
     });
 
-    console.log('✅ Angel created:', angel.studentNumber);
+    console.log('✅ Angel (A Priori) created:', angel.studentNumber);
 
-    // Create Michael
+    // Create Michael (A Priori)
     const michael = await User.create({
       studentNumber: '202300003',
       password: 'password123',
@@ -63,12 +86,13 @@ const seedDatabase = async () => {
       personalEmail: 'member.two@example.com',
       birthday: '2000-01-03',
       role: 'USER',
-      isFirstLogin: false
+      isFirstLogin: false,
+      teamId: aPrioriTeam.id
     });
 
-    console.log('✅ Michael created:', michael.studentNumber);
+    console.log('✅ Michael (A Priori) created:', michael.studentNumber);
 
-    // Create Marianne
+    // Create Marianne (A Priori)
     const marianne = await User.create({
       studentNumber: '202300004',
       password: 'password123',
@@ -78,12 +102,29 @@ const seedDatabase = async () => {
       personalEmail: 'member.three@example.com',
       birthday: '2000-01-04',
       role: 'USER',
-      isFirstLogin: false
+      isFirstLogin: false,
+      teamId: aPrioriTeam.id
     });
 
-    console.log('✅ Marianne created:', marianne.studentNumber);
+    console.log('✅ Marianne (A Priori) created:', marianne.studentNumber);
 
-    // Create sample boards
+    // Create Jay (Admin — Legacy++)
+    const jay = await User.create({
+      studentNumber: '202311436',
+      password: 'password123',
+      fullName: 'John Janiel S. Obmerga',
+      username: 'Jay',
+      instituteEmail: 'jsobmerga@fit.edu.ph',
+      personalEmail: 'obmergajohnjaniel@gmail.com',
+      birthday: '2000-01-05',
+      role: 'ADMIN',
+      isFirstLogin: true,
+      teamId: legacyPlusPlusTeam.id
+    });
+
+    console.log('✅ Jay (Admin, Legacy++) created:', jay.studentNumber);
+
+    // Create sample boards for A Priori team
     console.log('Creating sample boards...');
 
     const board1 = await Board.create({
@@ -224,6 +265,9 @@ const seedDatabase = async () => {
     console.log('✅ Board 3 created:', board3.title);
 
     console.log('\n✅ Database seeded successfully!');
+    console.log('\nTeams:');
+    console.log('  • A Priori (id:', aPrioriTeam.id, ') — Kristian (ADMIN), Angel, Michael, Marianne');
+    console.log('  • Legacy++ (id:', legacyPlusPlusTeam.id, ') — Jay (ADMIN)');
     console.log('\nTest credentials created using non-production placeholder identities.');
 
     process.exit(0);

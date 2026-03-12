@@ -68,10 +68,11 @@ const buildGeminiSourceReports = (reports = [], usersMap = new Map()) => {
 // @route   GET /api/weekly-reports
 // @desc    List weekly reports
 // @access  Admin
-export const getWeeklyReports = async (_req, res) => {
+export const getWeeklyReports = async (req, res) => {
   try {
-    await WeeklyReport.ensureWeeksThroughCurrentDate();
-    const weeks = await WeeklyReport.list();
+    const teamId = req.user?.team_id;
+    await WeeklyReport.ensureWeeksThroughCurrentDate(null, new Date(), teamId);
+    const weeks = await WeeklyReport.list(teamId);
 
     res.status(200).json({
       success: true,
@@ -99,7 +100,7 @@ export const getWeeklyReportByWeek = async (req, res) => {
       });
     }
 
-    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id);
+    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id, req.user?.team_id);
 
     res.status(200).json({
       success: true,
@@ -128,7 +129,7 @@ export const generateWeeklyReportDraft = async (req, res) => {
       });
     }
 
-    const week = await WeeklyReport.ensureWeek(parsedWeek, req.user?.id);
+    const week = await WeeklyReport.ensureWeek(parsedWeek, req.user?.id, req.user?.team_id);
 
     let selectedDates = [];
     let resolvedStartDate = week.week_start_date;
@@ -177,6 +178,7 @@ export const generateWeeklyReportDraft = async (req, res) => {
     const { data: reports, error: reportsError } = await supabase
       .from('progress_reports')
       .select('date, member_id, task_done, team_plan, created_at')
+      .eq('team_id', req.user?.team_id)
       .gte('date', resolvedStartDate)
       .lte('date', resolvedEndDate)
       .order('date', { ascending: true })
@@ -297,7 +299,7 @@ export const saveWeeklyReportDraft = async (req, res) => {
       });
     }
 
-    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id);
+    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id, req.user?.team_id);
     const resolvedStartDate = startDate || week.week_start_date;
     const resolvedEndDate = endDate || week.week_end_date;
 
@@ -347,9 +349,9 @@ export const saveWeeklyReportDraft = async (req, res) => {
       reportingDate: formatReportingDateRange(parseISODate(resolvedStartDate), parseISODate(resolvedEndDate)),
       signatoryDate: effectiveSignatoryDate,
       status: 'SAVED'
-    });
+    }, req.user?.team_id);
 
-    const savedWeek = await WeeklyReport.saveEntries(reportWeek, normalizedEntries, 'SAVED');
+    const savedWeek = await WeeklyReport.saveEntries(reportWeek, normalizedEntries, 'SAVED', req.user?.team_id);
 
     res.status(200).json({
       success: true,
@@ -378,7 +380,7 @@ export const exportWeeklyReportPdfFile = async (req, res) => {
       });
     }
 
-    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id);
+    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id, req.user?.team_id);
     const hasAnyActivity = (week.entries || []).some((entry) => String(entry.row_activity || '').trim().length > 0);
 
     if (!hasAnyActivity) {
@@ -417,7 +419,7 @@ export const exportWeeklyReportDocxFile = async (req, res) => {
       });
     }
 
-    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id);
+    const week = await WeeklyReport.ensureWeek(reportWeek, req.user?.id, req.user?.team_id);
     const hasAnyActivity = (week.entries || []).some((entry) => String(entry.row_activity || '').trim().length > 0);
 
     if (!hasAnyActivity) {

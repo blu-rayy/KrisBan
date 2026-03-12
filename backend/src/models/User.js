@@ -25,6 +25,7 @@ class User {
       if (userData.birthday) insertData.birthday = userData.birthday;
       if (userData.signature) insertData.signature = userData.signature;
       if (userData.profilePicture) insertData.profile_picture = userData.profilePicture;
+      if (userData.teamId) insertData.team_id = userData.teamId;
 
       const { data, error } = await supabase
         .from('users')
@@ -159,6 +160,7 @@ class User {
       profilePicture: data.profile_picture,
       isFirstLogin: data.is_first_login,
       isActive: data.is_active,
+      teamId: data.team_id ?? null,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       getPublicProfile: function() {
@@ -171,7 +173,8 @@ class User {
           instituteEmail: this.instituteEmail,
           personalEmail: this.personalEmail,
           isFirstLogin: this.isFirstLogin,
-          profilePicture: this.profilePicture
+          profilePicture: this.profilePicture,
+          teamId: this.teamId
         };
       }
     };

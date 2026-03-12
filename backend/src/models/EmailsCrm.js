@@ -111,24 +111,30 @@ const formatSmeLog = (row = {}) => {
 };
 
 class EmailsCrm {
-  static async listSmes() {
-    const { data, error } = await supabase
+  static async listSmes(teamId = null) {
+    let query = supabase
       .from(SMES_TABLE)
       .select('*')
       .order('created_at', { ascending: false });
 
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
     const enrichedRows = await enrichSmeRows(data || []);
     return enrichedRows.map(formatSme);
   }
 
-  static async listPointPeople() {
-    const { data, error } = await supabase
+  static async listPointPeople(teamId = null) {
+    let query = supabase
       .from('users')
       .select('id, username, profile_picture')
       .eq('is_active', true)
       .order('username', { ascending: true });
 
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
     return (data || []).map(formatPointPerson);
   }
@@ -171,7 +177,7 @@ class EmailsCrm {
     return formatSme(enrichedRows[0]);
   }
 
-  static async createSme(payload, userId) {
+  static async createSme(payload, userId, teamId = null) {
     let pointPersonUserId = payload.pointPersonUserId || null;
     let pointPersonNameSnapshot = String(payload.pointPersonNameSnapshot || payload.pointPerson || '').trim();
 
@@ -208,7 +214,8 @@ class EmailsCrm {
           email: payload.email || null,
           phone: payload.phone || null,
           linkedin_url: payload.linkedinUrl || null,
-          created_by: userId
+          created_by: userId,
+          team_id: teamId || null
         }
       ])
       .select('*')
@@ -292,24 +299,28 @@ class EmailsCrm {
     if (error) throw new Error(error.message);
   }
 
-  static async listTemplates() {
-    const { data, error } = await supabase
+  static async listTemplates(teamId = null) {
+    let query = supabase
       .from(TEMPLATES_TABLE)
       .select('*')
       .order('created_at', { ascending: false });
 
+    if (teamId) query = query.eq('team_id', teamId);
+
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
     return (data || []).map(formatTemplate);
   }
 
-  static async createTemplate(payload, userId) {
+  static async createTemplate(payload, userId, teamId = null) {
     const { data, error } = await supabase
       .from(TEMPLATES_TABLE)
       .insert([
         {
           template_name: payload.templateName,
           content: payload.content,
-          created_by: userId
+          created_by: userId,
+          team_id: teamId || null
         }
       ])
       .select('*')
