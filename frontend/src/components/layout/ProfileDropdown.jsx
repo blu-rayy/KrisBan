@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useRef, useState, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { authService } from '../../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -60,7 +60,20 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
     }
   };
 
-  if (!isOpen) return null;
+  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      const t = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(t);
+    } else {
+      setVisible(false);
+    }
+  }, [isOpen]);
+
+  if (!mounted) return null;
 
   return (
     <>
@@ -71,7 +84,11 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
       />
       
       {/* Dropdown Menu */}
-      <div className="absolute top-16 right-0 w-80 bg-white dark:bg-dm-card rounded-lg shadow-lg border border-gray-200 dark:border-dm-border z-50 transition-colors duration-300">
+      <div
+        onTransitionEnd={() => { if (!visible) setMounted(false); }}
+        className={`absolute top-16 right-0 w-80 bg-white dark:bg-dm-card rounded-lg shadow-lg border border-gray-200 dark:border-dm-border z-50 transition-all duration-200 ease-out origin-top-right
+          ${visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`}
+      >
         {/* Header with Profile */}
         <div className="p-6 border-b border-gray-100 dark:border-dm-border">
           <div className="flex items-center gap-4">

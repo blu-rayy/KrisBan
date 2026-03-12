@@ -126,9 +126,9 @@ export const DashboardPage = () => {
               {/* User Avatar */}
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-4 border-l border-gray-200 dark:border-dm-border hover:opacity-80 transition cursor-pointer"
+                className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-4 border-l border-gray-200 dark:border-dm-border hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
               >
-                <div className="w-10 h-10 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
+                <div className={`w-10 h-10 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ring-2 transition-all duration-150 ${profileDropdownOpen ? 'ring-forest-green ring-offset-2 ring-offset-white dark:ring-offset-dm-surface' : 'ring-transparent'}`}>
                   {user?.profilePicture ? (
                     <img src={user.profilePicture} alt={user?.fullName} className="w-full h-full object-cover" />
                   ) : (

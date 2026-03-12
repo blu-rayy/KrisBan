@@ -44,12 +44,13 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
 
     if (!darkMode) {
       // Light → Dark: play first half (sun → moon)
+      player.setFrame(0);
       player.setSegment(0, MID_FRAME);
     } else {
       // Dark → Light: play second half (moon → sun)
+      player.setFrame(MID_FRAME);
       player.setSegment(MID_FRAME, END_FRAME);
     }
-    player.setMode('forward');
     player.play();
   };
 
