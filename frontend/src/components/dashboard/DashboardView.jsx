@@ -54,24 +54,13 @@ export const DashboardView = ({ dashboardData, userRole, teamName }) => {
 
   return (
     <div className="min-h-full bg-surface-ground dark:bg-dm-ground p-4 sm:p-6 lg:p-8 transition-colors duration-300">
-      {/* Page Header with Action Buttons */}
+      {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8 sm:mb-12">
         <div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text mb-2">Dashboard</h2>
           <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg italic">
             {dashboardSubtitle}
           </p>
-        </div>
-
-        {/* Action Buttons - Top Right */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            disabled
-            className="relative px-4 sm:px-6 py-2 bg-gradient-hero text-white rounded-full font-semibold text-sm sm:text-base opacity-50 cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-gray-500 rounded-full opacity-40" />
-            + Add Project
-          </button>
         </div>
       </div>
 
@@ -93,7 +82,7 @@ export const DashboardView = ({ dashboardData, userRole, teamName }) => {
           title="Ended Tickets"
           value="(ᵕ—ᴗ—)"
           subtitle="Successfully completed"
-          icon="✓"
+          icon="🎯"
         />
 
         {/* Running Tickets - White Card */}

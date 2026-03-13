@@ -27,9 +27,9 @@ export const StatCard = ({
   };
 
   const iconWrapperStyles = {
-    white: 'bg-white border-2 border-gray-200 text-dark-charcoal',
-    hero: 'bg-white text-forest-green',
-    dark: 'bg-white text-dark-emerald'
+    white: 'bg-slate-100/85 dark:bg-dm-elevated border border-slate-300/60 dark:border-dm-border text-dark-charcoal dark:text-emerald-200',
+    hero: 'bg-emerald-900/35 border border-emerald-700/40 text-emerald-100',
+    dark: 'bg-emerald-900/30 border border-emerald-700/35 text-emerald-100'
   };
 
   const iconBackgroundColor = {
@@ -54,7 +54,7 @@ export const StatCard = ({
         {/* Icon Wrapper */}
         {icon && (
           <div
-            className={`${iconWrapperStyles[variant]} w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm`}
+            className={`${iconWrapperStyles[variant]} w-12 h-12 rounded-full flex items-center justify-center text-2xl`}
           >
             {icon}
           </div>

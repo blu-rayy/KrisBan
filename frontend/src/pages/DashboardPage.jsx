@@ -19,6 +19,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
 import { emailsCrmService, fetchProgressReports } from '../services/api';
 import { DarkModeToggle } from '../components/layout/DarkModeToggle';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Menu01Icon } from '@hugeicons/core-free-icons';
 
 const getEmailsCrmWarmBootCacheKey = (teamId) => `emailsCrmWarmBootCacheV1_team_${teamId ?? 'none'}`;
 
@@ -151,16 +153,28 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
       <header className="bg-white dark:bg-dm-surface shadow-sm sticky top-0 z-40 h-20 transition-colors duration-300">
         <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center">
           <div className="flex items-center justify-between gap-6 w-full">
-            {/* Left: Logo */}
-            <button
-              onClick={() => setActiveSection('dashboard')}
-              className="flex items-center gap-3 flex-shrink-0 cursor-pointer"
-            >
-              <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
-              <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-                KrisBan
-              </h1>
-            </button>
+            {/* Left: Mobile menu + Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              {isMobile && (
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 dark:text-dm-muted hover:bg-gray-100 dark:hover:bg-dm-elevated transition-colors"
+                  aria-label="Open sidebar"
+                >
+                  <HugeiconsIcon icon={Menu01Icon} size={20} color="currentColor" />
+                </button>
+              )}
+              <button
+                onClick={() => setActiveSection('dashboard')}
+                className="flex items-center gap-3 flex-shrink-0 cursor-pointer"
+              >
+                <img src="/krisban-logo.svg" alt="KrisBan" className="h-10 w-10 flex-shrink-0" />
+                <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+                  KrisBan
+                </h1>
+              </button>
+            </div>
 
             {/* Right: Dark mode toggle + User Profile */}
             <div className="flex items-center gap-3 relative">

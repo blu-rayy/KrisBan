@@ -183,7 +183,7 @@ export const SMERoster = ({
                           event.stopPropagation();
                           onDeleteSme(sme.id);
                         }}
-                        className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100"
+                        className="inline-flex items-center justify-center rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition"
                         aria-label={`Delete ${sme.name}`}
                         title="Delete"
                       >
@@ -257,7 +257,7 @@ export const SMERoster = ({
                     event.stopPropagation();
                     onDeleteSme(sme.id);
                   }}
-                  className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-1.5 text-red-600 hover:bg-red-100"
+                  className="inline-flex items-center justify-center rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition"
                   aria-label={`Delete ${sme.name}`}
                   title="Delete"
                 >

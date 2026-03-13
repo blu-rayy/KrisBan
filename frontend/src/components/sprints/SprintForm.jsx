@@ -70,7 +70,7 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
           {/* Sprint Number */}
           <div>
             <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
-              Sprint Number *
+              Sprint Number <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -92,17 +92,21 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
             <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
               Sprint Color
             </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                name="color"
-                value={formData.color || '#15803d'}
-                onChange={handleInputChange}
-                className="w-14 h-10 border-2 border-gray-300 dark:border-dm-border rounded-lg cursor-pointer hover:border-forest-green transition"
-              />
-              <span className="text-sm text-gray-600 dark:text-dm-muted whitespace-nowrap">
-                {formData.color ? formData.color : 'Random color'}
-              </span>
+            <div className="flex items-center">
+              <label className="relative block h-9 w-9 cursor-pointer overflow-hidden rounded-full border border-emerald-500/60 dark:border-emerald-400/60 bg-slate-100 dark:bg-dm-elevated ring-2 ring-emerald-500/20 dark:ring-emerald-400/20 ring-offset-2 ring-offset-white dark:ring-offset-dm-card transition hover:ring-emerald-500/35 dark:hover:ring-emerald-400/35">
+                <input
+                  type="color"
+                  name="color"
+                  value={formData.color || '#15803d'}
+                  onChange={handleInputChange}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  aria-label="Choose sprint color"
+                />
+                <span
+                  className="block h-full w-full rounded-full"
+                  style={{ backgroundColor: formData.color || '#15803d' }}
+                />
+              </label>
             </div>
           </div>
         </div>
@@ -133,9 +137,9 @@ export const SprintForm = ({ sprint = null, onSubmit, loading = false, onCancel 
             <button
               type="button"
               onClick={handleAddTeamPlan}
-              className="px-4 py-2 bg-gradient-action hover:opacity-90 text-white rounded-lg font-medium transition"
+              className="inline-flex h-10 w-10 items-center justify-center bg-gradient-action hover:opacity-90 text-white rounded-lg text-2xl leading-none font-semibold transition"
             >
-              Add
+              +
             </button>
           </div>
           {errors.teamPlan && (

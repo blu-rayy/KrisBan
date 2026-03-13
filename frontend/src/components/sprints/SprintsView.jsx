@@ -57,12 +57,14 @@ export const SprintsView = ({ userRole }) => {
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">Sprints</h1>
           <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">Manage sprints and their associated team plans</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 sm:px-6 py-2 bg-gradient-action hover:shadow-lg text-white rounded-lg font-medium transition-all duration-300 hover:scale-105 w-full sm:w-auto"
-        >
-          {showForm ? 'Cancel' : '+ New Sprint'}
-        </button>
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 sm:px-6 py-2 bg-gradient-action hover:shadow-lg text-white rounded-lg font-medium transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+          >
+            + New Sprint
+          </button>
+        )}
       </div>
 
       {/* Error Message */}
