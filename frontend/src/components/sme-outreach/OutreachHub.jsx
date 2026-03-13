@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { DatePicker } from '../shared/DatePicker';
 import { SME_STATUSES } from '../../utils/smeOutreachMockData';
 import { SMEProfileCard } from './SMEProfileCard';
 
@@ -139,11 +140,9 @@ const LogEntry = ({ log, sme, onUpdate, onDelete }) => {
   if (isEditing) {
     return (
       <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 p-3 space-y-2">
-        <input
-          type="date"
+        <DatePicker
           value={editDate}
           onChange={(e) => setEditDate(e.target.value)}
-          className="w-full rounded border border-slate-300 dark:border-dm-border bg-white dark:bg-dm-elevated px-2 py-1.5 text-xs text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
         />
         <MessageEditor messages={editMessages} onChange={setEditMessages} />
         <div className="flex gap-2">
@@ -374,11 +373,9 @@ export const OutreachHub = ({
 
       {showLogForm && (
         <div className="mb-4 rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-elevated p-3 space-y-2">
-          <input
-            type="date"
+          <DatePicker
             value={logForm.logDate}
             onChange={(e) => setLogForm((f) => ({ ...f, logDate: e.target.value }))}
-            className="w-full rounded border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-card px-2 py-1.5 text-xs text-slate-800 dark:text-dm-text focus:border-emerald-600 focus:outline-none"
           />
           <MessageEditor
             messages={logForm.messages}

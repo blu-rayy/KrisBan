@@ -6,6 +6,7 @@ import { useSprints } from '../../hooks/useSprints';
 import { CustomSelect } from '../shared/CustomSelect';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons';
+import { DatePicker } from '../shared/DatePicker';
 
 const SPRINT_OPTIONS = [
   'Sprint 1',
@@ -459,16 +460,13 @@ export const ProgressReportTable = ({
                   <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1">
                     Date <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={editForm.date}
                     onChange={(e) => {
                       setEditForm(prev => ({ ...prev, date: e.target.value }));
                       if (editErrors.date) setEditErrors(prev => ({ ...prev, date: '' }));
                     }}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none text-sm transition dark:bg-dm-elevated dark:text-dm-text ${
-                      editErrors.date ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
-                    }`}
+                    error={!!editErrors.date}
                   />
                   {editErrors.date && <p className="mt-1 text-xs text-red-500">{editErrors.date}</p>}
                 </div>

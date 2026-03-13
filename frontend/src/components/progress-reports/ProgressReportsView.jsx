@@ -10,6 +10,7 @@ import { useInfiniteProgressReports } from '../../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon, CheckmarkCircle01Icon, Alert01Icon } from '@hugeicons/core-free-icons';
 import { CustomSelect } from '../shared/CustomSelect';
+import { DatePicker } from '../shared/DatePicker';
 
 const normalizeMemberName = (name) => {
   if (!name) return 'UNKNOWN';
@@ -716,11 +717,9 @@ export const ProgressReportsView = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">Signatory Date</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={signatoryDate}
                     onChange={(e) => setSignatoryDate(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
                   />
                 </div>
               </div>
@@ -729,22 +728,18 @@ export const ProgressReportsView = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">Start Date</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={reportingStartDate}
                     onChange={(e) => setReportingStartDate(e.target.value)}
                     disabled={singleDayMode}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 dark:disabled:bg-dm-elevated disabled:text-gray-400 dark:disabled:text-dm-soft dark:disabled:opacity-60"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-1.5">End Date</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={reportingEndDate}
                     onChange={(e) => setReportingEndDate(e.target.value)}
                     disabled={singleDayMode}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-elevated dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition disabled:bg-gray-50 dark:disabled:bg-dm-elevated disabled:text-gray-400 dark:disabled:text-dm-soft dark:disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -795,11 +790,9 @@ export const ProgressReportsView = () => {
                   <div key={row.rowNumber} className="border border-gray-200 dark:border-dm-border rounded-xl overflow-hidden">
                     <div className="flex items-center gap-4 bg-surface-ground dark:bg-dm-elevated px-4 py-2.5 border-b border-gray-200 dark:border-dm-border">
                       <span className="text-sm font-semibold text-dark-charcoal dark:text-dm-text">Row {row.rowNumber}</span>
-                      <input
-                        type="date"
+                      <DatePicker
                         value={row.rowDate || ''}
                         onChange={(e) => handleRowDateChange(row.rowNumber, e.target.value)}
-                        className="px-3 py-1.5 text-sm border border-gray-300 dark:border-dm-border dark:bg-dm-card dark:text-dm-text rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition"
                       />
                       <span className="ml-auto text-xs text-gray-400 dark:text-dm-soft">{row.entryCount || 0} entries</span>
                     </div>

@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { SprintBadge } from '../sprints/SprintBadge';
 import { useSprints } from '../../hooks/useSprints';
 import { CustomSelect } from '../shared/CustomSelect';
+import { DatePicker } from '../shared/DatePicker';
 
 const CATEGORY_OPTIONS = [
   'Software Development',
@@ -217,7 +218,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
 
     if (!formData.date) newErrors.date = 'Date is required';
     if (!formData.memberId) newErrors.memberId = 'Member is required';
-    if (!formData.sprintNo) newErrors.sprintNo = 'Sprint is required';
+    if (sortedSprintLabels.length > 0 && !formData.sprintNo) newErrors.sprintNo = 'Sprint is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.taskDone.trim()) newErrors.taskDone = 'Task Done is required';
     if (!imageFile && !formData.imageUrl) newErrors.image = 'Image is required';
@@ -288,15 +289,12 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
           <label htmlFor="date" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
             Date <span className="text-red-500">*</span>
           </label>
-          <input
-            type="date"
+          <DatePicker
             id="date"
             name="date"
             value={formData.date}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent outline-none transition dark:bg-dm-elevated dark:text-dm-text ${
-              errors.date ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'
-            }`}
+            error={!!errors.date}
           />
           {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
         </div>
@@ -331,28 +329,30 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
           {errors.memberId && <p className="mt-1 text-sm text-red-500">{errors.memberId}</p>}
         </div>
 
-        {/* Sprint No. */}
-        <div>
-          <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
-            Sprint No. <span className="text-red-500">*</span>
-          </label>
-          <div className="flex gap-2 items-center">
-            <CustomSelect
-              id="sprintNo"
-              value={formData.sprintNo}
-              onChange={(val) => handleInputChange({ target: { name: 'sprintNo', value: val } })}
-              options={sortedSprintLabels.map((label) => ({
-                value: label,
-                label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
-              }))}
-              placeholder={sortedSprintLabels.length === 0 ? 'No sprints available yet' : 'Select sprint'}
-              error={!!errors.sprintNo}
-              className="flex-1"
-            />
-            <SprintBadge label={formData.sprintNo} />
+        {/* Sprint No. — hidden when no sprints exist */}
+        {sortedSprintLabels.length > 0 && (
+          <div>
+            <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
+              Sprint No. <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2 items-center">
+              <CustomSelect
+                id="sprintNo"
+                value={formData.sprintNo}
+                onChange={(val) => handleInputChange({ target: { name: 'sprintNo', value: val } })}
+                options={sortedSprintLabels.map((label) => ({
+                  value: label,
+                  label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
+                }))}
+                placeholder="Select sprint"
+                error={!!errors.sprintNo}
+                className="flex-1"
+              />
+              <SprintBadge label={formData.sprintNo} />
+            </div>
+            {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
           </div>
-          {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
-        </div>
+        )}
 
         {/* Team Plan */}
         <div className="relative">

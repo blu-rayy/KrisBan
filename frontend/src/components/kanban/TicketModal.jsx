@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useKanbanMutations, useKanbanUsers, useLabels, useTicket } from '../../hooks/useKanban';
 import { getInitials } from './TicketCard';
+import { DatePicker } from '../shared/DatePicker';
 
 const COVER_COLORS = [
   '#EF4444', '#F97316', '#EAB308', '#22C55E',
@@ -242,9 +243,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
 
               {/* Due Date */}
               <Section title="Due Date">
-                <input
-                  type="date"
-                  className={INPUT_CLS}
+                <DatePicker
                   value={dueDate}
                   onChange={handleDueDateChange}
                 />
