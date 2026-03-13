@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "KrisBan Backend API",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node --require dotenv/config index.js",
-    "dev": "nodemon --require dotenv/config index.js",
+    "start": "node --require dotenv/config server.js",
+    "dev": "nodemon --require dotenv/config server.js",
     "seed": "node --require dotenv/config seed.js",
     "seed:progress": "node --require dotenv/config seed-progress-reports.js",
     "seed:weekly": "node --require dotenv/config seed-weekly-reports.js",
