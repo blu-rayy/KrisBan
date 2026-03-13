@@ -1,10 +1,15 @@
+import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDashboardData } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 export const useDashboardData = () => {
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
+
   return useQuery({
-    queryKey: ['dashboardData'],
+    queryKey: ['dashboardData', teamId],
     queryFn: fetchDashboardData,
-    keepPreviousData: true
+    enabled: Boolean(user?.id)
   });
 };

@@ -5,19 +5,6 @@ import { SprintBadge } from '../sprints/SprintBadge';
 import { useSprints } from '../../hooks/useSprints';
 import { CustomSelect } from '../shared/CustomSelect';
 
-const SPRINT_OPTIONS = [
-  'Sprint 1',
-  'Sprint 1.5',
-  'Sprint 2',
-  'Sprint 3',
-  'Sprint 3.5',
-  'Sprint 4',
-  'Sprint 4.5',
-  'Sprint 5',
-  'Sprint 6',
-  'Others'
-];
-
 const CATEGORY_OPTIONS = [
   'Software Development',
   'Research',
@@ -66,7 +53,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     memberId: '',
-    sprintNo: 'Sprint 1',
+    sprintNo: '',
     teamPlan: '',
     category: 'Software Development',
     taskDone: '',
@@ -90,10 +77,11 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
     )].sort();
   }, [reports]);
 
-  const sortedSprintLabels = [...new Set([
-    ...sprints.map((sprint) => sprint.sprintNumber),
-    ...SPRINT_OPTIONS
-  ])].sort(sprintLabelComparator);
+  const sortedSprintLabels = [...new Set(
+    sprints
+      .map((sprint) => String(sprint.sprintNumber || '').trim())
+      .filter(Boolean)
+  )].sort(sprintLabelComparator);
 
   // Set member to logged-in user (default for all users, including admins)
   useEffect(() => {
@@ -103,10 +91,17 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
   }, [user]);
 
   useEffect(() => {
-    if (sprints.length > 0 && !sprints.some((sprint) => sprint.sprintNumber === formData.sprintNo)) {
-      setFormData((prev) => ({ ...prev, sprintNo: sprints[0].sprintNumber }));
+    if (sortedSprintLabels.length === 0) {
+      if (formData.sprintNo) {
+        setFormData((prev) => ({ ...prev, sprintNo: '' }));
+      }
+      return;
     }
-  }, [sprints, formData.sprintNo]);
+
+    if (!sortedSprintLabels.includes(formData.sprintNo)) {
+      setFormData((prev) => ({ ...prev, sprintNo: sortedSprintLabels[0] }));
+    }
+  }, [sortedSprintLabels, formData.sprintNo]);
 
   // Update team plans when sprint changes
   useEffect(() => {
@@ -264,7 +259,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
       setFormData({
         date: new Date().toISOString().split('T')[0],
         memberId: members.length > 0 ? members[0].id : '',
-        sprintNo: 'Sprint 1',
+        sprintNo: sortedSprintLabels[0] || '',
         teamPlan: '',
         category: 'Software Development',
         taskDone: '',
@@ -350,6 +345,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
                 value: label,
                 label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
               }))}
+              placeholder={sortedSprintLabels.length === 0 ? 'No sprints available yet' : 'Select sprint'}
               error={!!errors.sprintNo}
               className="flex-1"
             />
@@ -481,7 +477,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
             setFormData({
               date: new Date().toISOString().split('T')[0],
               memberId: user?.id || '',
-              sprintNo: 'Sprint 1',
+              sprintNo: sortedSprintLabels[0] || '',
               teamPlan: '',
               category: 'Software Development',
               taskDone: '',

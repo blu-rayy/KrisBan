@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { BubbleChatIcon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
 import { OutreachHub } from './OutreachHub';
@@ -7,12 +7,13 @@ import { TemplateManagerPanel } from './TemplateManagerPanel';
 import { SME_STATUSES } from '../../utils/smeOutreachMockData';
 import { parseSmeTemplate } from '../../utils/smeTemplateParser';
 import { emailsCrmService } from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
 
-const EMAILS_CRM_WARM_BOOT_CACHE_KEY = 'emailsCrmWarmBootCacheV1';
+const getEmailsCrmWarmBootCacheKey = (teamId) => `emailsCrmWarmBootCacheV1_team_${teamId ?? 'none'}`;
 
-const loadWarmBootCache = () => {
+const loadWarmBootCache = (teamId) => {
   try {
-    const raw = localStorage.getItem(EMAILS_CRM_WARM_BOOT_CACHE_KEY);
+    const raw = localStorage.getItem(getEmailsCrmWarmBootCacheKey(teamId));
     if (!raw) return null;
 
     const parsed = JSON.parse(raw);
@@ -28,10 +29,10 @@ const loadWarmBootCache = () => {
   }
 };
 
-const saveWarmBootCache = ({ smes, templates, pointPeople }) => {
+const saveWarmBootCache = (teamId, { smes, templates, pointPeople }) => {
   try {
     localStorage.setItem(
-      EMAILS_CRM_WARM_BOOT_CACHE_KEY,
+      getEmailsCrmWarmBootCacheKey(teamId),
       JSON.stringify({
         smes: Array.isArray(smes) ? smes : [],
         templates: Array.isArray(templates) ? templates : [],
@@ -66,6 +67,8 @@ const emptyTemplateForm = {
 };
 
 export const SMEOutreachView = () => {
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
   const [smes, setSmes] = useState([]);
   const [pointPeople, setPointPeople] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -89,7 +92,7 @@ export const SMEOutreachView = () => {
       try {
         setIsLoading(true);
 
-        const cachedData = loadWarmBootCache();
+        const cachedData = loadWarmBootCache(teamId);
         if (cachedData && cachedData.smes.length > 0) {
           setSmes(cachedData.smes);
           setTemplates(cachedData.templates);
@@ -110,7 +113,7 @@ export const SMEOutreachView = () => {
         setSmes(nextSmes);
         setTemplates(nextTemplates);
         setPointPeople(nextPointPeople);
-        saveWarmBootCache({ smes: nextSmes, templates: nextTemplates, pointPeople: nextPointPeople });
+        saveWarmBootCache(teamId, { smes: nextSmes, templates: nextTemplates, pointPeople: nextPointPeople });
         setErrorMessage('');
       } catch (error) {
         setErrorMessage(error?.response?.data?.message || 'Failed to load Emails CRM data');
@@ -120,7 +123,7 @@ export const SMEOutreachView = () => {
     };
 
     loadEmailsCrmData();
-  }, []);
+  }, [teamId]);
 
   useEffect(() => {
     if (!showSmeForm) return;

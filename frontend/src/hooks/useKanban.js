@@ -1,26 +1,32 @@
+import { useContext } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { kanbanService } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 // ── Query keys ────────────────────────────────────────────────────────────────
 export const kanbanKeys = {
-  boards:   ['kanban', 'boards'],
+  boards:   (teamId) => ['kanban', 'boards', teamId],
   board:    (id) => ['kanban', 'board', id],
   labels:   (boardId) => ['kanban', 'labels', boardId],
   ticket:   (id) => ['kanban', 'ticket', id],
   calendar: (boardId, year, month) => ['kanban', 'calendar', boardId, year, month],
-  users:    ['kanban', 'users']
+  users:    (teamId) => ['kanban', 'users', teamId]
 };
 
 // ── Boards ────────────────────────────────────────────────────────────────────
-export const useBoards = () =>
-  useQuery({
-    queryKey: kanbanKeys.boards,
+export const useBoards = () => {
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
+  return useQuery({
+    queryKey: kanbanKeys.boards(teamId),
     queryFn: async () => {
       const res = await kanbanService.getBoards();
       return res.data?.data || [];
     },
+    enabled: Boolean(user?.id),
     staleTime: 60_000
   });
+};
 
 export const useBoard = (boardId) =>
   useQuery({
@@ -66,21 +72,27 @@ export const useCalendarTickets = (boardId, year, month) =>
     staleTime: 30_000
   });
 
-export const useKanbanUsers = () =>
-  useQuery({
-    queryKey: kanbanKeys.users,
+export const useKanbanUsers = () => {
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
+  return useQuery({
+    queryKey: kanbanKeys.users(teamId),
     queryFn: async () => {
       const res = await kanbanService.getUsers();
       return res.data?.data || [];
     },
+    enabled: Boolean(user?.id),
     staleTime: 300_000
   });
+};
 
 // ── Mutations ─────────────────────────────────────────────────────────────────
 export const useKanbanMutations = (boardId) => {
   const qc = useQueryClient();
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
   const invalidateBoard   = () => qc.invalidateQueries({ queryKey: kanbanKeys.board(boardId) });
-  const invalidateBoards  = () => qc.invalidateQueries({ queryKey: kanbanKeys.boards });
+  const invalidateBoards  = () => qc.invalidateQueries({ queryKey: kanbanKeys.boards(teamId) });
   const invalidateLabels  = () => qc.invalidateQueries({ queryKey: kanbanKeys.labels(boardId) });
   const invalidateTicket  = (id) => qc.invalidateQueries({ queryKey: kanbanKeys.ticket(id) });
 

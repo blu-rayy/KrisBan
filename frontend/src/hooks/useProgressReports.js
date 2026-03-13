@@ -1,5 +1,7 @@
+import { useContext } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchProgressReports } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const fetchProgressReportsPage = async (filters = {}, page = 1, pageSize = 30) => {
   const data = await fetchProgressReports({
@@ -16,10 +18,14 @@ const fetchProgressReportsPage = async (filters = {}, page = 1, pageSize = 30) =
 };
 
 export const useInfiniteProgressReports = (filters = {}, pageSize = 30) => {
+  const { user } = useContext(AuthContext);
+  const teamId = user?.teamId ?? null;
+
   return useInfiniteQuery({
-    queryKey: ['progressReports', filters],
+    queryKey: ['progressReports', teamId, filters],
     queryFn: ({ pageParam = 1 }) => fetchProgressReportsPage(filters, pageParam, pageSize),
     initialPageParam: 1,
+    enabled: Boolean(user?.id),
     getNextPageParam: (lastPage) => {
       const lastPageData = lastPage?.data || [];
       const currentPage = lastPage?.pagination?.page || 1;

@@ -13,13 +13,14 @@ import { TicketsListView } from '../components/kanban/TicketsListView';
 import { ChangePasswordModal } from '../components/shared/ChangePasswordModal';
 import { ProfileDropdown } from '../components/layout/ProfileDropdown';
 import { SettingsView } from '../components/settings/SettingsView';
+import { AdminDashboardView } from '../components/admin/AdminDashboardView';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
 import { emailsCrmService, fetchProgressReports } from '../services/api';
 import { DarkModeToggle } from '../components/layout/DarkModeToggle';
 
-const EMAILS_CRM_WARM_BOOT_CACHE_KEY = 'emailsCrmWarmBootCacheV1';
+const getEmailsCrmWarmBootCacheKey = (teamId) => `emailsCrmWarmBootCacheV1_team_${teamId ?? 'none'}`;
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
@@ -50,8 +51,10 @@ export const DashboardPage = () => {
   useEffect(() => {
     if (!user) return;
 
+    const teamId = user?.teamId ?? null;
+
     queryClient.prefetchQuery({
-      queryKey: ['sprints'],
+      queryKey: ['sprints', teamId],
       queryFn: async () => {
         const response = await sprintService.getSprints();
         return response?.data?.data || [];
@@ -59,7 +62,7 @@ export const DashboardPage = () => {
     });
 
     queryClient.prefetchInfiniteQuery({
-      queryKey: ['progressReports', progressReportFilters],
+      queryKey: ['progressReports', teamId, progressReportFilters],
       queryFn: async ({ pageParam = 1 }) => {
         const data = await fetchProgressReports({
           ...progressReportFilters,
@@ -89,7 +92,7 @@ export const DashboardPage = () => {
           const smes = smesResponse?.data?.data || [];
           const templates = templatesResponse?.data?.data || [];
           const pointPeople = pointPeopleResponse?.data?.data || [];
-
+getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           localStorage.setItem(
             EMAILS_CRM_WARM_BOOT_CACHE_KEY,
             JSON.stringify({
@@ -105,6 +108,18 @@ export const DashboardPage = () => {
         });
     }
   }, [user?.id, queryClient, progressReportFilters]);
+
+  useEffect(() => {
+    if (user?.role !== 'ADMIN') return;
+    const handleAdminShortcut = (e) => {
+      if (e.ctrlKey && e.altKey && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault();
+        setActiveSection('admin-dashboard');
+      }
+    };
+    window.addEventListener('keydown', handleAdminShortcut);
+    return () => window.removeEventListener('keydown', handleAdminShortcut);
+  }, [user?.role]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -218,6 +233,7 @@ export const DashboardPage = () => {
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <TicketsListView />}
           {activeSection === 'settings' && <SettingsView />}
+          {activeSection === 'admin-dashboard' && <AdminDashboardView />}
         </main>
       </div>
 
