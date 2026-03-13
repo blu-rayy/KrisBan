@@ -667,7 +667,7 @@ export const ProgressReportsView = () => {
       {activeTab === 'generate-report' && user?.role === 'ADMIN' && (
         <div className="space-y-6">
           {/* Config Card */}
-          <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft border border-gray-100 dark:border-dm-border overflow-hidden">
+          <div className="bg-white dark:bg-dm-card rounded-2xl shadow-card-soft border border-gray-100 dark:border-dm-border overflow-visible">
             {/* Card Header */}
             <div className="bg-gradient-hero px-6 py-4">
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
