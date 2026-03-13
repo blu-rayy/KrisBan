@@ -2,9 +2,9 @@ import { useContext, useRef, useState, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { authService } from '../../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Logout03Icon, Edit02Icon } from '@hugeicons/core-free-icons';
+import { Logout03Icon, Edit02Icon, UserIcon, LockPasswordIcon, UserGroupIcon } from '@hugeicons/core-free-icons';
 
-export const ProfileDropdown = ({ isOpen, onClose }) => {
+export const ProfileDropdown = ({ isOpen, onClose, onNavigateSettingsTab }) => {
   const { user, setUser, logout } = useContext(AuthContext);
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -103,7 +103,7 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
           ${visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`}
       >
         {/* Header with Profile */}
-        <div className="p-6 border-b border-gray-100 dark:border-dm-border">
+        <div className="px-4 py-4 border-b border-gray-100 dark:border-dm-border">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-16 h-16 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden">
@@ -129,20 +129,28 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* User Info */}
-        <div className="p-6 space-y-4 border-b border-gray-100 dark:border-dm-border">
-          <div>
-            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Full Name</p>
-            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.fullName || 'Not set'}</p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Institute Email</p>
-            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.instituteEmail || 'Not set'}</p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-forest-green uppercase tracking-wide">Personal Email</p>
-            <p className="text-sm text-dark-charcoal dark:text-dm-text mt-1">{user?.personalEmail || 'Not set'}</p>
-          </div>
+        {/* Quick Links */}
+        <div className="p-4 space-y-1 border-b border-gray-100 dark:border-dm-border">
+          {[
+            { id: 'profile', label: 'Profile', icon: UserIcon },
+            { id: 'account', label: 'Account', icon: LockPasswordIcon },
+            { id: 'members', label: 'Members', icon: UserGroupIcon }
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                onNavigateSettingsTab?.(item.id);
+                onClose();
+              }}
+              className="w-full px-3 py-2 rounded-lg text-left text-sm font-medium text-gray-700 dark:text-dm-muted hover:bg-gray-100 dark:hover:bg-dm-elevated hover:text-dark-charcoal dark:hover:text-dm-text transition flex items-center gap-3"
+            >
+              <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                <HugeiconsIcon icon={item.icon} size={18} color="currentColor" />
+              </span>
+              <span className="leading-none">{item.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* Profile Picture Upload - Hidden */}
@@ -162,13 +170,15 @@ export const ProfileDropdown = ({ isOpen, onClose }) => {
         )}
 
         {/* Footer Actions */}
-        <div className="p-6">
+        <div className="p-4">
           <button 
             onClick={logout}
-            className="w-full px-4 py-2 text-red-600 font-medium hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition flex items-center gap-3"
+            className="w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition flex items-center gap-3"
           >
-            <HugeiconsIcon icon={Logout03Icon} size={18} color="currentColor" />
-            <span>Logout</span>
+            <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+              <HugeiconsIcon icon={Logout03Icon} size={18} color="currentColor" />
+            </span>
+            <span className="leading-none">Logout</span>
           </button>
         </div>
       </div>

@@ -10,7 +10,6 @@ import {
   HelpCircleIcon,
   KanbanIcon,
   Mail01Icon,
-  Settings01Icon,
   Ticket01Icon
 } from '@hugeicons/core-free-icons';
 
@@ -99,13 +98,6 @@ export const Sidebar = ({
   ];
 
   const generalItems = [
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: Settings01Icon,
-      action: () => setActiveSection('settings'),
-      section: 'GENERAL'
-    },
     {
       id: 'help',
       label: 'Help',

@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { authService } from '../../services/api';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { UserIcon, LockPasswordIcon, UserGroupIcon } from '@hugeicons/core-free-icons';
+import { UserIcon, LockPasswordIcon, UserGroupIcon, Edit02Icon } from '@hugeicons/core-free-icons';
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: UserIcon },
@@ -15,9 +15,13 @@ const ROLE_STYLES = {
   USER: 'bg-slate-100 text-slate-600'
 };
 
-export const SettingsView = () => {
+export const SettingsView = ({ initialTab = 'profile' }) => {
   const { user, setUser } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   // --- Profile tab ---
   const fileInputRef = useRef(null);
@@ -141,11 +145,23 @@ export const SettingsView = () => {
               <div className="p-6 space-y-6 h-full">
                 {/* Avatar */}
                 <div className="flex items-center gap-5">
-                  <div className="w-20 h-20 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden flex-shrink-0">
-                    {user?.profilePicture
-                      ? <img src={user.profilePicture} alt={user.fullName} className="w-full h-full object-cover" />
-                      : (user?.fullName || user?.username || 'U')[0].toUpperCase()
-                    }
+                  <div className="relative w-20 h-20 flex-shrink-0">
+                    <div className="w-20 h-20 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
+                      {user?.profilePicture
+                        ? <img src={user.profilePicture} alt={user.fullName} className="w-full h-full object-cover" />
+                        : (user?.fullName || user?.username || 'U')[0].toUpperCase()
+                      }
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={profileUploading}
+                      aria-label={profileUploading ? 'Uploading profile picture' : 'Change profile picture'}
+                      title={profileUploading ? 'Uploading...' : 'Change profile picture'}
+                      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-action text-white shadow-md flex items-center justify-center hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <HugeiconsIcon icon={Edit02Icon} size={16} color="currentColor" />
+                    </button>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">{user?.fullName}</p>
@@ -157,14 +173,7 @@ export const SettingsView = () => {
                       className="hidden"
                       onChange={handleProfilePictureChange}
                     />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={profileUploading}
-                      className="rounded-lg bg-gradient-action px-4 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
-                    >
-                      {profileUploading ? 'Uploading...' : 'Change Photo'}
-                    </button>
+                    {profileUploading && <p className="text-xs text-emerald-700 dark:text-emerald-400">Uploading...</p>}
                   </div>
                 </div>
 

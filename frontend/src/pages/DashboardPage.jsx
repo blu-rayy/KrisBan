@@ -30,6 +30,7 @@ export const DashboardPage = () => {
   const mobileBreakpoint = 1024;
   const initialIsMobile = typeof window !== 'undefined' ? window.innerWidth < mobileBreakpoint : false;
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [settingsTab, setSettingsTab] = useState('profile');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(initialIsMobile);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(initialIsMobile);
@@ -187,7 +188,11 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
               {/* Profile Dropdown */}
               <ProfileDropdown 
                 isOpen={profileDropdownOpen} 
-                onClose={() => setProfileDropdownOpen(false)} 
+                onClose={() => setProfileDropdownOpen(false)}
+                onNavigateSettingsTab={(tabId) => {
+                  setSettingsTab(tabId);
+                  setActiveSection('settings');
+                }}
               />
             </div>
           </div>
@@ -232,7 +237,7 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           {activeSection === 'kanban' && <KanbanView />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <TicketsListView />}
-          {activeSection === 'settings' && <SettingsView />}
+          {activeSection === 'settings' && <SettingsView initialTab={settingsTab} />}
           {activeSection === 'admin-dashboard' && <AdminDashboardView />}
         </main>
       </div>
