@@ -22,17 +22,39 @@ startWeeklyReportScheduler();
 // Middleware
 app.use(helmet());
 
-// CORS configuration - allow frontend domain
+// CORS configuration - allow local dev and all trusted Vercel deployments
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://krisban.vercel.app',
+  ...(process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+]);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // Allow non-browser requests (curl, health checks)
+  if (allowedOrigins.has(origin)) return true;
+  return /\.vercel\.app$/i.test(origin);
+};
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://krisban.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 200
 };
+
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

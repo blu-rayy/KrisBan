@@ -392,6 +392,19 @@ export const SMEOutreachView = () => {
     setSmeLogs([]);
   };
 
+  useEffect(() => {
+    if (activeTab !== 'outreach' || !selectedSmeId) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeOutreachModal();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [activeTab, selectedSmeId]);
+
   const handleAddLog = async (logForm) => {
     if (!selectedSmeId) return;
     try {

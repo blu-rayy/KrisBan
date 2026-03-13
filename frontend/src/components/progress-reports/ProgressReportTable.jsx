@@ -267,6 +267,31 @@ export const ProgressReportTable = ({
 
   useEffect(() => {
     if (memberFilter !== 'all' && !uniqueMembers.includes(memberFilter)) {
+
+    useEffect(() => {
+      if (!editingId && !confirmDeleteImage && !imageLightbox) return;
+
+      const onKeyDown = (e) => {
+        if (e.key !== 'Escape') return;
+
+        if (imageLightbox) {
+          setImageLightbox(null);
+          return;
+        }
+
+        if (confirmDeleteImage) {
+          setConfirmDeleteImage(false);
+          return;
+        }
+
+        if (editingId) {
+          handleEditCancel();
+        }
+      };
+
+      window.addEventListener('keydown', onKeyDown);
+      return () => window.removeEventListener('keydown', onKeyDown);
+    }, [editingId, confirmDeleteImage, imageLightbox]);
       setMemberFilter('all');
     }
   }, [memberFilter, uniqueMembers]);

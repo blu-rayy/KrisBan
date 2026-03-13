@@ -56,6 +56,7 @@ export const SettingsView = () => {
   const [pwLoading, setPwLoading] = useState(false);
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState('');
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -130,60 +131,75 @@ export const SettingsView = () => {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <div className="max-w-xl">
-          <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
-            <div className="bg-gradient-hero px-6 py-4">
-              <h2 className="text-lg font-semibold text-white">Your Profile</h2>
-              <p className="text-xs text-emerald-100 mt-0.5">Update your avatar and view your account details.</p>
-            </div>
-            <div className="p-6 space-y-6">
-              {/* Avatar */}
-              <div className="flex items-center gap-5">
-                <div className="w-20 h-20 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden flex-shrink-0">
-                  {user?.profilePicture
-                    ? <img src={user.profilePicture} alt={user.fullName} className="w-full h-full object-cover" />
-                    : (user?.fullName || user?.username || 'U')[0].toUpperCase()
-                  }
+        <div className="w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden lg:col-span-2 h-full">
+              <div className="bg-gradient-hero px-6 py-4">
+                <h2 className="text-lg font-semibold text-white">Your Profile</h2>
+                <p className="text-xs text-emerald-100 mt-0.5">Update your avatar and view your account details.</p>
+              </div>
+              <div className="p-6 space-y-6 h-full">
+                {/* Avatar */}
+                <div className="flex items-center gap-5">
+                  <div className="w-20 h-20 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden flex-shrink-0">
+                    {user?.profilePicture
+                      ? <img src={user.profilePicture} alt={user.fullName} className="w-full h-full object-cover" />
+                      : (user?.fullName || user?.username || 'U')[0].toUpperCase()
+                    }
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">{user?.fullName}</p>
+                    <p className="text-xs text-slate-500 dark:text-dm-muted mb-3">{user?.instituteEmail}</p>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleProfilePictureChange}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={profileUploading}
+                      className="rounded-lg bg-gradient-action px-4 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
+                    >
+                      {profileUploading ? 'Uploading...' : 'Change Photo'}
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">{user?.fullName}</p>
-                  <p className="text-xs text-slate-500 dark:text-dm-muted mb-3">{user?.instituteEmail}</p>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleProfilePictureChange}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={profileUploading}
-                    className="rounded-lg bg-gradient-action px-4 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
-                  >
-                    {profileUploading ? 'Uploading...' : 'Change Photo'}
-                  </button>
+
+                {profileError && (
+                  <p className="text-sm text-red-600 rounded-lg bg-red-50 border border-red-200 px-3 py-2">{profileError}</p>
+                )}
+                {profileSuccess && (
+                  <p className="text-sm text-emerald-700 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">{profileSuccess}</p>
+                )}
+
+                <div className="rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500 dark:text-dm-muted">Team</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text mt-1">{user?.teamName || 'Unassigned'}</p>
+                </div>
+
+                <div className="rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500 dark:text-dm-muted">Role</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text mt-1">{user?.role || '—'}</p>
                 </div>
               </div>
+            </div>
 
-              {profileError && (
-                <p className="text-sm text-red-600 rounded-lg bg-red-50 border border-red-200 px-3 py-2">{profileError}</p>
-              )}
-              {profileSuccess && (
-                <p className="text-sm text-emerald-700 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">{profileSuccess}</p>
-              )}
-
-              {/* Read-only fields */}
-              <div className="space-y-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 border-b border-emerald-100 dark:border-dm-border pb-1">Account Info</p>
+            <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden lg:col-span-3 h-full">
+              <div className="bg-gradient-hero px-6 py-4">
+                <h2 className="text-lg font-semibold text-white">Account Info</h2>
+                <p className="text-xs text-emerald-100 mt-0.5">Your workspace profile details.</p>
+              </div>
+              <div className="p-6 space-y-3">
                 {[
-                  { label: 'Full Name', value: user?.fullName },
                   { label: 'Username', value: user?.username },
                   { label: 'Student Number', value: user?.studentNumber },
                   { label: 'Institute Email', value: user?.instituteEmail },
-                  { label: 'Role', value: user?.role }
+                  { label: 'Personal Email', value: user?.personalEmail }
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex items-center justify-between rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-2.5">
+                  <div key={label} className="flex items-center justify-between rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
                     <span className="text-xs font-medium text-slate-500 dark:text-dm-muted">{label}</span>
                     <span className="text-sm font-semibold text-slate-800 dark:text-dm-text">{value || '—'}</span>
                   </div>
@@ -196,59 +212,102 @@ export const SettingsView = () => {
 
       {/* Account Tab */}
       {activeTab === 'account' && (
-        <div className="max-w-xl">
-          <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
-            <div className="bg-gradient-hero px-6 py-4">
-              <h2 className="text-lg font-semibold text-white">Account Security</h2>
-              <p className="text-xs text-emerald-100 mt-0.5">Change your password at any time.</p>
+        <div className="w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden lg:col-span-3">
+              <div className="bg-gradient-hero px-6 py-4">
+                <h2 className="text-lg font-semibold text-white">Account Security</h2>
+                <p className="text-xs text-emerald-100 mt-0.5">Change your password at any time.</p>
+              </div>
+              <form className="p-6 space-y-4" onSubmit={handleChangePassword}>
+                <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 border-b border-emerald-100 dark:border-dm-border pb-1">Change Password</p>
+                {pwError && (
+                  <p className="text-sm text-red-600 rounded-lg bg-red-50 border border-red-200 px-3 py-2">{pwError}</p>
+                )}
+                {pwSuccess && (
+                  <p className="text-sm text-emerald-700 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">{pwSuccess}</p>
+                )}
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-muted mb-1">New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswordFields ? 'text' : 'password'}
+                      value={pwForm.newPassword}
+                      onChange={(e) => setPwForm((c) => ({ ...c, newPassword: e.target.value }))}
+                      placeholder="••••••••"
+                      className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 pr-16 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordFields((current) => !current)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:opacity-80"
+                    >
+                      {showPasswordFields ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-dm-muted mb-1">Confirm New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswordFields ? 'text' : 'password'}
+                      value={pwForm.confirmPassword}
+                      onChange={(e) => setPwForm((c) => ({ ...c, confirmPassword: e.target.value }))}
+                      placeholder="••••••••"
+                      className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 pr-16 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordFields((current) => !current)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:opacity-80"
+                    >
+                      {showPasswordFields ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={pwLoading}
+                    className="rounded-lg bg-gradient-action px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
+                  >
+                    {pwLoading ? 'Saving...' : 'Update Password'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form className="p-6 space-y-4" onSubmit={handleChangePassword}>
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 border-b border-emerald-100 dark:border-dm-border pb-1">Change Password</p>
-              {pwError && (
-                <p className="text-sm text-red-600 rounded-lg bg-red-50 border border-red-200 px-3 py-2">{pwError}</p>
-              )}
-              {pwSuccess && (
-                <p className="text-sm text-emerald-700 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">{pwSuccess}</p>
-              )}
-              <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-dm-muted mb-1">New Password</label>
-                <input
-                  type="password"
-                  value={pwForm.newPassword}
-                  onChange={(e) => setPwForm((c) => ({ ...c, newPassword: e.target.value }))}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
-                  required
-                />
+
+            <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden lg:col-span-2">
+              <div className="bg-gradient-hero px-6 py-4">
+                <h2 className="text-lg font-semibold text-white">Security Notes</h2>
+                <p className="text-xs text-emerald-100 mt-0.5">Keep your account protected.</p>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-dm-muted mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={pwForm.confirmPassword}
-                  onChange={(e) => setPwForm((c) => ({ ...c, confirmPassword: e.target.value }))}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg border border-slate-300 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-3 py-2 text-sm text-slate-800 dark:text-dm-text focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition"
-                  required
-                />
+              <div className="p-6 space-y-4">
+                <div className="rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500 dark:text-dm-muted">Username</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text mt-1">{user?.username || '—'}</p>
+                </div>
+                <div className="rounded-lg border border-slate-100 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500 dark:text-dm-muted">Institute Email</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text mt-1">{user?.instituteEmail || '—'}</p>
+                </div>
+                <div className="rounded-lg border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/60 dark:bg-emerald-950/30 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Tip</p>
+                  <p className="text-xs text-emerald-800 dark:text-emerald-200 mt-1">
+                    Use at least 8 characters with a mix of letters, numbers, and symbols.
+                  </p>
+                </div>
               </div>
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={pwLoading}
-                  className="rounded-lg bg-gradient-action px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
-                >
-                  {pwLoading ? 'Saving...' : 'Update Password'}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Members Tab */}
       {activeTab === 'members' && (
-        <div>
+        <div className="w-full">
           {membersLoading && (
             <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated p-6 text-slate-700 dark:text-dm-muted">
               Loading members...
@@ -262,7 +321,7 @@ export const SettingsView = () => {
           {!membersLoading && !membersError && (
             <div className="rounded-xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
               <div className="bg-gradient-hero px-6 py-4">
-                <h2 className="text-lg font-semibold text-white">Team Members</h2>
+                <h2 className="text-lg font-semibold text-white">{user?.teamName || 'Team Members'}</h2>
                 <p className="text-xs text-emerald-100 mt-0.5">
                   {members.length} member{members.length !== 1 ? 's' : ''} in this workspace.
                 </p>

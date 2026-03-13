@@ -43,7 +43,7 @@ class User {
   // Find user by email or student number
   static async findOne(filter, includePassword = false) {
     try {
-      let query = supabase.from('users').select('*');
+      let query = supabase.from('users').select('*, teams(name)');
 
       if (filter.email) {
         query = query.eq('email', filter.email);
@@ -71,7 +71,7 @@ class User {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('*, teams(name)')
         .eq('id', String(id))
         .single();
 
@@ -161,6 +161,7 @@ class User {
       isFirstLogin: data.is_first_login,
       isActive: data.is_active,
       teamId: data.team_id ?? null,
+      teamName: data.team_name ?? data.teams?.name ?? null,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       getPublicProfile: function() {
@@ -174,7 +175,8 @@ class User {
           personalEmail: this.personalEmail,
           isFirstLogin: this.isFirstLogin,
           profilePicture: this.profilePicture,
-          teamId: this.teamId
+          teamId: this.teamId,
+          teamName: this.teamName
         };
       }
     };

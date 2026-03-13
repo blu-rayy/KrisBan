@@ -9,7 +9,7 @@ import { useLastWeekProgressStats, useRecentProgressActivity } from '../../hooks
  * Main dashboard view that displays key metrics using the Forest Gradient Theme
  * with StatCard components in a Bento Grid layout.
  */
-export const DashboardView = ({ dashboardData, userRole }) => {
+export const DashboardView = ({ dashboardData, userRole, teamName }) => {
   // Extract dashboard statistics
   const stats = dashboardData || {};
 
@@ -47,6 +47,10 @@ export const DashboardView = ({ dashboardData, userRole }) => {
   const endedProjects = summary.completedProjects || summary.endedProjects || 0;
   const runningProjects = summary.activeProjects || summary.runningProjects || 0;
   const pendingProjects = summary.pendingProjects || 0;
+  const dashboardTeamName = String(teamName || '').trim();
+  const dashboardSubtitle = dashboardTeamName
+    ? `Plan, prioritize, and accomplish tasks for ${dashboardTeamName}.`
+    : 'Plan, prioritize, and accomplish your tasks with ease.';
 
   return (
     <div className="min-h-full bg-surface-ground dark:bg-dm-ground p-4 sm:p-6 lg:p-8 transition-colors duration-300">
@@ -54,8 +58,8 @@ export const DashboardView = ({ dashboardData, userRole }) => {
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8 sm:mb-12">
         <div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text mb-2">Dashboard</h2>
-          <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">
-            Plan, prioritize, and accomplish your tasks with ease.
+          <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg italic">
+            {dashboardSubtitle}
           </p>
         </div>
 

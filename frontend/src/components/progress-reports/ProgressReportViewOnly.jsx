@@ -79,6 +79,26 @@ export const ProgressReportViewOnly = ({ reports = [], loading = false, error = 
     setEditErrors({});
   };
 
+  useEffect(() => {
+    if (!editingId && !confirmDeleteImage) return;
+
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+
+      if (confirmDeleteImage) {
+        setConfirmDeleteImage(false);
+        return;
+      }
+
+      if (editingId) {
+        handleEditCancel();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [editingId, confirmDeleteImage]);
+
   const handleEditImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;

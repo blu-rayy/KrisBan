@@ -225,7 +225,7 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           )}
 
           {/* Render Active Section */}
-          {activeSection === 'dashboard' && <DashboardView dashboardData={dashboardData} userRole={user?.role} />}
+          {activeSection === 'dashboard' && <DashboardView dashboardData={dashboardData} userRole={user?.role} teamName={user?.teamName} />}
           {activeSection === 'progress-reports' && <ProgressReportsView />}
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'emails' && <SMEOutreachView />}
