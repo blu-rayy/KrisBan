@@ -10,6 +10,14 @@ import {
 const WEEKLY_REPORTS_TABLE = 'weekly_reports';
 const WEEKLY_REPORT_ENTRIES_TABLE = 'weekly_report_entries';
 
+const applyTeamScope = (query, teamId) => {
+  if (teamId === null || teamId === undefined) {
+    return query.is('team_id', null);
+  }
+
+  return query.eq('team_id', teamId);
+};
+
 class WeeklyReport {
   constructor(data = {}) {
     this.id = data.id ? String(data.id) : null;
@@ -28,12 +36,13 @@ class WeeklyReport {
   }
 
   static async findByWeek(reportWeek, teamId = null) {
-    let query = supabase
+    const query = applyTeamScope(
+      supabase
       .from(WEEKLY_REPORTS_TABLE)
       .select('*, weekly_report_entries(*)')
-      .eq('report_week', Number(reportWeek));
-
-    if (teamId) query = query.eq('team_id', teamId);
+      .eq('report_week', Number(reportWeek)),
+      teamId
+    );
 
     const { data, error } = await query.maybeSingle();
 
@@ -45,12 +54,13 @@ class WeeklyReport {
   }
 
   static async list(teamId = null) {
-    let query = supabase
+    const query = applyTeamScope(
+      supabase
       .from(WEEKLY_REPORTS_TABLE)
       .select('*')
-      .order('report_week', { ascending: true });
-
-    if (teamId) query = query.eq('team_id', teamId);
+      .order('report_week', { ascending: true }),
+      teamId
+    );
 
     const { data, error } = await query;
 
@@ -154,12 +164,13 @@ class WeeklyReport {
       return WeeklyReport.findByWeek(reportWeek, teamId);
     }
 
-    let query = supabase
+    const query = applyTeamScope(
+      supabase
       .from(WEEKLY_REPORTS_TABLE)
       .update(updatePayload)
-      .eq('report_week', Number(reportWeek));
-
-    if (teamId) query = query.eq('team_id', teamId);
+      .eq('report_week', Number(reportWeek)),
+      teamId
+    );
 
     const { error } = await query;
 

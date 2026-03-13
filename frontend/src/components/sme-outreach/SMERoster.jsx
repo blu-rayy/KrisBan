@@ -100,6 +100,8 @@ export const SMERoster = ({
   onStartEditSme,
   onDeleteSme
 }) => {
+  const hasSmes = smes.length > 0;
+
   return (
     <section className="rounded-xl border border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-card p-4 md:p-5">
       <div className="mb-4 flex items-center justify-between">
@@ -111,9 +113,11 @@ export const SMERoster = ({
           <button
             type="button"
             onClick={onStartAddSme}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-slate-50 hover:bg-emerald-700"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 bg-[linear-gradient(180deg,#10b981_0%,#059669_100%)] text-sm font-semibold leading-none text-slate-50 shadow-sm hover:bg-[linear-gradient(180deg,#10b981_0%,#047857_100%)] dark:bg-[linear-gradient(180deg,#34d399_0%,#059669_100%)] dark:hover:bg-[linear-gradient(180deg,#6ee7b7_0%,#10b981_100%)]"
+            aria-label="Add SME"
+            title="Add SME"
           >
-            Add SME
+            <span className="block -translate-y-px leading-none">+</span>
           </button>
         </div>
       </div>
@@ -131,7 +135,7 @@ export const SMERoster = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-dm-border bg-slate-50 dark:bg-dm-card text-slate-800 dark:text-dm-text">
-            {smes.map((sme) => {
+            {hasSmes ? smes.map((sme) => {
               const isSelected = selectedSmeId === sme.id;
               const businessDaysSinceLastContact = getBusinessDaysSinceLastContact(sme.lastContactDate);
               const ageClass = getDesktopRowClassByAge(businessDaysSinceLastContact);
@@ -189,13 +193,19 @@ export const SMERoster = ({
                   </td>
                 </tr>
               );
-            })}
+            }) : (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-dm-muted">
+                  No SMEs added yet, add your own to start outreach tracking.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="space-y-3 lg:hidden">
-        {smes.map((sme) => {
+        {hasSmes ? smes.map((sme) => {
           const isSelected = selectedSmeId === sme.id;
           const businessDaysSinceLastContact = getBusinessDaysSinceLastContact(sme.lastContactDate);
           const ageClass = getMobileCardClassByAge(businessDaysSinceLastContact);
@@ -256,7 +266,11 @@ export const SMERoster = ({
               </div>
             </div>
           );
-        })}
+        }) : (
+          <div className="rounded-lg border border-dashed border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated p-4 text-sm text-slate-600 dark:text-dm-muted">
+            No SMEs added yet, add your own to start outreach tracking.
+          </div>
+        )}
       </div>
     </section>
   );

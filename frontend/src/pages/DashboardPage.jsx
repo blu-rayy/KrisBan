@@ -16,8 +16,10 @@ import { SettingsView } from '../components/settings/SettingsView';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
-import { fetchProgressReports } from '../services/api';
+import { emailsCrmService, fetchProgressReports } from '../services/api';
 import { DarkModeToggle } from '../components/layout/DarkModeToggle';
+
+const EMAILS_CRM_WARM_BOOT_CACHE_KEY = 'emailsCrmWarmBootCacheV1';
 
 export const DashboardPage = () => {
   const { user, logout, requiresPasswordChange } = useContext(AuthContext);
@@ -76,6 +78,32 @@ export const DashboardPage = () => {
       },
       initialPageParam: 1
     });
+
+    if (user?.role === 'ADMIN') {
+      Promise.all([
+        emailsCrmService.getSmes(),
+        emailsCrmService.getTemplates(),
+        emailsCrmService.getPointPeople()
+      ])
+        .then(([smesResponse, templatesResponse, pointPeopleResponse]) => {
+          const smes = smesResponse?.data?.data || [];
+          const templates = templatesResponse?.data?.data || [];
+          const pointPeople = pointPeopleResponse?.data?.data || [];
+
+          localStorage.setItem(
+            EMAILS_CRM_WARM_BOOT_CACHE_KEY,
+            JSON.stringify({
+              smes,
+              templates,
+              pointPeople,
+              updatedAt: new Date().toISOString()
+            })
+          );
+        })
+        .catch(() => {
+          // Ignore prefetch errors; the Emails CRM page will load with its own request handling.
+        });
+    }
   }, [user?.id, queryClient, progressReportFilters]);
 
   useEffect(() => {

@@ -15,6 +15,7 @@ export const TemplateManagerPanel = ({
   onDeleteTemplate
 }) => {
   const [expandedTemplateId, setExpandedTemplateId] = useState(null);
+  const hasTemplates = templates.length > 0;
 
   useEffect(() => {
     if (!isEditingTemplate) {
@@ -49,14 +50,16 @@ export const TemplateManagerPanel = ({
         <button
           type="button"
           onClick={onStartTemplateCreate}
-          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-slate-50 hover:bg-emerald-700"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 bg-[linear-gradient(180deg,#10b981_0%,#059669_100%)] text-sm font-semibold leading-none text-slate-50 shadow-sm hover:bg-[linear-gradient(180deg,#10b981_0%,#047857_100%)] dark:bg-[linear-gradient(180deg,#34d399_0%,#059669_100%)] dark:hover:bg-[linear-gradient(180deg,#6ee7b7_0%,#10b981_100%)]"
+          aria-label="Add Template"
+          title="Add Template"
         >
-          Add Template
+          <span className="block -translate-y-px leading-none">+</span>
         </button>
       </div>
 
       <div className="space-y-2">
-        {templates.map((template) => (
+        {hasTemplates ? templates.map((template) => (
           <div key={template.id} className="rounded-md border border-slate-200 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated">
             <div className="flex items-center justify-between px-3 py-2">
               <button
@@ -124,7 +127,11 @@ export const TemplateManagerPanel = ({
               </form>
             )}
           </div>
-        ))}
+        )) : (
+          <div className="rounded-lg border border-dashed border-slate-300 dark:border-dm-border bg-slate-100 dark:bg-dm-elevated p-4 text-sm text-slate-600 dark:text-dm-muted">
+            No templates added yet, add your own to start composing outreach messages.
+          </div>
+        )}
       </div>
 
       {isEditingTemplate && !editingTemplateId && (

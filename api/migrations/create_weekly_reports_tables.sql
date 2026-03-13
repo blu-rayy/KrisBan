@@ -3,13 +3,14 @@
 
 CREATE TABLE IF NOT EXISTS weekly_reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  report_week INTEGER NOT NULL UNIQUE,
+  report_week INTEGER NOT NULL,
   week_start_date DATE NOT NULL,
   week_end_date DATE NOT NULL,
   reporting_date TEXT NOT NULL,
   signatory_date DATE NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  team_id INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT weekly_reports_valid_week_range CHECK (week_end_date = (week_start_date + INTERVAL '5 days'))
@@ -29,6 +30,12 @@ CREATE TABLE IF NOT EXISTS weekly_report_entries (
 );
 
 CREATE INDEX IF NOT EXISTS idx_weekly_reports_report_week ON weekly_reports(report_week);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_weekly_reports_team_week
+  ON weekly_reports(team_id, report_week)
+  WHERE team_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_weekly_reports_null_team_week
+  ON weekly_reports(report_week)
+  WHERE team_id IS NULL;
 CREATE INDEX IF NOT EXISTS idx_weekly_reports_week_start_date ON weekly_reports(week_start_date);
 CREATE INDEX IF NOT EXISTS idx_weekly_reports_signatory_date ON weekly_reports(signatory_date);
 CREATE INDEX IF NOT EXISTS idx_weekly_report_entries_weekly_report_id ON weekly_report_entries(weekly_report_id);
