@@ -146,7 +146,7 @@ export const SettingsView = () => {
                   }
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">{user?.fullName}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">{user?.fullName}</p>
                   <p className="text-xs text-slate-500 dark:text-dm-muted mb-3">{user?.instituteEmail}</p>
                   <input
                     type="file"
