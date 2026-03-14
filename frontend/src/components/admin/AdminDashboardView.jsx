@@ -99,7 +99,53 @@ export const AdminDashboardView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.25fr)_360px] gap-6 items-start">
+      <section className="rounded-3xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
+        <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-emerald-700/20 bg-gradient-hero">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Members</h3>
+            <p className="text-sm text-emerald-100">
+              {members.length} member{members.length === 1 ? '' : 's'} in {user?.teamName || 'this workspace'}.
+            </p>
+          </div>
+        </div>
+
+        {loadingMembers ? (
+          <div className="px-6 py-8 text-sm text-slate-500 dark:text-dm-muted">Loading members...</div>
+        ) : (
+          <div className="space-y-3 p-4 sm:p-5">
+            {members.map((member) => (
+              <div
+                key={member.id}
+                className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_auto] gap-4 items-center rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-gradient-to-r from-emerald-50 via-white to-white dark:from-emerald-950/20 dark:via-dm-card dark:to-dm-card px-5 py-4 shadow-sm"
+              >
+                <div className="min-w-0 rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/20">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-dm-text truncate">{member.fullName}</p>
+                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 truncate">
+                    {member.username} • {member.studentNumber}
+                  </p>
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-slate-700 dark:text-dm-text truncate">{member.instituteEmail}</p>
+                  <p className="text-xs text-slate-500 dark:text-dm-muted truncate">{member.personalEmail}</p>
+                </div>
+
+                <div className="flex items-center justify-start gap-3 lg:justify-end">
+                  <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${ROLE_STYLES[member.role] || ROLE_STYLES.USER}`}>
+                    {member.role}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!members.length && (
+              <div className="px-6 py-8 text-sm text-slate-500 dark:text-dm-muted">No members found for this team yet.</div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <div className="mt-6 grid grid-cols-1 xl:grid-cols-[minmax(0,1.25fr)_360px] gap-6 items-start">
         <section className="rounded-3xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
           <div className="bg-gradient-hero px-6 py-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -151,7 +197,7 @@ export const AdminDashboardView = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className="block">
-                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Full Name</span>
+                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Full Name <span className="text-red-500">*</span></span>
                     <input
                       type="text"
                       name="fullName"
@@ -164,7 +210,7 @@ export const AdminDashboardView = () => {
                   </label>
 
                   <label className="block">
-                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Nickname</span>
+                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Nickname <span className="text-red-500">*</span></span>
                     <input
                       type="text"
                       name="username"
@@ -177,7 +223,7 @@ export const AdminDashboardView = () => {
                   </label>
 
                   <label className="block">
-                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Student No.</span>
+                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Student No. <span className="text-red-500">*</span></span>
                     <input
                       type="text"
                       name="studentNumber"
@@ -190,7 +236,7 @@ export const AdminDashboardView = () => {
                   </label>
 
                   <label className="block">
-                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Institute Email</span>
+                    <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Institute Email <span className="text-red-500">*</span></span>
                     <input
                       type="email"
                       name="instituteEmail"
@@ -204,7 +250,7 @@ export const AdminDashboardView = () => {
                 </div>
 
                 <label className="block">
-                  <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Personal Email</span>
+                  <span className="block text-sm font-medium text-slate-700 dark:text-dm-text mb-2">Personal Email <span className="text-red-500">*</span></span>
                   <input
                     type="email"
                     name="personalEmail"
@@ -241,7 +287,7 @@ export const AdminDashboardView = () => {
         <aside className="space-y-6">
           <div className="rounded-3xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
             <div className="p-4 border-b border-slate-100 dark:border-dm-border">
-              <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">Essential</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">Motivational Nick Wilde</p>
               <p className="text-xs text-slate-500 dark:text-dm-muted mt-1">Nick Wilde stays.</p>
             </div>
             <div className="p-4 flex flex-col items-center gap-4">
@@ -255,55 +301,8 @@ export const AdminDashboardView = () => {
               </p>
             </div>
           </div>
-
-          <div className="rounded-3xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft p-5">
-            <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">Member rules</p>
-            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-dm-muted">
-              <p>Full Name, Nickname, Student No., Institute Email, and Personal Email are enforced.</p>
-              <p>New members are created under your current team automatically.</p>
-              <p>Only admins can use this panel.</p>
-            </div>
-          </div>
         </aside>
       </div>
-
-      <section className="mt-6 rounded-3xl border border-slate-200 dark:border-dm-border bg-white dark:bg-dm-card shadow-card-soft overflow-hidden">
-        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-100 dark:border-dm-border">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-dm-text">Members</h3>
-            <p className="text-sm text-slate-500 dark:text-dm-muted">
-              {members.length} member{members.length === 1 ? '' : 's'} in {user?.teamName || 'this workspace'}.
-            </p>
-          </div>
-        </div>
-
-        {loadingMembers ? (
-          <div className="px-6 py-8 text-sm text-slate-500 dark:text-dm-muted">Loading members...</div>
-        ) : (
-          <div className="divide-y divide-slate-100 dark:divide-dm-border">
-            {members.map((member) => (
-              <div key={member.id} className="px-6 py-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_auto] gap-4 items-center">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-dm-text truncate">{member.fullName}</p>
-                  <p className="text-xs text-slate-500 dark:text-dm-muted truncate">
-                    {member.username} • {member.studentNumber}
-                  </p>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-slate-600 dark:text-dm-muted truncate">{member.instituteEmail}</p>
-                  <p className="text-xs text-slate-500 dark:text-dm-muted truncate">{member.personalEmail}</p>
-                </div>
-                <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${ROLE_STYLES[member.role] || ROLE_STYLES.USER}`}>
-                  {member.role}
-                </span>
-              </div>
-            ))}
-            {!members.length && (
-              <div className="px-6 py-8 text-sm text-slate-500 dark:text-dm-muted">No members found for this team yet.</div>
-            )}
-          </div>
-        )}
-      </section>
     </div>
   );
 };
