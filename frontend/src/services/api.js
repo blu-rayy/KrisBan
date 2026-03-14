@@ -76,7 +76,10 @@ export const authService = {
     api.put('/auth/profile', profileData),
 
   getUsers: () =>
-    api.get('/auth/users')
+    api.get('/auth/users'),
+
+  createMember: (memberData) =>
+    api.post('/auth/users', memberData)
 };
 
 // Dashboard services

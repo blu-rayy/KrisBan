@@ -2,6 +2,10 @@ import User from '../models/User.js';
 import { supabase } from '../config/database.js';
 import jwt from 'jsonwebtoken';
 
+const DEFAULT_MEMBER_PASSWORD = 'password123';
+
+const isValidEmail = (value = '') => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+
 // Generate JWT Token
 const generateToken = (id, role, teamId) => {
   return jwt.sign(
@@ -280,7 +284,7 @@ export const getUsers = async (req, res) => {
   try {
     let query = supabase
       .from('users')
-      .select('id, full_name, username, institute_email, role, profile_picture, is_active, created_at')
+      .select('id, full_name, student_number, username, institute_email, personal_email, role, profile_picture, is_active, created_at')
       .order('full_name');
 
     if (req.user.team_id) {
@@ -294,8 +298,10 @@ export const getUsers = async (req, res) => {
     const users = data.map(u => ({
       id: u.id,
       fullName: u.full_name,
+      studentNumber: u.student_number,
       username: u.username,
       instituteEmail: u.institute_email,
+      personalEmail: u.personal_email,
       role: u.role,
       profilePicture: u.profile_picture,
       isActive: u.is_active,
@@ -305,6 +311,105 @@ export const getUsers = async (req, res) => {
     res.status(200).json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @route   POST /api/auth/users
+// @desc    Create a member for the current admin's team
+// @access  Private/Admin
+export const createMember = async (req, res) => {
+  try {
+    const {
+      fullName,
+      username,
+      studentNumber,
+      instituteEmail,
+      personalEmail
+    } = req.body;
+
+    if (!fullName || !username || !studentNumber || !instituteEmail || !personalEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Full name, nickname, student number, institute email, and personal email are required'
+      });
+    }
+
+    if (!isValidEmail(instituteEmail) || !isValidEmail(personalEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide valid institute and personal email addresses'
+      });
+    }
+
+    const trimmedFullName = String(fullName).trim();
+    const trimmedUsername = String(username).trim();
+    const trimmedStudentNumber = String(studentNumber).trim();
+    const trimmedInstituteEmail = String(instituteEmail).trim().toLowerCase();
+    const trimmedPersonalEmail = String(personalEmail).trim().toLowerCase();
+
+    const existingUser = await User.findOne({ studentNumber: trimmedStudentNumber });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student number already registered'
+      });
+    }
+
+    const [
+      existingUsernameResult,
+      existingInstituteEmailResult,
+      existingPersonalEmailResult
+    ] = await Promise.all([
+      supabase.from('users').select('id').eq('username', trimmedUsername).limit(1).maybeSingle(),
+      supabase.from('users').select('id').eq('institute_email', trimmedInstituteEmail).limit(1).maybeSingle(),
+      supabase.from('users').select('id').eq('personal_email', trimmedPersonalEmail).limit(1).maybeSingle()
+    ]);
+
+    const duplicateContactError =
+      existingUsernameResult.error ||
+      existingInstituteEmailResult.error ||
+      existingPersonalEmailResult.error;
+
+    if (duplicateContactError) {
+      throw duplicateContactError;
+    }
+
+    if (
+      existingUsernameResult.data ||
+      existingInstituteEmailResult.data ||
+      existingPersonalEmailResult.data
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nickname or email is already in use'
+      });
+    }
+
+    const user = await User.create({
+      fullName: trimmedFullName,
+      username: trimmedUsername,
+      studentNumber: trimmedStudentNumber,
+      instituteEmail: trimmedInstituteEmail,
+      personalEmail: trimmedPersonalEmail,
+      password: DEFAULT_MEMBER_PASSWORD,
+      role: 'USER',
+      isFirstLogin: true,
+      teamId: req.user.team_id ?? null
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Member created successfully',
+      data: {
+        user: user.getPublicProfile(),
+        temporaryPassword: DEFAULT_MEMBER_PASSWORD
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
