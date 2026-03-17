@@ -126,7 +126,9 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
 
   const handleDragStart = () => setDragging(true);
 
-  const handleDragEnd = ({ source, destination, type }) => {
+  const handleDragEnd = (result) => {
+    const { source, destination, type } = result;
+    console.log('[KANBAN DEBUG] handleDragEnd', { source, destination, type, result });
     setDragging(false);
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
@@ -199,7 +201,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
             style={{ minHeight: '100%' }}
           >
             {columns.map((col, colIndex) => (
-              <Draggable draggableId={`col-${col.id}`} index={colIndex} key={col.id}>
+              <Draggable draggableId={`col-${String(col.id)}`} index={colIndex} key={col.id}>
                 {(colProvided, colSnapshot) => (
                   <div
                     ref={colProvided.innerRef}
@@ -207,7 +209,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                     className={`flex-shrink-0 w-[272px] rounded-[12px] flex flex-col bg-[#ebecf0] dark:bg-dm-elevated ${
                       colSnapshot.isDragging ? 'shadow-2xl opacity-90 rotate-1' : ''
                     }`}
-                    style={{ maxHeight: 'calc(100vh - 180px)' }}
+                    style={{ maxHeight: 'calc(100vh - 180px)', overflow: 'hidden' }}
                   >
                     {/* Header — drag handle */}
                     <div {...colProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
@@ -221,7 +223,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                     </div>
 
                     {/* Scrollable cards area */}
-                    <Droppable droppableId={col.id} type="TICKET">
+                    <Droppable droppableId={String(col.id)} type="TICKET">
                       {(tickProvided, tickSnapshot) => (
                         <div
                           ref={tickProvided.innerRef}
@@ -232,7 +234,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                           style={{ minHeight: 4 }}
                         >
                           {(col.tickets || []).map((ticket, idx) => (
-                            <Draggable draggableId={ticket.id} index={idx} key={ticket.id}>
+                            <Draggable draggableId={String(ticket.id)} index={idx} key={ticket.id}>
                               {(tp) => (
                                 <TicketCard
                                   ticket={ticket}

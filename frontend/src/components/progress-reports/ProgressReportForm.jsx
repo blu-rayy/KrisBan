@@ -329,30 +329,29 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
           {errors.memberId && <p className="mt-1 text-sm text-red-500">{errors.memberId}</p>}
         </div>
 
-        {/* Sprint No. — hidden when no sprints exist */}
-        {sortedSprintLabels.length > 0 && (
-          <div>
-            <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
-              Sprint No. <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2 items-center">
-              <CustomSelect
-                id="sprintNo"
-                value={formData.sprintNo}
-                onChange={(val) => handleInputChange({ target: { name: 'sprintNo', value: val } })}
-                options={sortedSprintLabels.map((label) => ({
-                  value: label,
-                  label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
-                }))}
-                placeholder="Select sprint"
-                error={!!errors.sprintNo}
-                className="flex-1"
-              />
-              <SprintBadge label={formData.sprintNo} />
-            </div>
-            {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
+        {/* Sprint No. — always visible, disabled if no sprints exist */}
+        <div>
+          <label htmlFor="sprintNo" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
+            Sprint No. <span className="text-red-500">*</span>
+          </label>
+          <div className="flex gap-2 items-center">
+            <CustomSelect
+              id="sprintNo"
+              value={formData.sprintNo}
+              onChange={(val) => handleInputChange({ target: { name: 'sprintNo', value: val } })}
+              options={sortedSprintLabels.map((label) => ({
+                value: label,
+                label: label.startsWith('Sprint ') || label.toLowerCase() === 'others' ? label : `Sprint ${label}`
+              }))}
+              placeholder="Select sprint"
+              error={!!errors.sprintNo}
+              className="flex-1"
+              isDisabled={sortedSprintLabels.length === 0}
+            />
+            <SprintBadge label={formData.sprintNo} />
           </div>
-        )}
+          {errors.sprintNo && <p className="mt-1 text-sm text-red-500">{errors.sprintNo}</p>}
+        </div>
 
         {/* Team Plan */}
         <div className="relative">
