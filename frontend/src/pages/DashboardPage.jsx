@@ -56,6 +56,7 @@ export const DashboardPage = () => {
 
     const teamId = user?.teamId ?? null;
 
+    // Prefetch sprints
     queryClient.prefetchQuery({
       queryKey: ['sprints', teamId],
       queryFn: async () => {
@@ -64,6 +65,7 @@ export const DashboardPage = () => {
       }
     });
 
+    // Prefetch progress reports
     queryClient.prefetchInfiniteQuery({
       queryKey: ['progressReports', teamId, progressReportFilters],
       queryFn: async ({ pageParam = 1 }) => {
@@ -83,6 +85,31 @@ export const DashboardPage = () => {
         };
       },
       initialPageParam: 1
+    });
+
+    // Prefetch Kanban boards and first board's data for instant Kanban load
+    import('../hooks/useKanban').then(({ kanbanKeys }) => {
+      import('../services/api').then(({ kanbanService }) => {
+        queryClient.prefetchQuery({
+          queryKey: kanbanKeys.boards(teamId),
+          queryFn: async () => {
+            const res = await kanbanService.getBoards();
+            return res.data?.data || [];
+          }
+        }).then((boards) => {
+          // Prefetch first board's data if available
+          const firstBoardId = Array.isArray(boards) && boards.length > 0 ? boards[0].id : null;
+          if (firstBoardId) {
+            queryClient.prefetchQuery({
+              queryKey: kanbanKeys.board(firstBoardId),
+              queryFn: async () => {
+                const res = await kanbanService.getBoard(firstBoardId);
+                return res.data?.data || { board: null, columns: [] };
+              }
+            });
+          }
+        });
+      });
     });
 
     if (user?.role === 'ADMIN') {

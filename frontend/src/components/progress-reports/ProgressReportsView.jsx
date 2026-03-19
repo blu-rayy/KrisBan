@@ -552,7 +552,7 @@ export const ProgressReportsView = () => {
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 dark:bg-dm-ground min-h-full">
       <div>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">{pageHeading.title}</h2>
-        <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">{pageHeading.description}</p>
+        <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg italic">{pageHeading.description}</p>
       </div>
 
       <div className="flex gap-4 border-b border-gray-200 dark:border-dm-border">

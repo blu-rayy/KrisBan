@@ -243,7 +243,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
       <div className="relative z-10 w-full max-w-[900px] bg-white dark:bg-dm-elevated rounded-2xl shadow-2xl overflow-hidden">
 
         {/* ── Cover strip ── */}
-        {coverColor && <div className="h-32 w-full" style={{ backgroundColor: coverColor }} />}
+        {coverColor && <div className="h-20 w-full" style={{ backgroundColor: coverColor }} />}
 
         {/* ── Cover picker + Close — always top-right ── */}
         <div className={`absolute ${coverColor ? 'top-3' : 'top-2'} right-3 flex items-center gap-1.5 z-20`}>

@@ -103,6 +103,55 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
           </div>
         )}
 
+
+        {/* Attachment Preview (Trello-like) */}
+        {Array.isArray(ticket.attachments) && ticket.attachments.length > 0 && (() => {
+          const att = ticket.attachments[0];
+          const url = att.url;
+          // Helper functions
+          const isImage = (u) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(u);
+          const isGoogleDoc = (u) => /docs\.google\.com\/(document|spreadsheets|presentation)/.test(u);
+          if (isImage(url)) {
+            return (
+              <div className="mb-2 rounded-lg overflow-hidden border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated">
+                <img src={url} alt={att.name || 'Attachment'} className="w-full h-28 object-cover" loading="lazy" />
+              </div>
+            );
+          } else if (isGoogleDoc(url)) {
+            // Embed Google Doc preview (view only)
+            let embedUrl = url;
+            if (url.includes('/edit')) embedUrl = url.replace('/edit', '/preview');
+            return (
+              <div className="mb-2 rounded-lg overflow-hidden border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated">
+                <iframe
+                  src={embedUrl}
+                  title={att.name || 'Google Doc'}
+                  className="w-full h-28"
+                  style={{ border: 0 }}
+                  allow="autoplay; encrypted-media"
+                  loading="lazy"
+                />
+              </div>
+            );
+          } else {
+            // Generic link preview (favicon + name)
+            const getFavicon = (u) => {
+              try {
+                const { hostname } = new URL(u);
+                return `https://www.google.com/s2/favicons?domain=${hostname}`;
+              } catch { return null; }
+            };
+            return (
+              <div className="mb-2 rounded-lg overflow-hidden border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated flex items-center gap-2 px-3 py-2">
+                <img src={getFavicon(url)} alt="favicon" className="w-5 h-5 rounded" />
+                <a href={url} target="_blank" rel="noopener noreferrer" className="truncate text-emerald-600 dark:text-emerald-400 font-medium text-[13px] hover:underline flex-1">
+                  {att.name || url}
+                </a>
+              </div>
+            );
+          }
+        })()}
+
         {/* Title */}
         <p className="text-[13.5px] text-[#172b4d] dark:text-dm-text leading-snug font-medium">
           {ticket.title}

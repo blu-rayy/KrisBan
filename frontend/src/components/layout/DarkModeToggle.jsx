@@ -28,13 +28,14 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
 
     dotLottie.addEventListener('load', () => {
       isReadyRef.current = true;
-      dotLottie.setFrame(darkModeRef.current ? MID_FRAME : 15);
+      // Flip: show sun in dark mode, moon in light mode
+      dotLottie.setFrame(darkModeRef.current ? 15 : MID_FRAME);
     });
 
-    // After dark→light finishes (ends at frame 154), pre-seek to 20
-    // so the next light→dark click starts instantly with no seek delay
+    // After light→dark finishes (ends at frame 154), pre-seek to 20
+    // so the next dark→light click starts instantly with no seek delay
     dotLottie.addEventListener('complete', () => {
-      if (!darkModeRef.current) {
+      if (darkModeRef.current) {
         dotLottie.setFrame(20);
       }
     });
@@ -50,10 +51,13 @@ export const DarkModeToggle = ({ darkMode, onToggle }) => {
     // Play Lottie animation
     const player = playerRef.current;
     if (player && isReadyRef.current) {
-      if (!darkMode) {
-        player.setFrame(20);
-        player.setSegment(20, MID_FRAME);
+      // Flip: darkMode true means sun is showing, so next is moon (dark→light)
+      if (darkMode) {
+        // dark → light: sun → moon (play sun→moon segment)
+        player.setFrame(15);
+        player.setSegment(15, MID_FRAME);
       } else {
+        // light → dark: moon → sun (play moon→sun segment)
         player.setFrame(MID_FRAME);
         player.setSegment(MID_FRAME, END_FRAME);
       }

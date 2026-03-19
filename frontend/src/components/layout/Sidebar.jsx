@@ -87,14 +87,7 @@ export const Sidebar = ({
       visibility: 'all',
       section: 'MENU'
     },
-    {
-      id: 'tickets',
-      label: 'Tickets',
-      icon: Ticket01Icon,
-      status: 'active',
-      visibility: 'all',
-      section: 'MENU'
-    }
+    // Removed 'tickets' tab
   ];
 
   const generalItems = [
