@@ -144,7 +144,7 @@ export const useKanbanMutations = (boardId) => {
     }),
     moveTicket: useMutation({
       mutationFn: ({ ticketId, data }) => kanbanService.moveTicket(ticketId, data),
-      // optimistic – board already updated locally, this just persists
+      onSuccess: invalidateBoard,
       onError: invalidateBoard
     }),
 

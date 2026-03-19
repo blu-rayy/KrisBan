@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { TicketCard } from './TicketCard';
 
@@ -22,11 +22,19 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
   };
 
   return (
-    <div className="flex items-center justify-between px-2 pb-2 pt-1 min-h-[36px]">
+    <div className="flex items-center justify-between px-3 pb-2 pt-3 min-h-[44px]">
+      {/* Color dot */}
+      {column.color && !editing && (
+        <div
+          className="w-2 h-2 rounded-full flex-shrink-0 mr-2"
+          style={{ backgroundColor: column.color }}
+        />
+      )}
+
       {editing ? (
         <input
           autoFocus
-          className="flex-1 text-[14px] font-semibold text-[#172b4d] bg-white border border-blue-400 rounded px-2 py-0.5 focus:outline-none"
+          className="flex-1 text-[13px] font-semibold text-[#1f2937] dark:text-dm-text bg-white dark:bg-dm-card border border-emerald-500 rounded px-2 py-0.5 focus:outline-none"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={commitRename}
@@ -34,7 +42,7 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
         />
       ) : (
         <button
-          className="flex-1 text-left text-[14px] font-semibold text-[#172b4d] hover:text-black truncate"
+          className="flex-1 text-left text-[13px] font-semibold text-[#1f2937] dark:text-dm-text hover:text-black dark:hover:text-white truncate"
           onClick={() => setEditing(true)}
           title={column.name}
         >
@@ -42,33 +50,40 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
         </button>
       )}
 
-      <div className="relative ml-1 flex-shrink-0">
+      {/* Count badge */}
+      {!editing && ticketCount > 0 && (
+        <span className="ml-1.5 flex-shrink-0 text-[11px] font-semibold text-[#626f86] dark:text-dm-muted bg-black/8 dark:bg-white/10 rounded-full w-5 h-5 flex items-center justify-center">
+          {ticketCount}
+        </span>
+      )}
+
+      <div className="relative ml-1.5 flex-shrink-0">
         <button
           onClick={() => setShowMenu((v) => !v)}
-          className="w-7 h-7 flex items-center justify-center text-[#5e6c84] hover:text-[#172b4d] hover:bg-[#091e4214] rounded transition-colors"
+          className="w-7 h-7 flex items-center justify-center text-[#626f86] dark:text-dm-soft hover:text-[#1f2937] dark:hover:text-dm-text hover:bg-black/10 dark:hover:bg-white/10 rounded-md transition-colors"
           title="List actions"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
           </svg>
         </button>
         {showMenu && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-            <div className="absolute right-0 top-8 z-20 bg-white dark:bg-dm-card rounded-lg shadow-xl border border-gray-200 dark:border-dm-border py-1 min-w-[180px]">
-              <div className="px-4 py-2 text-xs font-semibold text-[#5e6c84] dark:text-dm-soft text-center border-b border-gray-100 dark:border-dm-border mb-1">List actions</div>
+            <div className="absolute right-0 top-9 z-20 bg-white dark:bg-dm-card rounded-xl shadow-xl border border-gray-200 dark:border-dm-border py-1.5 min-w-[190px]">
+              <div className="px-4 py-2 text-xs font-semibold text-[#626f86] dark:text-dm-soft text-center border-b border-gray-100 dark:border-dm-border mb-1">List actions</div>
               <button
                 onClick={() => { setShowMenu(false); onAddTicket(column.id); }}
-                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] dark:text-dm-text hover:bg-[#f4f5f7] dark:hover:bg-dm-elevated"
+                className="w-full text-left px-4 py-2 text-[13px] text-[#1f2937] dark:text-dm-text hover:bg-emerald-50 dark:hover:bg-dm-elevated"
               >Add card</button>
               <button
                 onClick={() => { setShowMenu(false); setEditing(true); }}
-                className="w-full text-left px-4 py-2 text-sm text-[#172b4d] dark:text-dm-text hover:bg-[#f4f5f7] dark:hover:bg-dm-elevated"
+                className="w-full text-left px-4 py-2 text-[13px] text-[#1f2937] dark:text-dm-text hover:bg-emerald-50 dark:hover:bg-dm-elevated"
               >Rename list</button>
               <hr className="my-1 border-gray-100 dark:border-dm-border" />
               <button
                 onClick={() => { setShowMenu(false); onDelete(column.id); }}
-                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+                className="w-full text-left px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
               >Delete this list</button>
             </div>
           </>
@@ -83,11 +98,10 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
 const AddCardForm = ({ columnId, onAdd, onCancel }) => {
   const [title, setTitle] = useState('');
   return (
-    <div className="px-2 pb-2 pt-0">
+    <div className="px-2 pb-2 pt-1">
       <textarea
         autoFocus
-        className="w-full px-3 py-2 bg-white rounded-[3px] text-sm text-[#172b4d] resize-none focus:outline-none placeholder-[#a5adba]"
-        style={{ boxShadow: '0 1px 0 rgba(9,30,66,.25)' }}
+        className="w-full px-3 py-2 bg-white dark:bg-dm-card rounded-lg text-[13px] text-[#1f2937] dark:text-dm-text resize-none focus:outline-none placeholder-[#8993a4] dark:placeholder-dm-soft shadow-sm border border-transparent focus:border-emerald-400"
         placeholder="Enter a title for this card…"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
@@ -101,12 +115,12 @@ const AddCardForm = ({ columnId, onAdd, onCancel }) => {
         <button
           type="button"
           onClick={() => { if (title.trim()) { onAdd(columnId, title.trim()); onCancel(); } }}
-          className="px-3 py-1.5 bg-[#0052cc] text-white rounded text-sm font-medium hover:bg-[#0065ff] transition-colors"
+          className="px-3 py-1.5 bg-[#15803d] text-white rounded-md text-[13px] font-medium hover:bg-[#16a34a] transition-colors"
         >Add card</button>
         <button
           type="button"
           onClick={onCancel}
-          className="w-8 h-8 flex items-center justify-center text-[#5e6c84] hover:text-[#172b4d] rounded hover:bg-[#091e4214] text-xl leading-none"
+          className="w-8 h-8 flex items-center justify-center text-[#626f86] dark:text-dm-soft hover:text-[#1f2937] dark:hover:text-dm-text rounded-md hover:bg-black/10 dark:hover:bg-white/10 text-lg leading-none"
         >✕</button>
       </div>
     </div>
@@ -119,44 +133,46 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
   const [addingToColumn, setAddingToColumn] = useState(null);
   const [showAddList, setShowAddList]      = useState(false);
   const [newColName, setNewColName]        = useState('');
-  const [dragging, setDragging]            = useState(false);
-  if (!dragging && JSON.stringify(initialColumns) !== JSON.stringify(columns)) {
+  const pendingMove = useRef(false);
+
+  // Sync server data into local state, but never while a move is in flight
+  if (!pendingMove.current && JSON.stringify(initialColumns) !== JSON.stringify(columns)) {
     setColumns(initialColumns);
   }
 
-  const handleDragStart = () => setDragging(true);
+  const handleDragStart = () => { pendingMove.current = true; };
 
   const handleDragEnd = (result) => {
     const { source, destination, type } = result;
-    console.log('[KANBAN DEBUG] handleDragEnd', { source, destination, type, result });
-    setDragging(false);
-    if (!destination) return;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
+      pendingMove.current = false;
+      return;
+    }
 
     if (type === 'COLUMN') {
-      // Reorder columns
       const next = [...columns];
       const [moved] = next.splice(source.index, 1);
       next.splice(destination.index, 0, moved);
 
       const newPositions = next.map((col, i) => ({ ...col, position: (i + 1) * 1000 }));
       setColumns(newPositions);
-      mutations.reorderColumns.mutate(newPositions.map(({ id, position }) => ({ id, position })));
+      mutations.reorderColumns.mutate(
+        newPositions.map(({ id, position }) => ({ id, position })),
+        { onSettled: () => { pendingMove.current = false; } }
+      );
       return;
     }
 
     // Reorder / move tickets
     const srcColIdx  = columns.findIndex((c) => c.id === source.droppableId);
     const dstColIdx  = columns.findIndex((c) => c.id === destination.droppableId);
-    if (srcColIdx === -1 || dstColIdx === -1) return;
+    if (srcColIdx === -1 || dstColIdx === -1) { pendingMove.current = false; return; }
 
     const next = columns.map((c) => ({ ...c, tickets: [...(c.tickets || [])] }));
     const [movedTicket] = next[srcColIdx].tickets.splice(source.index, 1);
 
-    // Insert into destination
     next[dstColIdx].tickets.splice(destination.index, 0, movedTicket);
 
-    // Compute new position
     const newPos = computePosition(
       next[dstColIdx].tickets.filter((t) => t.id !== movedTicket.id),
       destination.index
@@ -165,10 +181,10 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
 
     setColumns(next);
 
-    mutations.moveTicket.mutate({
-      ticketId: movedTicket.id,
-      data: { column_id: destination.droppableId, position: newPos }
-    });
+    mutations.moveTicket.mutate(
+      { ticketId: movedTicket.id, data: { column_id: destination.droppableId, position: newPos } },
+      { onSettled: () => { pendingMove.current = false; } }
+    );
   };
 
   const handleAddTicket = async (columnId, title) => {
@@ -206,10 +222,10 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                   <div
                     ref={colProvided.innerRef}
                     {...colProvided.draggableProps}
-                    className={`flex-shrink-0 w-[272px] rounded-[12px] flex flex-col bg-[#ebecf0] dark:bg-dm-elevated ${
-                      colSnapshot.isDragging ? 'shadow-2xl opacity-90 rotate-1' : ''
+                    className={`flex-shrink-0 w-[272px] rounded-[8px] flex flex-col bg-[#ebecf0] dark:bg-dm-elevated ${
+                      colSnapshot.isDragging ? 'shadow-2xl opacity-95 rotate-1' : ''
                     }`}
-                    style={{ maxHeight: 'calc(100vh - 180px)', overflow: 'hidden' }}
+                    style={{ maxHeight: 'calc(100vh - 168px)' }}
                   >
                     {/* Header — drag handle */}
                     <div {...colProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
@@ -228,10 +244,10 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                         <div
                           ref={tickProvided.innerRef}
                           {...tickProvided.droppableProps}
-                          className={`flex-1 overflow-y-auto overflow-x-hidden px-2 space-y-2 transition-colors ${
-                            tickSnapshot.isDraggingOver ? 'bg-[#dde0e4] dark:bg-dm-card rounded-[4px]' : ''
+                          className={`flex-1 overflow-y-auto overflow-x-hidden px-2 space-y-2 transition-colors scrollbar-hide ${
+                            tickSnapshot.isDraggingOver ? 'bg-black/[0.06] dark:bg-white/[0.04] rounded-[4px]' : ''
                           }`}
-                          style={{ minHeight: 4 }}
+                          style={{ minHeight: 8 }}
                         >
                           {(col.tickets || []).map((ticket, idx) => (
                             <Draggable draggableId={String(ticket.id)} index={idx} key={ticket.id}>
@@ -261,7 +277,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                     ) : (
                       <button
                         onClick={() => setAddingToColumn(col.id)}
-                        className="flex items-center gap-1.5 w-full px-3 py-2 mt-1 text-[13px] text-[#5e6c84] hover:text-[#172b4d] hover:bg-[#091e4214] rounded-b-[12px] transition-colors flex-shrink-0"
+                        className="flex items-center gap-1.5 w-full px-3 py-2.5 mt-0.5 text-[13px] font-medium text-[#44546f] dark:text-dm-soft hover:text-[#1f2937] dark:hover:text-dm-text hover:bg-black/5 dark:hover:bg-white/5 rounded-b-[8px] transition-colors flex-shrink-0"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                           <line x1="12" y1="5" x2="12" y2="19"/>
@@ -281,7 +297,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
               {!showAddList ? (
                 <button
                   onClick={() => setShowAddList(true)}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 bg-white/25 hover:bg-white/40 text-white rounded-[12px] text-[14px] font-medium transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-[8px] text-[13.5px] font-medium transition-colors backdrop-blur-sm"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -290,10 +306,10 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                   Add another list
                 </button>
               ) : (
-                <div className="bg-[#ebecf0] dark:bg-dm-elevated rounded-[12px] p-2 space-y-2">
+                <div className="bg-[#ebecf0] dark:bg-dm-elevated rounded-[8px] p-2 space-y-2">
                   <input
                     autoFocus
-                    className="w-full px-3 py-2 bg-white rounded text-sm text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                    className="w-full px-3 py-2 bg-white dark:bg-dm-card rounded-lg text-[13px] text-[#1f2937] dark:text-dm-text focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
                     placeholder="Enter list name…"
                     value={newColName}
                     onChange={(e) => setNewColName(e.target.value)}
@@ -303,12 +319,12 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                     <button
                       type="button"
                       onClick={handleAddList}
-                      className="px-3 py-1.5 bg-[#0052cc] text-white rounded text-sm font-medium hover:bg-[#0065ff]"
+                      className="px-3 py-1.5 bg-[#15803d] text-white rounded-md text-[13px] font-medium hover:bg-[#16a34a]"
                     >Add list</button>
                     <button
                       type="button"
                       onClick={() => { setShowAddList(false); setNewColName(''); }}
-                      className="w-8 h-8 flex items-center justify-center text-[#5e6c84] hover:text-[#172b4d] text-xl rounded hover:bg-[#091e4214]"
+                      className="w-8 h-8 flex items-center justify-center text-[#626f86] dark:text-dm-soft hover:text-[#1f2937] dark:hover:text-dm-text text-lg rounded-md hover:bg-black/10 dark:hover:bg-white/10"
                     >✕</button>
                   </div>
                 </div>

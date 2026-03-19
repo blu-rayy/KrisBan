@@ -78,7 +78,7 @@ export const CalendarView = ({ tickets = [], boardId, onTicketClick }) => {
             >
               <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
                 today
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#15803d] text-white'
                   : inMonth
                   ? 'text-gray-700 dark:text-dm-text'
                   : 'text-gray-300 dark:text-dm-soft'

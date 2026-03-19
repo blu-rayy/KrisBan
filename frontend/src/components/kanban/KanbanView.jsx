@@ -4,14 +4,14 @@ import { BoardView } from './BoardView';
 import { CalendarView } from './CalendarView';
 import { TicketModal } from './TicketModal';
 
-// Board background gradients — one per board index (cycles)
+// Board background gradients — forest green palette (cycles per board)
 const BOARD_GRADIENTS = [
-  'linear-gradient(135deg, #1565c0 0%, #283593 100%)',
-  'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)',
-  'linear-gradient(135deg, #b71c1c 0%, #880e4f 100%)',
-  'linear-gradient(135deg, #e65100 0%, #bf360c 100%)',
-  'linear-gradient(135deg, #4a148c 0%, #1a237e 100%)',
-  'linear-gradient(135deg, #006064 0%, #004d40 100%)',
+  'linear-gradient(135deg, #15803d 0%, #064e3b 100%)',
+  'linear-gradient(135deg, #047857 0%, #022c22 100%)',
+  'linear-gradient(135deg, #065f46 0%, #064e3b 100%)',
+  'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+  'linear-gradient(135deg, #022c22 0%, #000000 100%)',
+  'linear-gradient(135deg, #064e3b 0%, #1a3a2a 100%)',
 ];
 
 export const KanbanView = () => {
@@ -143,7 +143,7 @@ export const KanbanView = () => {
               value={newBoardDesc}
               onChange={(e) => setNewBoardDesc(e.target.value)}
             />
-            <button type="submit" className="px-3 py-1.5 bg-[#0052cc] text-white rounded text-sm font-medium hover:bg-[#0065ff] flex-shrink-0">Create</button>
+            <button type="submit" className="px-3 py-1.5 bg-[#15803d] text-white rounded text-sm font-medium hover:bg-[#16a34a] flex-shrink-0">Create</button>
             <button type="button" onClick={() => setShowNewBoardForm(false)} className="px-3 py-1.5 text-white/70 hover:text-white text-sm flex-shrink-0">Cancel</button>
           </form>
         </div>

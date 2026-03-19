@@ -69,7 +69,9 @@ export const getBoardWithColumns = async (req, res) => {
       .select(`
         *,
         assignees:kanban_ticket_assignees(user_id, users(id, full_name, username, profile_picture)),
-        labels:kanban_ticket_labels(label_id, kanban_labels(id, name, color))
+        labels:kanban_ticket_labels(label_id, kanban_labels(id, name, color)),
+        kanban_comments(id),
+        kanban_attachments(id)
       `)
       .eq('board_id', boardId)
       .eq('archived', false)
@@ -79,9 +81,15 @@ export const getBoardWithColumns = async (req, res) => {
   if (colErr)  return res.status(500).json({ success: false, message: colErr.message });
   if (tickErr) return res.status(500).json({ success: false, message: tickErr.message });
 
+  const normalizedTickets = (tickets || []).map(({ kanban_comments, kanban_attachments, ...t }) => ({
+    ...t,
+    comments_count:    (kanban_comments    || []).length,
+    attachments_count: (kanban_attachments || []).length,
+  }));
+
   const columnsWithTickets = (columns || []).map((col) => ({
     ...col,
-    tickets: (tickets || []).filter((t) => t.column_id === col.id)
+    tickets: normalizedTickets.filter((t) => t.column_id === col.id)
   }));
 
   return res.json({ success: true, data: { board, columns: columnsWithTickets } });

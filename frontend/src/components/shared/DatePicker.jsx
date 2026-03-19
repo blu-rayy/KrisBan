@@ -22,6 +22,8 @@ export const DatePicker = ({
   className = '',
   error = false,
   disabled = false,
+  status = 'normal', // 'overdue' | 'today' | 'normal'
+  compact = false,
 }) => {
   const selectedDate = value && isValid(parseISO(value)) ? parseISO(value) : null;
   const [viewMonth, setViewMonth] = useState(selectedDate ?? new Date());
@@ -79,12 +81,23 @@ export const DatePicker = ({
         id={id}
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className={`w-full px-3 py-2 text-sm text-left border rounded-lg transition outline-none
+        className={`w-full px-3 ${compact ? 'py-1 text-xs' : 'py-2 text-sm'} text-left border rounded-lg transition outline-none
           focus:ring-2 focus:ring-forest-green focus:border-transparent
-          bg-white dark:bg-dm-elevated
-          ${error ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-dm-border'}
+          ${error
+            ? 'border-red-500 dark:border-red-700 bg-white dark:bg-dm-elevated'
+            : status === 'overdue'
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-700'
+            : status === 'today'
+            ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-700'
+            : 'bg-white dark:bg-dm-elevated border-gray-300 dark:border-dm-border'}
           ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-          ${selectedDate ? 'text-dark-charcoal dark:text-dm-text' : 'text-gray-400 dark:text-dm-soft'}`}
+          ${!selectedDate
+            ? 'text-gray-400 dark:text-dm-soft'
+            : status === 'overdue'
+            ? 'text-red-700 dark:text-red-400 font-semibold'
+            : status === 'today'
+            ? 'text-amber-700 dark:text-amber-400 font-semibold'
+            : 'text-dark-charcoal dark:text-dm-text'}`}
       >
         <span className="flex items-center justify-between gap-2">
           <span>{selectedDate ? format(selectedDate, 'MM/dd/yyyy') : placeholder}</span>
