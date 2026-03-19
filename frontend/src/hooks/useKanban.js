@@ -187,7 +187,18 @@ export const useKanbanMutations = (boardId) => {
     }),
     updateTask: useMutation({
       mutationFn: ({ taskId, data }) => kanbanService.updateTask(taskId, data),
-      onSuccess: (_r, _v, ctx) => { if (ctx?.ticketId) invalidateTicket(ctx.ticketId); invalidateBoard(); }
+      onMutate: async ({ taskId, data, ticketId }) => {
+        if (!ticketId) return;
+        await qc.cancelQueries({ queryKey: kanbanKeys.ticket(ticketId) });
+        const prev = qc.getQueryData(kanbanKeys.ticket(ticketId));
+        qc.setQueryData(kanbanKeys.ticket(ticketId), (old) => old
+          ? { ...old, tasks: (old.tasks || []).map((t) => t.id === taskId ? { ...t, ...data } : t) }
+          : old
+        );
+        return { prev, ticketId };
+      },
+      onError: (_e, _v, ctx) => { if (ctx?.prev && ctx?.ticketId) qc.setQueryData(kanbanKeys.ticket(ctx.ticketId), ctx.prev); },
+      onSettled: (_r, _e, { ticketId }) => { if (ticketId) invalidateTicket(ticketId); invalidateBoard(); }
     }),
     deleteTask: useMutation({
       mutationFn: ({ taskId }) => kanbanService.deleteTask(taskId),

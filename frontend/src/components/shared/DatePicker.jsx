@@ -81,14 +81,14 @@ export const DatePicker = ({
         id={id}
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className={`w-full px-3 ${compact ? 'py-1 text-xs' : 'py-2 text-sm'} text-left border rounded-lg transition outline-none
-          focus:ring-2 focus:ring-forest-green focus:border-transparent
+        className={`w-full px-3 ${compact ? 'h-7 text-xs' : 'py-2 text-sm'} text-left border rounded-full transition outline-none
+          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
           ${error
             ? 'border-red-500 dark:border-red-700 bg-white dark:bg-dm-elevated'
             : status === 'overdue'
             ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-700'
             : status === 'today'
-            ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-700'
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600'
             : 'bg-white dark:bg-dm-elevated border-gray-300 dark:border-dm-border'}
           ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
           ${!selectedDate
@@ -96,7 +96,7 @@ export const DatePicker = ({
             : status === 'overdue'
             ? 'text-red-700 dark:text-red-400 font-semibold'
             : status === 'today'
-            ? 'text-amber-700 dark:text-amber-400 font-semibold'
+            ? 'text-emerald-700 dark:text-emerald-400 font-semibold'
             : 'text-dark-charcoal dark:text-dm-text'}`}
       >
         <span className="flex items-center justify-between gap-2">
