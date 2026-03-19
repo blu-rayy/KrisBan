@@ -454,7 +454,7 @@ export const SMEOutreachView = () => {
       <header className="mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-charcoal dark:text-dm-text">Emails CRM</h1>
         <p className="text-gray-600 dark:text-dm-muted text-sm sm:text-base lg:text-lg">
-          Track SME outreach, draft template-based messages, and update communication status.
+          <em>Track SME outreach, draft template-based messages, and update communication status.</em>
         </p>
       </header>
 
