@@ -113,7 +113,7 @@ export const Sidebar = ({
   return (
     <>
     <aside
-      className={`bg-white dark:bg-dm-surface h-[calc(100vh-80px)] shadow-[2px_0_20px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_20px_rgba(0,0,0,0.4)] flex flex-col fixed left-0 top-20 z-40 transition-[width,transform,background-color] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
+      className={`bg-gray-50 dark:bg-dm-surface h-[calc(100vh-80px)] shadow-[2px_0_20px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_20px_rgba(0,0,0,0.4)] flex flex-col fixed left-0 top-20 z-40 transition-[width,transform,background-color] duration-300 ease-in-out ${desktopWidthClass} w-72 max-w-[85vw] lg:max-w-none ${mobileVisibilityClass} lg:translate-x-0`}
     >
       {/* Sidebar toggle button */}
       <div className="px-4 pt-4 pb-2">

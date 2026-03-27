@@ -3,6 +3,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         primary: '#3b82f6',
         secondary: '#8b5cf6',
@@ -42,9 +45,9 @@ export default {
       },
       boxShadow: {
         // Soft, diffused shadow for white cards
-        'card-soft': '0 10px 30px -10px rgba(0, 0, 0, 0.05)',
+        'card-soft': '0 4px 16px -2px rgba(0, 0, 0, 0.08)',
         // Subtle shadow for interactive elements
-        'card-elevated': '0 4x 12px -2px rgba(0, 0, 0, 0.08)'
+        'card-elevated': '0 4px 12px -2px rgba(0, 0, 0, 0.12)'
       }
     }
   },
