@@ -146,7 +146,7 @@ export const TicketsListView = () => {
                               <div
                                 key={a.user_id}
                                 title={u.full_name || u.username}
-                                className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center ring-2 ring-white overflow-hidden"
+                                className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center ring-2 ring-emerald-500 overflow-hidden"
                               >
                                 {u.profile_picture
                                   ? <img src={u.profile_picture} alt="" className="w-full h-full object-cover" />
@@ -156,7 +156,7 @@ export const TicketsListView = () => {
                             );
                           })}
                           {(ticket.assignees || []).length > 3 && (
-                            <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                            <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold flex items-center justify-center ring-2 ring-emerald-500">
                               +{ticket.assignees.length - 3}
                             </div>
                           )}
