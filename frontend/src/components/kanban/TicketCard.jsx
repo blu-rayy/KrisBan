@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { format, isPast, isToday } from 'date-fns';
 
 // Avatar initials helper
@@ -40,18 +41,58 @@ const AttachIcon = () => (
   </svg>
 );
 
-export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, onOpen }) => {
+const ExternalLinkIcon = () => (
+  <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+);
+
+const getFavicon = (u) => {
+  try {
+    const { hostname } = new URL(u);
+    return `https://www.google.com/s2/favicons?domain=${hostname}&sz=16`;
+  } catch { return null; }
+};
+
+export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, onOpen, onToggleComplete }) => {
+  const [bouncing, setBouncing] = useState(false);
+  const [optimisticCompleted, setOptimisticCompleted] = useState(null);
+
+  // Clear optimistic state once server data catches up
+  useEffect(() => { setOptimisticCompleted(null); }, [ticket.is_completed]);
+
   const labels        = ticket.labels    || [];
   const assignees     = ticket.assignees || [];
   const hasTasks      = ticket.tasks_total > 0;
   const hasDesc       = !!ticket.description;
   const commentCount  = ticket.comments_count || 0;
   const attachCount   = ticket.attachments_count || 0;
+  const isCompleted   = optimisticCompleted ?? !!ticket.is_completed;
+
+  const handleToggleComplete = (e) => {
+    e.stopPropagation();
+    const next = !isCompleted;
+    setOptimisticCompleted(next);
+    if (next) {
+      setBouncing(true);
+      setTimeout(() => setBouncing(false), 400);
+    }
+    onToggleComplete(ticket.id, next);
+  };
   const dueDate       = ticket.due_date ? new Date(`${ticket.due_date}T00:00:00`) : null;
   const overdue       = dueDate && isPast(dueDate) && !isToday(dueDate);
   const dueToday      = dueDate && isToday(dueDate);
 
   const showFooter = dueDate || hasTasks || hasDesc || commentCount > 0 || attachCount > 0 || assignees.length > 0;
+
+  const dueDateClass = isCompleted
+    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+    : overdue
+    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+    : dueToday
+    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+    : 'text-[#5e6c84] dark:text-dm-soft';
 
   return (
     <div
@@ -59,12 +100,17 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
       {...draggableProps}
       {...dragHandleProps}
       onClick={onOpen}
-      className="relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-shadow hover:shadow-md"
+      className={`relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-shadow hover:shadow-md ${isCompleted ? 'opacity-75' : ''}`}
       style={{
         ...draggableProps?.style,
         boxShadow: '0 1px 2px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)',
       }}
     >
+      {/* Completed indicator — left green border strip */}
+      {isCompleted && (
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-[8px] bg-emerald-500" />
+      )}
+
       {/* Cover — solid color strip */}
       {ticket.cover_color && (
         <div
@@ -72,6 +118,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
           style={{ backgroundColor: ticket.cover_color }}
         />
       )}
+
 
       {/* Pencil quick-edit button — top-right on hover */}
       <button
@@ -103,12 +150,10 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
           </div>
         )}
 
-
         {/* Attachment Preview (Trello-like) */}
         {Array.isArray(ticket.attachments) && ticket.attachments.length > 0 && (() => {
           const att = ticket.attachments[0];
           const url = att.url;
-          // Helper functions
           const isImage = (u) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(u);
           const isGoogleDoc = (u) => /docs\.google\.com\/(document|spreadsheets|presentation)/.test(u);
           if (isImage(url)) {
@@ -118,7 +163,6 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
               </div>
             );
           } else if (isGoogleDoc(url)) {
-            // Embed Google Doc preview (view only)
             let embedUrl = url;
             if (url.includes('/edit')) embedUrl = url.replace('/edit', '/preview');
             return (
@@ -134,28 +178,76 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
               </div>
             );
           } else {
-            // Generic link preview (favicon + name)
-            const getFavicon = (u) => {
-              try {
-                const { hostname } = new URL(u);
-                return `https://www.google.com/s2/favicons?domain=${hostname}`;
-              } catch { return null; }
-            };
+            // Styled link preview box
+            const favicon = getFavicon(url);
             return (
-              <div className="mb-2 rounded-lg overflow-hidden border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated flex items-center gap-2 px-3 py-2">
-                <img src={getFavicon(url)} alt="favicon" className="w-5 h-5 rounded" />
-                <a href={url} target="_blank" rel="noopener noreferrer" className="truncate text-emerald-600 dark:text-emerald-400 font-medium text-[13px] hover:underline flex-1">
-                  {att.name || url}
-                </a>
-              </div>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="mb-2 flex items-center gap-2 px-2.5 py-2 rounded-lg border border-gray-200 dark:border-dm-border bg-gray-50 dark:bg-dm-elevated hover:bg-gray-100 dark:hover:bg-dm-card transition-colors group/link"
+              >
+                {favicon && (
+                  <img src={favicon} alt="" className="w-4 h-4 flex-shrink-0 rounded-sm" />
+                )}
+                <span className="flex-1 truncate text-[11px] text-gray-600 dark:text-dm-muted font-medium min-w-0">
+                  {att.name && att.name !== url ? att.name : url}
+                </span>
+                <ExternalLinkIcon />
+              </a>
             );
           }
         })()}
 
-        {/* Title */}
-        <p className="text-[13.5px] text-[#172b4d] dark:text-dm-text leading-snug font-medium">
-          {ticket.title}
-        </p>
+        {/* Title row with sliding mark complete circle */}
+        <div className="flex items-start">
+          {onToggleComplete && (
+            <div className={`flex-shrink-0 overflow-hidden transition-all duration-200 ease-out ${
+              isCompleted
+                ? 'max-w-[19px] pr-2'
+                : 'max-w-0 pr-0 group-hover:max-w-[19px] group-hover:pr-2'
+            }`}>
+              <div className={`relative mt-0.5 ${bouncing ? 'animate-check-bounce' : ''}`}>
+                <button
+                  onClick={handleToggleComplete}
+                  title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                  className={`w-[15px] h-[15px] rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
+                    isCompleted
+                      ? 'bg-emerald-500 border-emerald-500'
+                      : 'border-gray-400 dark:border-dm-border hover:border-emerald-400 dark:hover:border-emerald-500'
+                  }`}
+                >
+                  <svg className="w-[9px] h-[9px]" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline
+                      points="1.5 6 4.5 9 10.5 3"
+                      strokeDasharray="18"
+                      strokeDashoffset={isCompleted ? 0 : 18}
+                      style={{ transition: 'stroke-dashoffset 0.2s ease 0.05s' }}
+                    />
+                  </svg>
+                </button>
+
+                {/* Ray burst overlay */}
+                {bouncing && (
+                  <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+                      <span key={deg} className="absolute w-0 h-0" style={{ transform: `rotate(${deg}deg)` }}>
+                        <span
+                          className="absolute block w-[2px] h-[4px] bg-emerald-400 rounded-full animate-ray-shoot"
+                          style={{ left: '-1px', top: '-12px' }}
+                        />
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          <p className={`text-[13.5px] text-[#172b4d] dark:text-dm-text leading-snug font-medium transition-all duration-200 ${isCompleted ? 'line-through opacity-50' : ''}`}>
+            {ticket.title}
+          </p>
+        </div>
 
         {/* Footer — metadata row */}
         {showFooter && (
@@ -164,11 +256,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
 
               {/* Due date */}
               {dueDate && (
-                <span className={`inline-flex items-center gap-1 text-[11px] font-medium rounded-sm px-1.5 py-0.5 ${
-                  overdue  ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' :
-                  dueToday ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400' :
-                             'text-[#5e6c84] dark:text-dm-soft'
-                }`}>
+                <span className={`inline-flex items-center gap-1 text-[11px] font-medium rounded-sm px-1.5 py-0.5 ${dueDateClass}`}>
                   <ClockIcon />
                   {format(dueDate, 'MMM d')}
                 </span>

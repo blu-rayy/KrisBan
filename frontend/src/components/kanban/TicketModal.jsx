@@ -570,8 +570,23 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   </div>
                 </div>
 
-                {/* Archive + saving state */}
-                <div className="ml-7 flex items-center gap-3 pt-1">
+                {/* Mark complete + Archive + saving state */}
+                <div className="ml-7 flex items-center gap-3 pt-1 flex-wrap">
+                  <button
+                    onClick={() => mutations.updateTicket.mutate({ ticketId: ticket.id, data: { is_completed: !ticket?.is_completed } })}
+                    className={`text-xs font-medium flex items-center gap-1 transition-colors ${
+                      ticket?.is_completed
+                        ? 'text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300'
+                        : 'text-slate-500 hover:text-emerald-600 dark:text-dm-muted dark:hover:text-emerald-400'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill={ticket?.is_completed ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="9 12 11 14 15 10"/>
+                    </svg>
+                    {ticket?.is_completed ? 'Completed' : 'Mark complete'}
+                  </button>
+                  <span className="text-slate-300 dark:text-dm-border text-xs">·</span>
                   <button onClick={handleArchive} className="text-xs text-red-400 hover:text-red-600 hover:underline">Archive this card</button>
                   {saving && <span className="text-xs text-slate-400 dark:text-dm-soft">Saving…</span>}
                 </div>

@@ -242,7 +242,7 @@ export const getTicket = async (req, res) => {
 
 export const updateTicket = async (req, res) => {
   const { ticketId } = req.params;
-  const allowed = ['title', 'description', 'due_date', 'cover_color', 'column_id', 'position'];
+  const allowed = ['title', 'description', 'due_date', 'cover_color', 'column_id', 'position', 'is_completed'];
   const updates = {};
   for (const key of allowed) {
     if (key in req.body) updates[key] = req.body[key];

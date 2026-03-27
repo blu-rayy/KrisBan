@@ -258,6 +258,9 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                                   draggableProps={tp.draggableProps}
                                   dragHandleProps={tp.dragHandleProps}
                                   onOpen={() => onTicketOpen(ticket.id)}
+                                  onToggleComplete={(ticketId, is_completed) =>
+                                    mutations.updateTicket.mutate({ ticketId, data: { is_completed } })
+                                  }
                                 />
                               )}
                             </Draggable>
