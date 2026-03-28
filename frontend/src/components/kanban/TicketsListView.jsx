@@ -22,8 +22,9 @@ export const TicketsListView = () => {
 
   const { columns = [] } = boardData || {};
 
-  // Flatten all tickets with their column name
-  const allTickets = columns.flatMap((col) =>
+  // Flatten tickets from columns that are opted into the list view
+  const includedColumns = columns.filter((col) => col.include_in_list);
+  const allTickets = includedColumns.flatMap((col) =>
     (col.tickets || []).map((t) => ({ ...t, columnName: col.name, columnColor: col.color }))
   );
 
@@ -69,7 +70,11 @@ export const TicketsListView = () => {
 
         {!isLoading && filtered.length === 0 && (
           <div className="text-center text-gray-400 dark:text-dm-soft py-16">
-            {search ? 'No tickets match your search.' : 'No tickets in this board yet.'}
+            {search
+              ? 'No tickets match your search.'
+              : includedColumns.length === 0
+              ? 'No lists are included in this view. Use "Include in List" on a list to show it here.'
+              : 'No tickets in the included lists.'}
           </div>
         )}
 
@@ -120,11 +125,11 @@ export const TicketsListView = () => {
                     >
                       {/* Title */}
                       <td className="px-6 py-4 w-[28%] min-w-[220px] align-middle">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           {ticket.cover_color && (
                             <span className="w-1.5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: ticket.cover_color }} />
                           )}
-                          <span className="font-medium text-gray-800 dark:text-dm-text">{ticket.title}</span>
+                          <span className="font-medium text-gray-800 dark:text-dm-text truncate">{ticket.title}</span>
                         </div>
                       </td>
 

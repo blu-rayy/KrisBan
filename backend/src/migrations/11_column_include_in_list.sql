@@ -1,0 +1,1 @@
+ALTER TABLE kanban_columns ADD COLUMN IF NOT EXISTS include_in_list BOOLEAN DEFAULT FALSE;

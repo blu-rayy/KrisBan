@@ -100,7 +100,7 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
       {...draggableProps}
       {...dragHandleProps}
       onClick={onOpen}
-      className={`relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-shadow hover:shadow-md ${isCompleted ? 'opacity-75' : ''}`}
+      className={`relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-shadow hover:shadow-md overflow-hidden ${isCompleted ? 'opacity-75' : ''}`}
       style={{
         ...draggableProps?.style,
         boxShadow: '0 1px 2px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)',
@@ -165,16 +165,34 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
           } else if (isGoogleDoc(url)) {
             let embedUrl = url;
             if (url.includes('/edit')) embedUrl = url.replace('/edit', '/preview');
+            else if (!url.includes('/preview')) embedUrl = url + '/preview';
             return (
-              <div className="mb-2 rounded-lg overflow-hidden border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated">
-                <iframe
-                  src={embedUrl}
-                  title={att.name || 'Google Doc'}
-                  className="w-full h-28"
-                  style={{ border: 0 }}
-                  allow="autoplay; encrypted-media"
-                  loading="lazy"
-                />
+              <div className="mb-2 rounded-lg border border-gray-200 dark:border-dm-border bg-white dark:bg-dm-elevated overflow-hidden">
+                <div className="w-full h-48 overflow-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+                  <iframe
+                    src={embedUrl}
+                    title={att.name || 'Google Doc'}
+                    className="w-full h-full"
+                    style={{ border: 0, minHeight: '192px' }}
+                    loading="lazy"
+                  />
+                </div>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-2 px-2.5 py-1.5 border-t border-gray-200 dark:border-dm-border bg-gray-50 dark:bg-dm-elevated hover:bg-gray-100 dark:hover:bg-dm-card transition-colors"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#4285F4" className="flex-shrink-0">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8" fill="none" stroke="white" strokeWidth="2"/>
+                  </svg>
+                  <span className="flex-1 truncate text-[11px] font-medium text-blue-600 dark:text-blue-400 min-w-0">
+                    {att.name && att.name !== url ? att.name : 'Google Docs'}
+                  </span>
+                  <ExternalLinkIcon />
+                </a>
               </div>
             );
           } else {

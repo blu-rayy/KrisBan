@@ -71,7 +71,7 @@ export const getBoardWithColumns = async (req, res) => {
         assignees:kanban_ticket_assignees(user_id, users(id, full_name, username, profile_picture)),
         labels:kanban_ticket_labels(label_id, kanban_labels(id, name, color)),
         kanban_comments(id),
-        kanban_attachments(id)
+        kanban_attachments(id, url, name, is_link)
       `)
       .eq('board_id', boardId)
       .eq('archived', false)
@@ -85,6 +85,7 @@ export const getBoardWithColumns = async (req, res) => {
     ...t,
     comments_count:    (kanban_comments    || []).length,
     attachments_count: (kanban_attachments || []).length,
+    attachments:       kanban_attachments  || [],
   }));
 
   const columnsWithTickets = (columns || []).map((col) => ({
@@ -148,8 +149,9 @@ export const createColumn = async (req, res) => {
 export const updateColumn = async (req, res) => {
   const { columnId } = req.params;
   const updates = {};
-  if (req.body.name  !== undefined) updates.name  = req.body.name.trim();
-  if (req.body.color !== undefined) updates.color = req.body.color;
+  if (req.body.name             !== undefined) updates.name             = req.body.name.trim();
+  if (req.body.color            !== undefined) updates.color            = req.body.color;
+  if (req.body.include_in_list  !== undefined) updates.include_in_list  = req.body.include_in_list;
   updates.updated_at = new Date().toISOString();
 
   const { data, error } = await supabase

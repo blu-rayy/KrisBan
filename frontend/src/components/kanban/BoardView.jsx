@@ -11,7 +11,7 @@ const computePosition = (tickets, destinationIndex) => {
 };
 
 // ── Column header with inline rename ─────────────────────────────────────────
-const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) => {
+const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, onToggleIncludeInList, ticketCount }) => {
   const [editing,  setEditing]  = useState(false);
   const [name,     setName]     = useState(column.name);
   const [showMenu, setShowMenu] = useState(false);
@@ -80,6 +80,18 @@ const ColumnHeader = ({ column, onRename, onDelete, onAddTicket, ticketCount }) 
                 onClick={() => { setShowMenu(false); setEditing(true); }}
                 className="w-full text-left px-4 py-2 text-[13px] text-[#1f2937] dark:text-dm-text hover:bg-emerald-50 dark:hover:bg-dm-elevated"
               >Rename list</button>
+              <hr className="my-1 border-gray-100 dark:border-dm-border" />
+              <button
+                onClick={() => { setShowMenu(false); onToggleIncludeInList(column.id, !column.include_in_list); }}
+                className="w-full text-left px-4 py-2 text-[13px] text-[#1f2937] dark:text-dm-text hover:bg-emerald-50 dark:hover:bg-dm-elevated flex items-center justify-between"
+              >
+                <span>Include in List</span>
+                {column.include_in_list && (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                )}
+              </button>
               <hr className="my-1 border-gray-100 dark:border-dm-border" />
               <button
                 onClick={() => { setShowMenu(false); onDelete(column.id); }}
@@ -192,6 +204,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
   };
 
   const handleRenameColumn = (columnId, name) => mutations.updateColumn.mutate({ columnId, data: { name } });
+  const handleToggleIncludeInList = (columnId, include_in_list) => mutations.updateColumn.mutate({ columnId, data: { include_in_list } });
 
   const handleDeleteColumn = (columnId) => {
     if (!window.confirm('Delete this list? All cards will be archived.')) return;
@@ -225,7 +238,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                     className={`flex-shrink-0 w-[272px] rounded-[8px] flex flex-col bg-[#ebecf0] dark:bg-dm-elevated ${
                       colSnapshot.isDragging ? 'shadow-2xl opacity-95 rotate-1' : ''
                     }`}
-                    style={{ maxHeight: 'calc(100vh - 168px)' }}
+                    style={{ ...colProvided.draggableProps?.style, maxHeight: 'calc(100vh - 168px)' }}
                   >
                     {/* Header — drag handle */}
                     <div {...colProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
@@ -235,6 +248,7 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                         onRename={handleRenameColumn}
                         onDelete={handleDeleteColumn}
                         onAddTicket={(cid) => setAddingToColumn(cid)}
+                        onToggleIncludeInList={handleToggleIncludeInList}
                       />
                     </div>
 
