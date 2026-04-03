@@ -79,6 +79,38 @@ const Icon = {
   x:       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
 };
 
+// ── Description helpers ────────────────────────────────────────────────────────
+const IMG_RE  = /(!\[image\]\(data:[^)]+\))/;
+const IMG_SRC = /^!\[image\]\((data:[^)]+)\)$/;
+
+const descToHtml = (text) => {
+  if (!text) return '';
+  return text.split(IMG_RE).map((part) => {
+    const m = part.match(IMG_SRC);
+    if (m) return `<img src="${m[1]}" alt="image" style="max-width:100%;border-radius:6px;display:block;margin:4px 0">`;
+    return part.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }).join('');
+};
+
+const htmlToDesc = (el) => {
+  let out = '';
+  for (const node of el.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      out += node.textContent;
+    } else if (node.nodeName === 'IMG') {
+      out += `![image](${node.src})`;
+    } else if (node.nodeName === 'BR') {
+      out += '\n';
+    } else if (node.nodeName === 'DIV' || node.nodeName === 'P') {
+      if (out && !out.endsWith('\n')) out += '\n';
+      out += htmlToDesc(node);
+    } else {
+      out += htmlToDesc(node);
+    }
+  }
+  return out;
+};
+
 // ── Main Modal ─────────────────────────────────────────────────────────────────
 export const TicketModal = ({ ticketId, boardId, onClose }) => {
   const { user: me } = useContext(AuthContext);
@@ -110,6 +142,7 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
   const [editingCommentBody, setEditingCommentBody] = useState('');
   const [saving,           setSaving]           = useState(false);
   const titleRef = useRef(null);
+  const descRef  = useRef(null);
 
   useEffect(() => {
     if (!ticket) return;
@@ -125,6 +158,19 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  useEffect(() => {
+    if (!editingDesc || !descRef.current) return;
+    descRef.current.innerHTML = descToHtml(desc);
+    descRef.current.focus();
+    const range = document.createRange();
+    range.selectNodeContents(descRef.current);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingDesc]);
+
   const saveField = async (field, value) => {
     if (!ticket) return;
     setSaving(true);
@@ -134,8 +180,53 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
   };
 
   const handleTitleBlur   = () => { if (title.trim() && title.trim() !== ticket?.title) saveField('title', title.trim()); };
-  const handleDescSave    = () => { if (desc !== (ticket?.description || '')) saveField('description', desc); setEditingDesc(false); };
-  const handleDescCancel  = () => { setDesc(ticket?.description || ''); setEditingDesc(false); };
+  const handleDescSave = () => {
+    const newDesc = descRef.current ? htmlToDesc(descRef.current) : desc;
+    if (newDesc !== (ticket?.description || '')) saveField('description', newDesc);
+    setDesc(newDesc);
+    setEditingDesc(false);
+  };
+  const handleDescCancel = () => { setEditingDesc(false); };
+
+  const handleDescPaste = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = document.createElement('img');
+          img.src = ev.target.result;
+          img.alt = 'image';
+          img.style.cssText = 'max-width:100%;border-radius:6px;display:block;margin:4px 0';
+          const sel = window.getSelection();
+          if (sel?.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(img);
+            range.setStartAfter(img);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+    }
+  };
+
+  const renderDescWithImages = (text) => {
+    if (!text) return <span className="text-slate-400 dark:text-dm-soft">Add a more detailed description…</span>;
+    const parts = text.split(/(!\[image\]\(data:[^)]+(?:\)[^)]*)*\))/);
+    return parts.map((part, i) => {
+      const match = part.match(/^!\[image\]\((data:[^)]+(?:\)[^)]*)*)\)$/);
+      if (match) return <img key={i} src={match[1]} alt="pasted" className="max-w-full rounded-lg my-1 block" />;
+      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+    });
+  };
   const handleDueDateChange = (e) => { setDueDate(e.target.value); saveField('due_date', e.target.value || null); };
   const handleCoverColor  = (color) => { const next = coverColor === color ? '' : color; setCoverColor(next); saveField('cover_color', next || null); };
 
@@ -472,12 +563,12 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                   />
                   {editingDesc ? (
                     <div className="space-y-2">
-                      <textarea
-                        className={`${INPUT_CLS} min-h-[100px] resize-y`}
-                        placeholder="Add a more detailed description…"
-                        value={desc}
-                        onChange={(e) => setDesc(e.target.value)}
-                        autoFocus
+                      <div
+                        ref={descRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onPaste={handleDescPaste}
+                        className={`${INPUT_CLS} min-h-[100px] overflow-auto`}
                       />
                       <div className="flex gap-2">
                         <button onClick={handleDescSave} className="px-3 py-1.5 bg-[#15803d] text-white rounded-full text-sm font-medium hover:bg-[#16a34a]">Save</button>
@@ -486,8 +577,8 @@ export const TicketModal = ({ ticketId, boardId, onClose }) => {
                     </div>
                   ) : (
                     <div onClick={() => setEditingDesc(true)}
-                      className="text-sm text-slate-700 dark:text-dm-text whitespace-pre-wrap cursor-pointer rounded-lg px-2 py-1.5 -ml-2 hover:bg-slate-50 dark:hover:bg-dm-card transition-colors min-h-[52px]">
-                      {desc || <span className="text-slate-400 dark:text-dm-soft">Add a more detailed description…</span>}
+                      className="text-sm text-slate-700 dark:text-dm-text cursor-pointer rounded-lg px-2 py-1.5 -ml-2 hover:bg-slate-50 dark:hover:bg-dm-card transition-colors min-h-[52px]">
+                      {renderDescWithImages(desc)}
                     </div>
                   )}
                 </div>
