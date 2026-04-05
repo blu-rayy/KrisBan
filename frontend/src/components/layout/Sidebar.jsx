@@ -8,6 +8,7 @@ import {
   DocumentAttachmentIcon,
   FlashIcon,
   HelpCircleIcon,
+  HierarchySquare01Icon,
   KanbanIcon,
   Mail01Icon,
   Ticket01Icon
@@ -75,6 +76,14 @@ export const Sidebar = ({
       id: 'kanban',
       label: 'KanBan',
       icon: KanbanIcon,
+      status: 'active',
+      visibility: 'all',
+      section: 'MENU'
+    },
+    {
+      id: 'charts',
+      label: 'Charts',
+      icon: HierarchySquare01Icon,
       status: 'active',
       visibility: 'all',
       section: 'MENU'

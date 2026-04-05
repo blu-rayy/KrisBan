@@ -14,6 +14,7 @@ import { ChangePasswordModal } from '../components/shared/ChangePasswordModal';
 import { ProfileDropdown } from '../components/layout/ProfileDropdown';
 import { SettingsView } from '../components/settings/SettingsView';
 import { AdminDashboardView } from '../components/admin/AdminDashboardView';
+import { ChartsView } from '../components/charts/ChartsView';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintService } from '../services/sprintService';
@@ -276,6 +277,7 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'emails' && <SMEOutreachView />}
           {activeSection === 'kanban' && <KanbanView />}
+          {activeSection === 'charts' && <ChartsView />}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <TicketsListView />}
           {activeSection === 'settings' && <SettingsView initialTab={settingsTab} />}
