@@ -47,15 +47,10 @@ const sprintLabelComparator = (a, b) => {
   return bLabel.localeCompare(aLabel, undefined, { numeric: true, sensitivity: 'base' });
 };
 
-const getAdminSettings = () => {
-  try { return JSON.parse(localStorage.getItem('admin_settings') || '{}'); } catch { return {}; }
-};
-
 export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loading = false, userRole = 'USER' }) => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { data: sprints = [] } = useSprints();
-  const imageRequired = getAdminSettings().imageRequired !== false; // default true
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     memberId: '',
@@ -226,7 +221,6 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
     if (sortedSprintLabels.length > 0 && !formData.sprintNo) newErrors.sprintNo = 'Sprint is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.taskDone.trim()) newErrors.taskDone = 'Task Done is required';
-    if (imageRequired && !imageFile && !formData.imageUrl) newErrors.image = 'Image is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -427,7 +421,7 @@ export const ProgressReportForm = ({ members = [], reports = [], onSubmit, loadi
         {/* Image Upload */}
         <div className="md:col-span-2">
           <label htmlFor="image" className="block text-sm font-medium text-dark-charcoal dark:text-dm-text mb-2">
-            Image {imageRequired ? <span className="text-red-500">*</span> : <span className="text-gray-400">(optional)</span>} (Max 5MB)
+            Image <span className="text-gray-400">(optional)</span> (Max 5MB)
           </label>
           {errors.image && <p className="mb-2 text-sm text-red-500">{errors.image}</p>}
           <div className="space-y-3">
