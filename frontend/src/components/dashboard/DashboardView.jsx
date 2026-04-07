@@ -194,7 +194,7 @@ export const DashboardView = ({ dashboardData, userRole, teamName, onNavigateReq
                   <defs>
                     <linearGradient id="dash-donut-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#15803d" />
-                      <stop offset="100%" stopColor="#064e3b" />
+                      <stop offset="100%" stopColor="#15803d" />
                     </linearGradient>
                   </defs>
                   <circle cx="50" cy="50" r={r} fill="none" stroke={darkMode ? 'rgba(255,255,255,0.15)' : '#e5e7eb'} strokeWidth="8" />
