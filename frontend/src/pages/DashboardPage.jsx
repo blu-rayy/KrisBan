@@ -33,6 +33,7 @@ export const DashboardPage = () => {
   const mobileBreakpoint = 1024;
   const initialIsMobile = typeof window !== 'undefined' ? window.innerWidth < mobileBreakpoint : false;
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [progressReportsTab, setProgressReportsTab] = useState('view');
   const [settingsTab, setSettingsTab] = useState('profile');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(initialIsMobile);
@@ -272,8 +273,20 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           )}
 
           {/* Render Active Section */}
-          {activeSection === 'dashboard' && <DashboardView dashboardData={dashboardData} userRole={user?.role} teamName={user?.teamName} />}
-          {activeSection === 'progress-reports' && <ProgressReportsView />}
+          {activeSection === 'dashboard' && (
+            <DashboardView
+              dashboardData={dashboardData}
+              userRole={user?.role}
+              teamName={user?.teamName}
+              onNavigateRequirements={() => {
+                setProgressReportsTab('requirements');
+                setActiveSection('progress-reports');
+              }}
+            />
+          )}
+          {activeSection === 'progress-reports' && (
+            <ProgressReportsView initialTab={progressReportsTab} />
+          )}
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'emails' && <SMEOutreachView />}
           {activeSection === 'kanban' && <KanbanView />}

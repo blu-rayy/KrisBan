@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatCard } from './StatCard';
 import { getBadgeStyle } from '../../utils/badgeStyles';
 import { useLastWeekProgressStats, useRecentProgressActivity } from '../../hooks/useDashboardActivity';
+import { requirementService } from '../../services/api';
+import { useTheme } from '../../context/ThemeContext';
 
-/**
- * DashboardView Component
- * 
- * Main dashboard view that displays key metrics using the Forest Gradient Theme
- * with StatCard components in a Bento Grid layout.
- */
-export const DashboardView = ({ dashboardData, userRole, teamName }) => {
-  // Extract dashboard statistics
+export const DashboardView = ({ dashboardData, userRole, teamName, onNavigateRequirements }) => {
   const stats = dashboardData || {};
+  const { darkMode } = useTheme();
 
   const { data: progressReports = [] } = useRecentProgressActivity();
   const { data: lastWeekStats = { startDate: null, endDate: null, days: [] } } = useLastWeekProgressStats();
+
+  const [overallProgress, setOverallProgress] = useState(null);
+
+  useEffect(() => {
+    requirementService.getOverallProgress()
+      .then((res) => setOverallProgress(res.data?.overall ?? null))
+      .catch(() => setOverallProgress(null));
+  }, []);
 
   // Get initials from a name
   const getInitials = (name) => {
@@ -169,50 +173,57 @@ export const DashboardView = ({ dashboardData, userRole, teamName }) => {
           </div>
         </div>
 
-        {/* Project Progress - White Card with Donut */}
-        <div className="bg-white dark:bg-dm-card text-dark-charcoal dark:text-dm-text rounded-[24px] p-6 shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center">
-          <h3 className="text-lg font-bold dark:text-dm-text mb-6">Project Progress</h3>
-          <div className="relative w-32 h-32 mb-6">
-            {/* Simple donut chart */}
-            <svg className="w-full h-full" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="8"
-                strokeDasharray="141 188"
-                transform="rotate(-90 50 50)"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="8"
-                strokeDasharray="47 188"
-                strokeDashoffset="-141"
-                transform="rotate(-90 50 50)"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <span className="text-3xl font-bold text-forest-green">41%</span>
-              <span className="text-xs text-gray-600">Completed</span>
-            </div>
-          </div>
-          <div className="flex gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-leaf-green rounded-full" />
-              <span>Completed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-gray-300 rounded-full" />
-              <span>Pending</span>
-            </div>
-          </div>
-        </div>
+        {/* Project Progress - Clickable live donut */}
+        {(() => {
+          const pct = overallProgress !== null ? overallProgress : 0;
+          const r = 45;
+          const circ = 2 * Math.PI * r;
+          const filled = (pct / 100) * circ;
+
+          return (
+            <button
+              type="button"
+              onClick={onNavigateRequirements}
+              className="bg-white dark:bg-dm-card text-dark-charcoal dark:text-dm-text rounded-[24px] p-6 shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-100 transition-all duration-300 flex flex-col items-center justify-center w-full cursor-pointer group"
+            >
+              <h3 className="text-lg font-bold dark:text-dm-text mb-6 group-hover:text-forest-green transition-colors">
+                Project Progress
+              </h3>
+              <div className="relative w-32 h-32 mb-4">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="dash-donut-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#15803d" />
+                      <stop offset="100%" stopColor="#064e3b" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="50" cy="50" r={r} fill="none" stroke={darkMode ? 'rgba(255,255,255,0.15)' : '#e5e7eb'} strokeWidth="8" />
+                  <circle
+                    cx="50" cy="50" r={r} fill="none"
+                    stroke="url(#dash-donut-grad)" strokeWidth="8"
+                    strokeDasharray={`${filled} ${circ}`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 50 50)"
+                    className="transition-all duration-700"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                  {overallProgress === null ? (
+                    <span className="text-sm text-gray-400">—</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-forest-green">{pct.toFixed(1)}%</span>
+                      <span className="text-xs text-gray-500 dark:text-dm-muted">Completed</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 dark:text-dm-muted group-hover:text-forest-green transition-colors">
+                View Requirements →
+              </p>
+            </button>
+          );
+        })()}
       </div>
 
       {/* Optional: Quick Stats Footer */}

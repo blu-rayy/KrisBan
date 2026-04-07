@@ -174,7 +174,7 @@ export const BentoDashboard = ({ dashboardData, userRole }) => {
         {/* Project Progress - White Card with Donut Chart */}
         <div className="lg:col-span-1">
           <div className="bg-surface-main text-dark-charcoal rounded-[24px] p-6 shadow-card-soft h-full flex flex-col items-center justify-center">
-            <h3 className="text-lg font-bold mb-6">Project Progress</h3>
+            <h3 className="text-lg font-bold mb-6">System Progress</h3>
             <div className="relative w-32 h-32 mb-4">
               {/* Simple donut chart visualization */}
               <svg className="w-full h-full" viewBox="0 0 100 100">

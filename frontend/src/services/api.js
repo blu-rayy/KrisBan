@@ -197,6 +197,15 @@ export const emailsCrmService = {
   deleteSmeLog: (logId) => api.delete(`/emails-crm/sme-logs/${logId}`)
 };
 
+export const requirementService = {
+  getAll:           ()          => api.get('/requirements'),
+  getOverallProgress: ()        => api.get('/requirements/overall-progress'),
+  create:           (data)      => api.post('/requirements', data),
+  update:           (id, data)  => api.put(`/requirements/${id}`, data),
+  remove:           (id)        => api.delete(`/requirements/${id}`),
+  bulkSeed:         (requirements) => api.post('/requirements/seed', { requirements })
+};
+
 export const fetchProgressReports = async (filters = {}) => {
   try {
     const response = await dashboardService.getProgressReports(filters);

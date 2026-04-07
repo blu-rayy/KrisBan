@@ -8,9 +8,10 @@ import { generateFormattedReportWithGemini } from '../../utils/geminiReportGener
 import { AuthContext } from '../../context/AuthContext';
 import { useInfiniteProgressReports } from '../../hooks/useProgressReports';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon, CheckmarkCircle01Icon, Alert01Icon } from '@hugeicons/core-free-icons';
+import { Ticket01Icon, Edit02Icon, DocumentAttachmentIcon, HelpCircleIcon, CheckmarkCircle01Icon, Alert01Icon, ListViewIcon } from '@hugeicons/core-free-icons';
 import { CustomSelect } from '../shared/CustomSelect';
 import { DatePicker } from '../shared/DatePicker';
+import { RequirementsTab } from './RequirementsTab';
 
 const normalizeMemberName = (name) => {
   if (!name) return 'UNKNOWN';
@@ -25,11 +26,11 @@ const normalizeMemberName = (name) => {
   return map[first] || String(name).toUpperCase();
 };
 
-export const ProgressReportsView = () => {
+export const ProgressReportsView = ({ initialTab }) => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState('view');
+  const [activeTab, setActiveTab] = useState(initialTab || 'view');
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -543,6 +544,11 @@ export const ProgressReportsView = () => {
           description:
             'Select a reporting week, generate daily draft rows from existing entries, edit if needed, then save.'
         }
+      : activeTab === 'requirements'
+      ? {
+          title: 'Functional Requirements',
+          description: 'Track weighted progress across all system functional requirements'
+        }
       : {
           title: 'Sprint Entries',
           description: 'View all team progress entries'
@@ -599,6 +605,20 @@ export const ProgressReportsView = () => {
             </span>
           </button>
         )}
+
+        <button
+          onClick={() => setActiveTab('requirements')}
+          className={`px-6 py-3 font-medium border-b-2 transition-all duration-300 ${
+            activeTab === 'requirements'
+              ? 'border-forest-green text-forest-green'
+              : 'border-transparent text-gray-600 dark:text-dm-muted hover:text-dark-charcoal dark:hover:text-dm-text'
+          }`}
+        >
+          <span className="inline-flex items-center gap-2">
+            <HugeiconsIcon icon={ListViewIcon} size={18} />
+            <span>Requirements</span>
+          </span>
+        </button>
       </div>
 
       {activeTab === 'view' && (
@@ -951,6 +971,8 @@ export const ProgressReportsView = () => {
           </div>
         </div>
       )}
+
+      {activeTab === 'requirements' && <RequirementsTab />}
     </div>
   );
 };

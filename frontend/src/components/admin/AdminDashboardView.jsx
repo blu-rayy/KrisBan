@@ -10,8 +10,16 @@ const INITIAL_FORM = {
   personalEmail: ''
 };
 
+const getAdminSettings = () => {
+  try { return JSON.parse(localStorage.getItem('admin_settings') || '{}'); } catch { return {}; }
+};
+const saveAdminSettings = (patch) => {
+  localStorage.setItem('admin_settings', JSON.stringify({ ...getAdminSettings(), ...patch }));
+};
+
 const ADMIN_FEATURES = [
   { id: 'add-member', label: 'Add member', description: 'Create a new member for your current team.' },
+  { id: 'settings', label: 'Settings', description: 'Toggle optional behaviour across the app.' },
   { id: 'coming-soon', label: 'More features soon', description: 'Keep this dropdown for upcoming admin tools.' }
 ];
 
@@ -29,6 +37,7 @@ export const AdminDashboardView = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [imageRequired, setImageRequired] = useState(() => getAdminSettings().imageRequired !== false);
 
   const loadMembers = async () => {
     setLoadingMembers(true);
@@ -276,6 +285,29 @@ export const AdminDashboardView = () => {
                   </button>
                 </div>
               </form>
+            ) : selectedFeature === 'settings' ? (
+              <div className="space-y-4">
+                {/* Image required toggle */}
+                <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-5 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-dm-text">Require image on progress reports</p>
+                    <p className="text-xs text-slate-500 dark:text-dm-muted mt-0.5">When off, members can submit entries without attaching a screenshot.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !imageRequired;
+                      setImageRequired(next);
+                      saveAdminSettings({ imageRequired: next });
+                    }}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${imageRequired ? 'bg-forest-green' : 'bg-slate-300 dark:bg-dm-border'}`}
+                    role="switch"
+                    aria-checked={imageRequired}
+                  >
+                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ${imageRequired ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-200 dark:border-dm-border bg-slate-50 dark:bg-dm-elevated px-5 py-8 text-sm text-slate-500 dark:text-dm-muted">
                 This slot is intentionally reserved for future admin features. The dropdown is now the entry point.
