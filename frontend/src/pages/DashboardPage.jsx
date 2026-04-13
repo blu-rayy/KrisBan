@@ -33,6 +33,7 @@ export const DashboardPage = () => {
   const mobileBreakpoint = 1024;
   const initialIsMobile = typeof window !== 'undefined' ? window.innerWidth < mobileBreakpoint : false;
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [kanbanHighlightId, setKanbanHighlightId] = useState(null);
   const [progressReportsTab, setProgressReportsTab] = useState('view');
   const [settingsTab, setSettingsTab] = useState('profile');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -289,8 +290,20 @@ getEmailsCrmWarmBootCacheKey(user?.teamId ?? null)
           )}
           {activeSection === 'sprints' && <SprintsView userRole={user?.role} />}
           {activeSection === 'emails' && <SMEOutreachView />}
-          {activeSection === 'kanban' && <KanbanView />}
-          {activeSection === 'charts' && <ChartsView />}
+          {activeSection === 'kanban' && (
+            <KanbanView
+              highlightWbsNodeId={kanbanHighlightId}
+              onHighlightConsumed={() => setKanbanHighlightId(null)}
+            />
+          )}
+          {activeSection === 'charts' && (
+            <ChartsView
+              onNavigateToKanban={(wbsNodeId) => {
+                setKanbanHighlightId(wbsNodeId);
+                setActiveSection('kanban');
+              }}
+            />
+          )}
           {activeSection === 'documents' && <PlaceholderSection title="Documents" icon="📄" />}
           {activeSection === 'tickets' && <TicketsListView />}
           {activeSection === 'settings' && <SettingsView initialTab={settingsTab} />}

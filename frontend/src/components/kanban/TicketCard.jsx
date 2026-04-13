@@ -55,7 +55,7 @@ const getFavicon = (u) => {
   } catch { return null; }
 };
 
-export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, onOpen, onToggleComplete }) => {
+export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, onOpen, onToggleComplete, isPulsed }) => {
   const [bouncing, setBouncing] = useState(false);
   const [optimisticCompleted, setOptimisticCompleted] = useState(null);
 
@@ -100,10 +100,12 @@ export const TicketCard = ({ ticket, dragHandleProps, draggableProps, innerRef, 
       {...draggableProps}
       {...dragHandleProps}
       onClick={onOpen}
-      className={`relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-shadow hover:shadow-md overflow-hidden ${isCompleted ? 'opacity-75' : ''}`}
+      className={`relative bg-white dark:bg-dm-card rounded-[8px] cursor-pointer group select-none transition-all hover:shadow-md overflow-hidden ${isCompleted ? 'opacity-75' : ''} ${isPulsed ? 'ring-2 ring-emerald-400 ring-offset-1' : ''}`}
       style={{
         ...draggableProps?.style,
-        boxShadow: '0 1px 2px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)',
+        boxShadow: isPulsed
+          ? '0 0 0 2px #34d399, 0 4px 16px rgba(52,211,153,0.3)'
+          : '0 1px 2px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)',
       }}
     >
       {/* Completed indicator — left green border strip */}

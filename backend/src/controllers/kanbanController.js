@@ -554,6 +554,90 @@ export const deleteComment = async (req, res) => {
   return res.json({ success: true });
 };
 
+// ── WBS Sync ──────────────────────────────────────────────────────────────────
+
+// POST /api/kanban/wbs-sync
+// Idempotent: creates a kanban ticket for a WBS work package if one doesn't exist.
+// Finds the first board for the team, places the ticket in the first (To Do) column.
+export const wbsSyncTicket = async (req, res) => {
+  const { wbsNodeId, title, assigneeUserId, dueDate, description } = req.body;
+  if (!wbsNodeId || !title?.trim()) {
+    return res.status(400).json({ success: false, message: 'wbsNodeId and title are required' });
+  }
+
+  // Find first board for this team
+  const { data: boards, error: boardErr } = await supabase
+    .from('kanban_boards')
+    .select('id')
+    .eq('team_id', req.user.team_id)
+    .order('created_at')
+    .limit(1);
+  if (boardErr || !boards?.length) {
+    return res.status(404).json({ success: false, message: 'No kanban board found for this team' });
+  }
+  const boardId = boards[0].id;
+
+  // Check for duplicate
+  const { data: existing } = await supabase
+    .from('kanban_tickets')
+    .select('id, board_id')
+    .eq('wbs_node_id', wbsNodeId)
+    .eq('archived', false)
+    .maybeSingle();
+  if (existing) {
+    return res.json({ success: true, created: false, ticketId: existing.id, boardId: existing.board_id });
+  }
+
+  // Find first column by position (To Do)
+  const { data: cols, error: colErr } = await supabase
+    .from('kanban_columns')
+    .select('id')
+    .eq('board_id', boardId)
+    .order('position')
+    .limit(1);
+  if (colErr || !cols?.length) {
+    return res.status(404).json({ success: false, message: 'No columns found in board' });
+  }
+  const columnId = cols[0].id;
+
+  // Get max position in column
+  const { data: last } = await supabase
+    .from('kanban_tickets')
+    .select('position')
+    .eq('column_id', columnId)
+    .eq('archived', false)
+    .order('position', { ascending: false })
+    .limit(1);
+  const maxPos = last?.[0]?.position ?? 0;
+
+  // Create ticket
+  const { data: ticket, error: tickErr } = await supabase
+    .from('kanban_tickets')
+    .insert({
+      board_id:    boardId,
+      column_id:   columnId,
+      title:       title.trim(),
+      description: description || null,
+      due_date:    dueDate || null,
+      position:    maxPos + 1000,
+      wbs_node_id: wbsNodeId,
+      created_by:  req.user.id,
+    })
+    .select()
+    .single();
+  if (tickErr) return res.status(500).json({ success: false, message: tickErr.message });
+
+  // Add assignee (non-fatal)
+  if (assigneeUserId) {
+    await supabase
+      .from('kanban_ticket_assignees')
+      .insert({ ticket_id: ticket.id, user_id: assigneeUserId })
+      .catch(() => {});
+  }
+
+  return res.status(201).json({ success: true, created: true, ticketId: ticket.id, boardId, columnId });
+};
+
 // ── Users (for assignee picker) ───────────────────────────────────────────────
 
 export const getUsers = async (req, res) => {

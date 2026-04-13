@@ -127,6 +127,9 @@ export const weeklyReportService = {
 };
 
 export const kanbanService = {
+  // WBS sync
+  wbsSync: (data) => api.post('/kanban/wbs-sync', data),
+
   // Boards
   getBoards:   ()             => api.get('/kanban/boards'),
   createBoard: (data)         => api.post('/kanban/boards', data),
@@ -195,6 +198,12 @@ export const emailsCrmService = {
   createSmeLog: (smeId, payload) => api.post(`/emails-crm/smes/${smeId}/logs`, payload),
   updateSmeLog: (logId, payload) => api.put(`/emails-crm/sme-logs/${logId}`, payload),
   deleteSmeLog: (logId) => api.delete(`/emails-crm/sme-logs/${logId}`)
+};
+
+export const wbsService = {
+  get: () => api.get('/wbs'),
+  save: (state) => api.put('/wbs', state),
+  import: (board) => api.post('/wbs/import', { board }),
 };
 
 export const requirementService = {

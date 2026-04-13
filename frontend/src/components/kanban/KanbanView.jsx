@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // import { AnimatePresence, motion } from 'framer-motion';
 import { TicketsListView } from './TicketsListView';
 import { useBoard, useBoards, useCalendarTickets, useKanbanMutations } from '../../hooks/useKanban';
@@ -16,7 +16,7 @@ const BOARD_GRADIENTS = [
   'linear-gradient(135deg, #064e3b 0%, #1a3a2a 100%)',
 ];
 
-export const KanbanView = () => {
+export const KanbanView = ({ highlightWbsNodeId, onHighlightConsumed }) => {
   const { data: boards = [], isLoading: loadingBoards } = useBoards();
   const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [activeTab,        setActiveTab]        = useState('board');
@@ -37,6 +37,13 @@ export const KanbanView = () => {
   if (!loadingBoards && boards.length > 0 && !selectedBoardId) {
     setSelectedBoardId(boards[0].id);
   }
+
+  // When navigating here from a WBS matrix click, switch to board tab
+  useEffect(() => {
+    if (highlightWbsNodeId) {
+      setActiveTab('board');
+    }
+  }, [highlightWbsNodeId]);
 
   const handleCreateBoard = async (e) => {
     e.preventDefault();
@@ -204,6 +211,8 @@ export const KanbanView = () => {
                   boardId={activeBoardId}
                   mutations={mutations}
                   onTicketOpen={setSelectedTicketId}
+                  highlightWbsNodeId={highlightWbsNodeId}
+                  onHighlightConsumed={onHighlightConsumed}
                 />
               </div>
             )}

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { TicketCard } from './TicketCard';
 
@@ -140,12 +140,35 @@ const AddCardForm = ({ columnId, onAdd, onCancel }) => {
 };
 
 // ── BoardView ─────────────────────────────────────────────────────────────────
-export const BoardView = ({ board, columns: initialColumns, boardId, mutations, onTicketOpen }) => {
+export const BoardView = ({ board, columns: initialColumns, boardId, mutations, onTicketOpen, highlightWbsNodeId, onHighlightConsumed }) => {
   const [columns, setColumns]             = useState(initialColumns);
   const [addingToColumn, setAddingToColumn] = useState(null);
   const [showAddList, setShowAddList]      = useState(false);
   const [newColName, setNewColName]        = useState('');
+  const [pulseTicketId, setPulseTicketId]  = useState(null);
   const pendingMove = useRef(false);
+
+  useEffect(() => {
+    if (!highlightWbsNodeId) return;
+    let found = null;
+    for (const col of columns) {
+      const t = (col.tickets || []).find(tk => tk.wbs_node_id === highlightWbsNodeId);
+      if (t) { found = t; break; }
+    }
+    if (!found) return;
+
+    setPulseTicketId(found.id);
+    // Small delay to let the DOM settle before scrolling
+    const scrollTimer = setTimeout(() => {
+      document.querySelector(`[data-ticket-id="${found.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    const clearTimer = setTimeout(() => {
+      setPulseTicketId(null);
+      onHighlightConsumed?.();
+    }, 2500);
+
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
+  }, [highlightWbsNodeId, columns]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync server data into local state, but never while a move is in flight
   if (!pendingMove.current && JSON.stringify(initialColumns) !== JSON.stringify(columns)) {
@@ -266,16 +289,19 @@ export const BoardView = ({ board, columns: initialColumns, boardId, mutations, 
                           {(col.tickets || []).map((ticket, idx) => (
                             <Draggable draggableId={String(ticket.id)} index={idx} key={ticket.id}>
                               {(tp) => (
-                                <TicketCard
-                                  ticket={ticket}
-                                  innerRef={tp.innerRef}
-                                  draggableProps={tp.draggableProps}
-                                  dragHandleProps={tp.dragHandleProps}
-                                  onOpen={() => onTicketOpen(ticket.id)}
-                                  onToggleComplete={(ticketId, is_completed) =>
-                                    mutations.updateTicket.mutate({ ticketId, data: { is_completed } })
-                                  }
-                                />
+                                <div data-ticket-id={ticket.id}>
+                                  <TicketCard
+                                    ticket={ticket}
+                                    innerRef={tp.innerRef}
+                                    draggableProps={tp.draggableProps}
+                                    dragHandleProps={tp.dragHandleProps}
+                                    onOpen={() => onTicketOpen(ticket.id)}
+                                    onToggleComplete={(ticketId, is_completed) =>
+                                      mutations.updateTicket.mutate({ ticketId, data: { is_completed } })
+                                    }
+                                    isPulsed={pulseTicketId === ticket.id}
+                                  />
+                                </div>
                               )}
                             </Draggable>
                           ))}

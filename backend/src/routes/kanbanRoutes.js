@@ -9,7 +9,8 @@ import {
   createTask, updateTask, deleteTask,
   addAttachment, deleteAttachment,
   getComments, createComment, updateComment, deleteComment,
-  getUsers
+  getUsers,
+  wbsSyncTicket,
 } from '../controllers/kanbanController.js';
 
 const router = express.Router();
@@ -62,6 +63,9 @@ router.get('/tickets/:ticketId/comments',    getComments);
 router.post('/tickets/:ticketId/comments',   createComment);
 router.put('/comments/:commentId',           updateComment);
 router.delete('/comments/:commentId',        deleteComment);
+
+// WBS sync (idempotent ticket creation from WBS work packages)
+router.post('/wbs-sync', wbsSyncTicket);
 
 // Users (for assignee picker)
 router.get('/users', getUsers);
