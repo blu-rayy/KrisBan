@@ -306,10 +306,10 @@ export const ChartsView = ({ onNavigateToKanban }) => {
       </div>
 
       {/* Main content grid */}
-      <div className={`grid gap-6 items-start transition-all duration-300 ${editorOpen ? 'lg:grid-cols-[1fr_320px]' : 'grid-cols-1'}`}>
+      <div className={`grid gap-6 transition-all duration-300 ${editorOpen ? 'lg:grid-cols-[1fr_320px]' : 'grid-cols-1'}`}>
 
         {/* Left column: context bars + chart + board sections */}
-        <div className="space-y-4">
+        <div className="space-y-4 self-start">
 
           {/* Summary / Carry Forward bars */}
           {(hasSummary || hasCarryForward) && (
@@ -423,8 +423,9 @@ export const ChartsView = ({ onNavigateToKanban }) => {
           )}
         </div>
 
-        {/* Right column: editor */}
+        {/* Right column: editor — sticky so it stays in view while the left column scrolls */}
         {editorOpen && activeBoard && (
+          <div className="sticky top-6">
           <WBSEditor
             data={activeBoard.wbsData}
             onChange={handleWbsChange}
@@ -436,6 +437,7 @@ export const ChartsView = ({ onNavigateToKanban }) => {
             onBoardMetaChange={handleBoardMetaChange}
             onL2Add={handleL2Add}
           />
+          </div>
         )}
       </div>
 

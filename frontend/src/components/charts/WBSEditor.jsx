@@ -129,7 +129,7 @@ export const WBSEditor = ({
   const totalL2 = data.children.reduce((acc, c) => acc + (c.children?.length || 0), 0);
 
   return (
-    <div className="bg-white dark:bg-dm-card rounded-[24px] shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] p-6 space-y-5 h-fit overflow-hidden">
+    <div className="bg-white dark:bg-dm-card rounded-[24px] shadow-card-soft dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)] p-6 space-y-5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 22rem)' }}>
 
       {/* Project Root */}
       <div>
